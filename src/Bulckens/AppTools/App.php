@@ -3,12 +3,14 @@
 namespace Bulckens\AppTools;
 
 use Exception;
+use Bulckens\AppTraits\Configurable;
 
 class App {
 
+  use Configurable;
+
   protected static $env;
   protected static $root;
-  protected static $config;
   protected static $file = 'app.yml';
 
   public function __construct( $env, $root = null ) {

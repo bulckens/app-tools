@@ -23,13 +23,13 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_uses_the_given_root_variable_if_defined() {
-    $this->beConstructedWith( 'test', dirname( dirname( dirname( __DIR__ ))) . '/dev/alternative' );
-    $this->root()->shouldEndWith( '/dev/alternative' );
+    $this->beConstructedWith( 'test', '/dev/alternative' );
+    $this->root()->shouldEndWith( '/dev/alternative/' );
   }
 
   function it_ensures_a_tailing_slash_on_the_app_root() {
-    // $this->beConstructedWith( 'test', '/some/other/path/to/my/app' );
-    // $this->root()->shouldBe( '/some/other/path/to/my/app/' );
+    $this->beConstructedWith( 'test', '/some/other/path/to/my/app' );
+    $this->root()->shouldBe( '/some/other/path/to/my/app/' );
   }
 
   function it_fails_when_no_root_is_found() {
@@ -62,7 +62,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_the_the_value_for_a_given_key() {
-    // $this->config( 'modules' )->shouldBeArray();
+    $this->config( 'modules' )->shouldBeArray();
   }
 
 }

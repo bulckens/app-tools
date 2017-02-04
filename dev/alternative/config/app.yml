@@ -1,9 +1,0 @@
-generic: &generic
-  modules:
-    - database
-    - notifier
-    - view
-    - router
-
-test:
-  <<: *generic

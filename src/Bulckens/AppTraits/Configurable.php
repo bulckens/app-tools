@@ -2,6 +2,9 @@
 
 namespace Bulckens\AppTraits;
 
+use Bulckens\AppTools\App;
+use Bulckens\AppTools\Config;
+
 trait Configurable {
 
   protected static $config;
@@ -11,7 +14,7 @@ trait Configurable {
     // make sure config is loaded
     if ( ! self::$config ) {
       // load app config
-      self::$config = new Config( $env );
+      self::$config = new Config( App::env() );
       self::$config->load( self::$file );
     }    
 
