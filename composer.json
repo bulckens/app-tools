@@ -1,0 +1,45 @@
+{   
+    "name": "bulckens/app-tools",
+    "description": "Boilerplate tools for Slim + Eloquent + Twig based PHP apps",
+    "type": "library",
+    "license": "Proprietary",
+    "authors": [
+        {
+            "name": "wout",
+            "email": "wout@mick-wout.com"
+        }
+    ],
+    "dist": {
+        "url": "git@github.com:bulckens/api-tools.git",
+        "type": "git"
+    },
+    "repositories": [
+        {   "type": "vcs",
+            "url": "git@github.com:bulckens/notifier.git",
+            "no-api": true
+        },
+        {   "type": "vcs",
+            "url": "git@github.com:bulckens/cli-tools.git",
+            "no-api": true
+        },
+        {   "type": "vcs",
+            "url": "git@github.com:bulckens/validator.git",
+            "no-api": true
+        }
+    ],
+    "require": {
+        "illuminate/database": "^5.4",
+        "symfony/yaml": "^3.2",
+        "twig/twig": "^1.31",
+        "bulckens/notifier": "dev-master",
+        "bulckens/cli-tools": "dev-master"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "^3.2"
+    },
+    "autoload": {
+        "psr-0": {
+            "Bulckens": "src/"
+        }
+    }
+}
