@@ -2,42 +2,78 @@
 
 namespace Bulckens\AppTools;
 
+use Exception;
+use Twig_Loader_Filesystem;
+use Twig_Extension_Debug;
+use Twig_Environment;
+use Twig_Loader_String;
+use Twig_Extension_Escaper;
+use Twig_Extensions_Extension_Text;
+use Twig_SimpleFunction;
+use Twig_SimpleFilter;
+use Bulckens\AppTraits\Configurable;
+
 class View {
 
-  // protected static $twig;
+  use Configurable;
 
-  // // Initialize twig
-  // public function __construct() {
-  //   // initialize loader
-  //   $loader = new Twig_Loader_Filesystem( [ App::root( 'app/Stencils/Views' ) ] );
+  protected $view;
 
-  //   // initialize twig
-  //   if ( App::env( 'development' ) ) {
-  //     self::$twig = new Twig_Environment( $loader, [
-  //       'debug' => true
-  //     ]);
+  // Initialize twig
+  public function __construct() {
+    if ( $this->config( 'root' ) ) {
+      // initialize loader
+      $loader = new Twig_Loader_Filesystem([ App::root( $this->config( 'root' ) )]);
 
-  //     // enable debug mode
-  //     self::$twig->addExtension( new Twig_Extension_Debug() );
-  //   } else {
-  //     self::$twig = new Twig_Environment( $loader );
-  //   }
+      // initialize twig
+      if ( $this->config( 'debug' ) ) {
+        $this->view = new Twig_Environment( $loader, [
+          'debug' => true
+        ]);
 
-  //   // Add extensions
-  //   self::$twig->addExtension( new Twig_Extensions_Extension_Text() );
-  // }
-  
-  // // Get twig instance
-  // public static function get() {
-  //   return self::$twig;
-  // }
+        // enable debug mode
+        $this->view->addExtension( new Twig_Extension_Debug() );
+      } else {
+        $this->view = new Twig_Environment( $loader );
+      }
 
-  // // Render a given view
-  // public static function render( $view, $locals = [] ) {
-  //   // add current env locals
-  //   $locals['env'] = App::env();
+      // Add extensions
+      $this->view->addExtension( new Twig_Extensions_Extension_Text() );
+      $this->view->addExtension( new Twig_Extension_Escaper( 'html' ) );
 
-  //   return self::$twig->render( $view, $locals );
-  // }
+    } else {
+      throw new ViewRootNotDefinedException( "View root is not defined in {$this->file()}" );
+    }
+  }
+
+
+  // Add filters
+  public function filters( $filters ) {
+    $options = [ 'is_safe' => [ 'html' ] ];
+    
+    foreach ( $filters as $name => $function )
+      $this->view->addFilter( new Twig_SimpleFilter( $name, $function, $options ) );
+  }
+
+
+  // Add functions
+  public function functions( $functions ) {
+    $options = [ 'is_safe' => [ 'html' ] ];
+
+    foreach ( $functions as $name => $function )
+      $this->view->addFunction( new Twig_SimpleFunction( $name, $function, $options ) );
+  }
+
+
+  // Render a given view
+  public function render( $view, $locals = [] ) {
+    // add current env locals
+    $locals['app'] = App::toArray();
+
+    return $this->view->render( $view, $locals );
+  }
 
 }
+
+// Exceptions
+class ViewRootNotDefinedException extends Exception {};

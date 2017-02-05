@@ -8,8 +8,32 @@ use Prophecy\Argument;
 
 class DatabaseSpec extends ObjectBehavior {
 
-  // function it_is_initializable() {
-  //   $this->shouldHaveType(Database::class);
-  // }
+  // Config method
+  function it_returns_the_config_instance_without_an_argument() {
+    $this->config()->shouldHaveType( 'Bulckens\AppTools\Config' );
+  }
+
+  function it_returns_the_the_value_for_a_given_key() {
+    $this->config( 'host' )->shouldBe( 'test' );
+  }
+
+
+  // File method
+  function it_builds_config_file_name_from_class() {
+    $this->file()->shouldBe( 'database.yml' );
+  }
+
+  function it_defines_a_custom_config_file() {
+    $this->file( 'database_custom.yml' );
+    $this->file()->shouldBe( 'database_custom.yml' );
+    $this->config( 'host' )->shouldBe( 'custom' );
+  }
+
+  function it_unsets_the_custom_config_file_with_null_given() {
+    $this->file( 'database_custom.yml' );
+    $this->file()->shouldBe( 'database_custom.yml' );
+    $this->file( null );
+    $this->file()->shouldBe( 'database.yml' );
+  }
 
 }

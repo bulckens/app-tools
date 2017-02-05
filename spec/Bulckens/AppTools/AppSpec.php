@@ -44,15 +44,35 @@ class AppSpec extends ObjectBehavior {
     $this->env()->shouldBe( 'test' );
   }
 
-  function it_tests_the_current_environment() {
+  function it_tests_positive_with_the_current_environment() {
     $this->beConstructedWith( 'test' );
     $this->env( 'test' )->shouldBe( true );
+  }
+
+  function it_tests_negative_with_the_wrong_environment() {
+    $this->beConstructedWith( 'test' );
+    $this->env( 'labs' )->shouldBe( false );
+  }
+
+  function it_tests_positive_with_the_current_environment_against_multiple_given() {
+    $this->beConstructedWith( 'test' );
+    $this->env([ 'test', 'development' ])->shouldBe( true );
+  }
+
+
+  // ToArray method
+  function it_returns_an_array() {
+    $this->toArray()->shouldBeArray();
+  }
+
+  function it_returns_an_array_with_the_env_parameter() {
+    $this->toArray()->shouldHaveKeyWithValue( 'env', 'test' );
   }
 
 
   // CLI environment test
   function it_tests_positive_for_a_cli_environment() {
-    $this->cli()->shouldBe( true );
+    $this::cli()->shouldBe( true );
   }
 
 
@@ -63,6 +83,31 @@ class AppSpec extends ObjectBehavior {
 
   function it_returns_the_the_value_for_a_given_key() {
     $this->config( 'modules' )->shouldBeArray();
+  }
+
+
+  // File method
+  function it_builds_config_file_name_from_class() {
+    $this->file()->shouldBe( 'app.yml' );
+  }
+
+  function it_defines_a_custom_config_file() {
+    $this->file( 'app_custom.yml' );
+    $this->file()->shouldBe( 'app_custom.yml' );
+    $this->config( 'custom' )->shouldBe( 'different' );
+  }
+
+  function it_unsets_the_custom_config_file_with_null_given() {
+    $this->file( 'app_custom.yml' );
+    $this->file()->shouldBe( 'app_custom.yml' );
+    $this->file( null );
+    $this->file()->shouldBe( 'app.yml' );
+  }
+
+
+  // Instance method
+  function it_references_the_app_instance() {
+    $this::instance()->shouldBe( $this );
   }
 
 }

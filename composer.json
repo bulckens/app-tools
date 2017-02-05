@@ -30,9 +30,12 @@
     "require": {
         "illuminate/database": "^5.4",
         "symfony/yaml": "^3.2",
-        "twig/twig": "^1.31",
         "bulckens/notifier": "dev-master",
-        "bulckens/cli-tools": "dev-master"
+        "bulckens/cli-tools": "dev-master",
+        "bulckens/validator": "dev-master",
+        "illuminate/support": "^5.4",
+        "slim/slim": "^3.7",
+        "twig/twig": "^1.31"
     },
     "require-dev": {
         "phpspec/phpspec": "^3.2"

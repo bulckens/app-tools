@@ -1,0 +1,3 @@
+test:
+  debug: false
+  root:  dev/routes

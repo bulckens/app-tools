@@ -6,10 +6,83 @@ use Bulckens\AppTools\View;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-class ViewSpec extends ObjectBehavior
-{
-    function it_is_initializable()
-    {
-        $this->shouldHaveType(View::class);
-    }
+class ViewSpec extends ObjectBehavior {
+
+  function letGo() {
+    $this->file( null );
+  }
+
+
+  // Initialization
+  function it_fails_when_no_view_root_is_defined() {
+    $this->file( 'view_fail.yml' );
+    $this->shouldThrow( 'Bulckens\AppTools\ViewRootNotDefinedException' )->during__Construct();
+  }
+
+
+  // Render method
+  function it_renders_a_given_view() {
+    $this->render( 'my/valentine.html.twig' )->shouldContain( 'You\'ve could' );
+    $this->render( 'my/valentine.html.twig' )->shouldContain( '<strong>right</strong>' );
+  }
+
+  function it_includes_information_about_the_app_environment() {
+    $this->render( 'app.html.twig' )->shouldContain( 'env: <i>test</i>' );
+  }
+
+  function it_includes_the_given_locales() {
+    $this->render( 'app.html.twig', [ 'ru' => 'paul' ] )->shouldContain( 'ru:  <i>paul</i>' );
+  }
+
+
+  // Functions method
+  function it_adds_custom_functions_to_the_render_engine() {
+    $this->functions([ 'hello' => function() { echo 'world'; } ]);
+    $this->render( 'functions.html.twig' )->shouldContain( 'Hello <b>world</b>' );
+  }
+
+  function it_fails_when_a_custom_function_is_not_defined() {
+    $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( 'functions_fail.html.twig' );
+  }
+
+
+  // Filters method
+  function it_adds_custom_filters_to_the_render_engine() {
+    $this->filters([ 'emphasize' => function( $subject ) { return "<em>$subject</em>"; } ]);
+    $this->render( 'filters.html.twig' )->shouldContain( 'Hello <em>world</em>' );
+  }
+
+  function it_fails_when_a_custom_filter_is_not_defined() {
+    $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( 'filters_fail.html.twig' );
+  }
+
+  
+  // Config method
+  function it_returns_the_config_instance_without_an_argument() {
+    $this->config()->shouldHaveType( 'Bulckens\AppTools\Config' );
+  }
+
+  function it_returns_the_the_value_for_a_given_key() {
+    $this->config( 'debug' )->shouldBe( true );
+  }
+
+
+  // File method
+  function it_builds_config_file_name_from_class() {
+    $this->file()->shouldBe( 'view.yml' );
+  }
+
+  function it_defines_a_custom_config_file() {
+    $this->file( 'view_custom.yml' );
+    $this->file()->shouldBe( 'view_custom.yml' );
+    $this->config( 'debug' )->shouldBe( false );
+  }
+
+  function it_unsets_the_custom_config_file_with_null_given() {
+    $this->file( 'view_custom.yml' );
+    $this->file()->shouldBe( 'view_custom.yml' );
+    $this->file( null );
+    $this->file()->shouldBe( 'view.yml' );
+  }
+
 }
