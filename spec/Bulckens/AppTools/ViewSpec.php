@@ -85,4 +85,8 @@ class ViewSpec extends ObjectBehavior {
     $this->file()->shouldBe( 'view.yml' );
   }
 
+  function it_returns_itself_after_defining_a_custom_config_file() {
+    $this->file( 'view_custom.yml' )->shouldBe( $this );
+  }
+
 }

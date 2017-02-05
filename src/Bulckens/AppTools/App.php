@@ -12,11 +12,36 @@ class App {
   protected static $app;
   protected static $env;
   protected static $root;
+  protected static $modules;
 
   public function __construct( $env, $root = null ) {
     self::$app  = $this;
     self::$env  = $env;
     self::$root = $root;
+  }
+
+
+  // Run the app
+  public function run() {
+    // clear existing modules
+    self::$modules = [];
+
+    // get modules
+    $modules = $this->config( 'modules' );
+
+    // initialize database
+    if ( in_array( 'database', $modules ) )
+      self::module( 'database', new Database() );
+
+    // initialize router
+    if ( in_array( 'router', $modules ) )
+      self::module( 'router', new Router() );
+
+    // initialize view
+    if ( in_array( 'view', $modules ) )
+      self::module( 'view', new View() );
+
+    return $this;
   }
 
 
@@ -65,7 +90,7 @@ class App {
   public static function cli() {
     return php_sapi_name() == 'cli';
   }
-
+  
 
   // Public representation as array
   public static function toArray() {
@@ -78,6 +103,17 @@ class App {
   // Get app instance 
   public static function instance() {
     return self::$app;
+  }
+
+
+  // Set and get module instances
+  public function module( $name, $module = null ) {
+    if ( is_null( $module ) ) {
+      if ( isset( self::$modules[$name] ) )
+        return self::$modules[$name];
+    }
+
+    self::$modules[$name] = $module;
   }
 
 }

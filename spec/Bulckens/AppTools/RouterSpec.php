@@ -53,4 +53,8 @@ class RouterSpec extends ObjectBehavior {
     $this->file( null );
     $this->file()->shouldBe( 'router.yml' );
   }
+
+  function it_returns_itself_after_defining_a_custom_config_file() {
+    $this->file( 'router_custom.yml' )->shouldBe( $this );
+  }
 }

@@ -42,6 +42,8 @@ trait Configurable {
     // act as setter
     $this->config = null;
     $this->file   = $file;
+
+    return $this;
   }
 
 }
