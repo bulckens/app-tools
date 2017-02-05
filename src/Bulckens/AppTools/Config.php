@@ -7,7 +7,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Config {
 
-  protected static $config;
+  protected $config;
 
   public function __construct( $env ) {
     $this->env = $env;
@@ -27,7 +27,7 @@ class Config {
       $config = Yaml::parse( file_get_contents( $file ) );
 
       if ( isset( $config[$this->env] ) )
-        self::$config = $config[$this->env];
+        $this->config = $config[$this->env];
       else
         throw new ConfigEnvironmentMissingException( "Environment $this->env could not be found" );
       
@@ -41,8 +41,8 @@ class Config {
 
   // Get config value by given key
   public function get( $key ) {
-    if ( isset( self::$config[$key] ) )
-      return self::$config[$key];
+    if ( isset( $this->config[$key] ) )
+      return $this->config[$key];
   }
 
 }

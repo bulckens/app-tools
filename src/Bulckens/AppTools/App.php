@@ -9,13 +9,14 @@ class App {
 
   use Configurable;
 
+  protected static $app;
   protected static $env;
   protected static $root;
-  protected static $file = 'app.yml';
 
   public function __construct( $env, $root = null ) {
-    self::$env    = $env;
-    self::$root   = $root;
+    self::$app  = $this;
+    self::$env  = $env;
+    self::$root = $root;
   }
 
 
@@ -25,9 +26,12 @@ class App {
       // find root based on the location of the config folder
       self::$root = __DIR__;
       $depth = 0;
+
+      // get current config dir
+      $dir = self::env( 'test' ) ? '/dev/config/' : '/config/';
       
       // find root dir
-      while ( ! file_exists( self::$root . '/config/' . self::$file ) && ! file_exists( self::$root . '/dev/config/' . self::$file ) && $depth < 20 ) {
+      while ( ! file_exists( self::$root . $dir ) && $depth < 20 ) {
         // detect capistrano installation
         if ( basename( dirname( self::$root ) ) == 'shared' )
           self::$root = dirname( dirname( self::$root ) ) . '/current';
@@ -50,13 +54,30 @@ class App {
     if ( is_null( $test ) )
       return self::$env;
 
+    elseif ( is_array( $test ) )
+      return in_array( self::$env, $test );
+
     return $test == self::$env;
   }
 
 
   // Test cli environment
-  public function cli() {
+  public static function cli() {
     return php_sapi_name() == 'cli';
+  }
+
+
+  // Public representation as array
+  public static function toArray() {
+    return [
+      'env' => self::env()
+    ];
+  }
+
+
+  // Get app instance 
+  public static function instance() {
+    return self::$app;
   }
 
 }

@@ -1,0 +1,7 @@
+test:
+  host:     custom
+  name:     custom
+  user:     custom
+  password: custom
+  charset:  custom
+  collate:  custom
