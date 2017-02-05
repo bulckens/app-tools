@@ -107,7 +107,7 @@ class App {
 
 
   // Set and get module instances
-  public function module( $name, $module = null ) {
+  public static function module( $name, $module = null ) {
     if ( is_null( $module ) ) {
       if ( isset( self::$modules[$name] ) )
         return self::$modules[$name];
