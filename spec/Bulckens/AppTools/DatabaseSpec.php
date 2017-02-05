@@ -36,4 +36,8 @@ class DatabaseSpec extends ObjectBehavior {
     $this->file()->shouldBe( 'database.yml' );
   }
 
+  function it_returns_itself_after_defining_a_custom_config_file() {
+    $this->file( 'database_custom.yml' )->shouldBe( $this );
+  }
+
 }

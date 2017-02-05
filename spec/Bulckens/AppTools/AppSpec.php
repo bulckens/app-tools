@@ -3,6 +3,7 @@
 namespace spec\Bulckens\AppTools;
 
 use Bulckens\AppTools\App;
+use Bulckens\AppTools\Database;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -10,6 +11,42 @@ class AppSpec extends ObjectBehavior {
 
   function let() {
     $this->beConstructedWith( 'test' );
+  }
+
+
+  // Run method
+  function it_returns_itself_after_initializing_the_app() {
+    $this->run()->shouldBe( $this );
+  }
+
+  function it_initializes_a_database_if_required_in_the_modules() {
+    $this->run();
+    $this::module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
+  }
+
+  function it_does_not_initialize_a_database_if_missing_in_the_modules() {
+    $this->file( 'app_database_missing.yml' )->run();
+    $this::module( 'database' )->shouldBeNull();
+  }
+
+  function it_initializes_a_router_if_required_in_the_modules() {
+    $this->run();
+    $this::module( 'router' )->shouldHaveType( 'Bulckens\AppTools\Router' );
+  }
+
+  function it_does_not_initialize_a_router_if_missing_in_the_modules() {
+    $this->file( 'app_router_missing.yml' )->run();
+    $this::module( 'router' )->shouldBeNull();
+  }
+
+  function it_initializes_a_view_if_required_in_the_modules() {
+    $this->run();
+    $this::module( 'view' )->shouldHaveType( 'Bulckens\AppTools\View' );
+  }
+
+  function it_does_not_initialize_a_view_if_missing_in_the_modules() {
+    $this->file( 'app_view_missing.yml' )->run();
+    $this::module( 'view' )->shouldBeNull();
   }
 
 
@@ -104,10 +141,21 @@ class AppSpec extends ObjectBehavior {
     $this->file()->shouldBe( 'app.yml' );
   }
 
+  function it_returns_itself_after_defining_a_custom_config_file() {
+    $this->file( 'app_custom.yml' )->shouldBe( $this );
+  }
+
 
   // Instance method
   function it_references_the_app_instance() {
     $this::instance()->shouldBe( $this );
+  }
+
+
+  // Module method
+  function it_sets_and_gets_a_module() {
+    $this::module( 'database', new Database() );
+    $this::module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
   }
 
 }
