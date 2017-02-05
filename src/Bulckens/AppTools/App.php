@@ -31,15 +31,15 @@ class App {
 
     // initialize database
     if ( in_array( 'database', $modules ) )
-      self::module( 'database', new Database() );
+      $this->module( 'database', new Database() );
 
     // initialize router
     if ( in_array( 'router', $modules ) )
-      self::module( 'router', new Router() );
+      $this->module( 'router', new Router() );
 
     // initialize view
     if ( in_array( 'view', $modules ) )
-      self::module( 'view', new View() );
+      $this->module( 'view', new View() );
 
     return $this;
   }
@@ -107,13 +107,25 @@ class App {
 
 
   // Set and get module instances
-  public static function module( $name, $module = null ) {
+  public function module( $name, $module = null ) {
     if ( is_null( $module ) ) {
       if ( isset( self::$modules[$name] ) )
         return self::$modules[$name];
     }
 
     self::$modules[$name] = $module;
+  }
+
+
+  // Get the router module
+  public function router() {
+    return $this->module( 'router' );
+  }
+
+  
+  // Get the view module
+  public function view() {
+    return $this->module( 'view' );
   }
 
 }
