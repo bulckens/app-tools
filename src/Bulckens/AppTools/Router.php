@@ -45,15 +45,20 @@ class Router {
   // Run app
   public function run() {
     if ( $root = $this->config( 'root' ) ) {
+      // reference app instance
+      $app = App::instance();
+
       // initialize new slim app
-      $app = new Slim( $this->c );
+      $route = new Slim( $this->c );
 
       // pre-load routes
-      foreach ( glob( App::root( "$root/*Routes.php" ) ) as $route )
-        require_once( $route );
+      foreach ( glob( App::root( "$root/*Routes.php" ) ) as $routes )
+        require_once( $routes );
 
       // run the app
-      $app->run();
+      $route->run();
+
+      return $this;
 
     } else {
       throw new RouterRoutesRootNotDefinedException( 'Router routes root is not defined in ' . $this->file() );

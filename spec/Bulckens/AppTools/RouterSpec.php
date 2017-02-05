@@ -14,6 +14,15 @@ class RouterSpec extends ObjectBehavior {
 
 
   // Run method
+  function it_returns_itself_after_initializing() {
+    $this->notFound( function( $c ) {
+      return function( $res, $req ) use( $c ) {
+        return $c['response']->write( '' );
+      };
+    });
+    $this->run()->shouldBe( $this );
+  }
+
   function it_fails_to_run_when_no_view_root_is_defined() {
     $this->file( 'router_fail.yml' );
     $this->shouldThrow( 'Bulckens\AppTools\RouterRoutesRootNotDefinedException' )->duringRun();

@@ -21,32 +21,32 @@ class AppSpec extends ObjectBehavior {
 
   function it_initializes_a_database_if_required_in_the_modules() {
     $this->run();
-    $this::module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
+    $this->module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
   }
 
   function it_does_not_initialize_a_database_if_missing_in_the_modules() {
     $this->file( 'app_database_missing.yml' )->run();
-    $this::module( 'database' )->shouldBeNull();
+    $this->module( 'database' )->shouldBeNull();
   }
 
   function it_initializes_a_router_if_required_in_the_modules() {
     $this->run();
-    $this::module( 'router' )->shouldHaveType( 'Bulckens\AppTools\Router' );
+    $this->module( 'router' )->shouldHaveType( 'Bulckens\AppTools\Router' );
   }
 
   function it_does_not_initialize_a_router_if_missing_in_the_modules() {
     $this->file( 'app_router_missing.yml' )->run();
-    $this::module( 'router' )->shouldBeNull();
+    $this->module( 'router' )->shouldBeNull();
   }
 
   function it_initializes_a_view_if_required_in_the_modules() {
     $this->run();
-    $this::module( 'view' )->shouldHaveType( 'Bulckens\AppTools\View' );
+    $this->module( 'view' )->shouldHaveType( 'Bulckens\AppTools\View' );
   }
 
   function it_does_not_initialize_a_view_if_missing_in_the_modules() {
     $this->file( 'app_view_missing.yml' )->run();
-    $this::module( 'view' )->shouldBeNull();
+    $this->module( 'view' )->shouldBeNull();
   }
 
 
@@ -154,8 +154,31 @@ class AppSpec extends ObjectBehavior {
 
   // Module method
   function it_sets_and_gets_a_module() {
-    $this::module( 'database', new Database() );
-    $this::module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
+    $this->module( 'database', new Database() );
+    $this->module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
   }
+
+
+  // Router method
+  function it_returns_the_router_module() {
+    $this->router()->shouldHaveType( 'Bulckens\AppTools\Router' );
+  }
+
+  function it_returns_nothing_if_no_router_is_defined() {
+    $this->file( 'app_router_missing.yml' )->run();
+    $this->router()->shouldBe( null );
+  }
+
+
+  // View method
+  function it_returns_the_view_module() {
+    $this->view()->shouldHaveType( 'Bulckens\AppTools\View' );
+  }
+
+  function it_returns_nothing_if_no_view_is_defined() {
+    $this->file( 'app_view_missing.yml' )->run();
+    $this->view()->shouldBe( null );
+  }
+
 
 }
