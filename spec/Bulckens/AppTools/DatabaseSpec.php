@@ -17,6 +17,10 @@ class DatabaseSpec extends ObjectBehavior {
     $this->config( 'host' )->shouldBe( 'test' );
   }
 
+  function it_returns_a_given_default_value_if_key_is_not_existing() {
+    $this->config( 'pater', 'nostrum' )->shouldBe( 'nostrum' );
+  }
+
 
   // File method
   function it_builds_config_file_name_from_class() {
