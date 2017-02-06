@@ -34,26 +34,48 @@ class ViewSpec extends ObjectBehavior {
     $this->render( 'app.html.twig', [ 'ru' => 'paul' ] )->shouldContain( 'ru:  <i>paul</i>' );
   }
 
+  function it_renders_a_string_template_with_the_given_locales() {
+    $this->render( 'My name is not {{ ru }}!', [ 'ru' => 'paul' ] )->shouldBe( 'My name is not paul!' );
+  }
+
 
   // Functions method
-  function it_adds_custom_functions_to_the_render_engine() {
+  function it_adds_custom_functions_to_the_view_render_engine() {
     $this->functions([ 'hello' => function() { echo 'world'; } ]);
     $this->render( 'functions.html.twig' )->shouldContain( 'Hello <b>world</b>' );
   }
 
-  function it_fails_when_a_custom_function_is_not_defined() {
+  function it_adds_custom_functions_to_the_text_render_engine() {
+    $this->functions([ 'hello' => function() { echo 'world'; } ]);
+    $this->render( 'Hello <b>{{ hello() }}</b>' )->shouldContain( 'Hello <b>world</b>' );
+  }
+
+  function it_fails_with_a_view_when_a_custom_function_is_not_defined() {
     $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( 'functions_fail.html.twig' );
+  }
+
+  function it_fails_with_a_string_when_a_custom_function_is_not_defined() {
+    $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( 'Hello <b>{{ ho() }}</b>' );
   }
 
 
   // Filters method
-  function it_adds_custom_filters_to_the_render_engine() {
+  function it_adds_custom_filters_to_the_view_render_engine() {
     $this->filters([ 'emphasize' => function( $subject ) { return "<em>$subject</em>"; } ]);
     $this->render( 'filters.html.twig' )->shouldContain( 'Hello <em>world</em>' );
   }
 
-  function it_fails_when_a_custom_filter_is_not_defined() {
+  function it_adds_custom_filters_to_the_text_render_engine() {
+    $this->filters([ 'italics' => function( $subject ) { return "<i>$subject</i>"; } ]);
+    $this->render( "Hello {{ 'world'|italics }}" )->shouldContain( 'Hello <i>world</i>' );
+  }
+
+  function it_fails_with_a_view_when_a_custom_filter_is_not_defined() {
     $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( 'filters_fail.html.twig' );
+  }
+
+  function it_fails_with_a_string_when_a_custom_filter_is_not_defined() {
+    $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( "Hello {{ 'world'|emphasize }}" );
   }
 
   
