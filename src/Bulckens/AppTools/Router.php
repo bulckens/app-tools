@@ -26,17 +26,49 @@ class Router {
       ];
     }
 
-    // add custom error handler
+    // initialize container
     $this->c = new Container( $config );
-    $this->c['errorHandler'] = function( $c ) {
-      return ErrorHandler::slim( $c );
-    };
+    
+    // get custom error handler
+    $handler = $this->config( 'handler' );
+
+    // add 500 handler
+    if ( $handler && is_callable( "$handler::error" ) ) {
+      $this->error( "$handler::error" );
+    } else {
+      $this->error( function( $c ) {
+        return ErrorHandler::slim( $c );
+      });
+    }
+      
+    // add 404 handler
+    if ( $handler && is_callable( "$handler::notFound" ) )
+      $this->notFound( "$handler::notFound" );
+
+    // add 405 handler
+    if ( $handler && is_callable( "$handler::notAllowed" ) )
+      $this->notAllowed( "$handler::notAllowed" );
   }
 
+
+  // Add 500 handler
+  public function error( $handler ) {
+    $this->c['errorHandler'] = $handler;
+
+    return $this;
+  }
+  
 
   // Add 404 handler
   public function notFound( $handler ) {
     $this->c['notFoundHandler'] = $handler;
+
+    return $this;
+  }
+
+  // Add 405 handler
+  public function notAllowed( $handler ) {
+    $this->c['notAllowedHandler'] = $handler;
 
     return $this;
   }
@@ -54,7 +86,7 @@ class Router {
       // pre-load routes
       foreach ( glob( App::root( "$root/*Routes.php" ) ) as $routes )
         require_once( $routes );
-
+      
       // run the app
       $route->run();
 
