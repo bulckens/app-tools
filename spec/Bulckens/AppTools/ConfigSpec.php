@@ -28,5 +28,9 @@ class ConfigSpec extends ObjectBehavior {
   function it_returns_the_value_for_the_given_key() {
     $this->get( 'key' )->shouldBe( 'value' );
   }
+
+  function it_returns_the_default_value_if_the_given_key_could_not_be_found() {
+    $this->get( 'fallalalallala', 81 )->shouldBe( 81 );
+  }
   
 }

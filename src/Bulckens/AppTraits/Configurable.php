@@ -24,9 +24,7 @@ trait Configurable {
       return $this->config;
 
     // get a specific key
-    $value = $this->config->get( $key );
-    
-    return is_null( $value ) && ! is_null( $default ) ? $default : $value;
+    return $this->config->get( $key, $default );
   }
 
 
