@@ -8,6 +8,14 @@ use Prophecy\Argument;
 
 class RouterSpec extends ObjectBehavior {
 
+  function let() {
+    $this->notFound( function( $c ) {
+      return function( $res, $req ) use( $c ) {
+        return $c['response']->write( '' );
+      };
+    });
+  }
+
   function letGo() {
     $this->file( null );
   }
@@ -29,9 +37,21 @@ class RouterSpec extends ObjectBehavior {
   }
 
 
+  // Error method
+  function it_returns_itself_after_adding_an_error_handler() {
+    $this->error( function() { return function() {}; } )->shouldBe( $this );
+  }
+
+
   // NotFound method
-  function it_returns_itself_after_adding_a_404_handler() {
+  function it_returns_itself_after_adding_a_not_found_handler() {
     $this->notFound( function() { return function() {}; } )->shouldBe( $this );
+  }
+
+
+  // NotAllowed method
+  function it_returns_itself_after_adding_a_not_allowed_handler() {
+    $this->notAllowed( function() { return function() {}; } )->shouldBe( $this );
   }
 
   

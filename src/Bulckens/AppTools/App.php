@@ -33,13 +33,15 @@ class App {
     if ( in_array( 'database', $modules ) )
       $this->module( 'database', new Database() );
 
-    // initialize router
-    if ( in_array( 'router', $modules ) )
-      $this->module( 'router', new Router() );
-
     // initialize view
     if ( in_array( 'view', $modules ) )
       $this->module( 'view', new View() );
+    
+    // initialize router
+    if ( in_array( 'router', $modules ) ) {
+      $router = new Router();
+      $this->module( 'router', $router->run() );
+    }
 
     return $this;
   }
