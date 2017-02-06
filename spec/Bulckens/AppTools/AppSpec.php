@@ -159,6 +159,17 @@ class AppSpec extends ObjectBehavior {
   }
 
 
+  // Database method
+  function it_returns_the_database_module() {
+    $this->database()->shouldHaveType( 'Bulckens\AppTools\Database' );
+  }
+
+  function it_returns_nothing_if_no_database_is_defined() {
+    $this->file( 'app_database_missing.yml' )->run();
+    $this->database()->shouldBe( null );
+  }
+
+
   // Router method
   function it_returns_the_router_module() {
     $this->router()->shouldHaveType( 'Bulckens\AppTools\Router' );

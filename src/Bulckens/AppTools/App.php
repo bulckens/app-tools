@@ -119,6 +119,12 @@ class App {
   }
 
 
+  // Get the database module
+  public function database() {
+    return $this->module( 'database' );
+  }
+
+
   // Get the router module
   public function router() {
     return $this->module( 'router' );
