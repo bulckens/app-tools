@@ -122,6 +122,10 @@ class AppSpec extends ObjectBehavior {
     $this->config( 'modules' )->shouldBeArray();
   }
 
+  function it_returns_a_given_default_value_if_key_is_not_existing() {
+    $this->config( 'flalalala', 500 )->shouldBe( 500 );
+  }
+
 
   // File method
   function it_builds_config_file_name_from_class() {

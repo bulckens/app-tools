@@ -12,7 +12,7 @@ trait Configurable {
   protected $file;
 
   // App config getter
-  public function config( $key = null ) {
+  public function config( $key = null, $default = null ) {
     // make sure config is loaded
     if ( ! $this->config ) {
       $this->config = new Config( App::env() );
@@ -24,7 +24,9 @@ trait Configurable {
       return $this->config;
 
     // get a specific key
-    return $this->config->get( $key );
+    $value = $this->config->get( $key );
+    
+    return is_null( $value ) && ! is_null( $default ) ? $default : $value;
   }
 
 

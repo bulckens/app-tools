@@ -88,6 +88,10 @@ class ViewSpec extends ObjectBehavior {
     $this->config( 'debug' )->shouldBe( true );
   }
 
+  function it_returns_a_given_default_value_if_key_is_not_existing() {
+    $this->config( 'true', false )->shouldBe( false );
+  }
+
 
   // File method
   function it_builds_config_file_name_from_class() {
