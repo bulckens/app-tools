@@ -71,7 +71,7 @@ class AppSpec extends ObjectBehavior {
 
   function it_fails_when_no_root_is_found() {
     $this->beConstructedWith( 'test', '/' );
-    $this->shouldThrow( 'Bulckens\AppTools\RootNotFoundException' )->duringRoot();
+    $this->shouldThrow( 'Bulckens\AppTraits\RootNotFoundException' )->duringRoot();
   }
 
 
