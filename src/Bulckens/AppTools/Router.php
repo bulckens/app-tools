@@ -80,6 +80,9 @@ class Router {
       // reference app instance
       $app = App::instance();
 
+      // alias view
+      $view = $app->view();
+
       // initialize new slim app
       $route = new Slim( $this->c );
 
