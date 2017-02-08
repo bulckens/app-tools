@@ -9,7 +9,7 @@ use Prophecy\Argument;
 class ConfigSpec extends ObjectBehavior {
 
   function let() {
-    $this->beConstructedWith( 'test' );
+    $this->beConstructedWith( 'dev' );
     $this->load( 'test.yml' );
   }
 

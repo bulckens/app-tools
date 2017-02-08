@@ -17,7 +17,7 @@ class Config {
   // Load config file
   public function load( $file, $path = 'config' ) {
     // make sure to set testing environment dir if required
-    if ( App::env( 'test' ) && $path == 'config' )
+    if ( App::env( 'dev' ) && $path == 'config' )
       $path = 'dev/config';
 
     // get full config path

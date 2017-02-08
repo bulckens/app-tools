@@ -27,7 +27,7 @@ class ViewSpec extends ObjectBehavior {
   }
 
   function it_includes_information_about_the_app_environment() {
-    $this->render( 'app.html.twig' )->shouldContain( 'env: <i>test</i>' );
+    $this->render( 'app.html.twig' )->shouldContain( 'env: <i>dev</i>' );
   }
 
   function it_includes_the_given_locales() {

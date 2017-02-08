@@ -5,6 +5,6 @@ generic: &generic
     - view
     - router
 
-test:
+dev:
   custom: different
   <<: *generic

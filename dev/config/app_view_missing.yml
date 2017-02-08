@@ -3,5 +3,5 @@ generic: &generic
     - database
     - router
 
-test:
+dev:
   <<: *generic

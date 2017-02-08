@@ -3,5 +3,5 @@ generic: &generic
     - router
     - view
 
-test:
+dev:
   <<: *generic
