@@ -17,40 +17,31 @@ class Database {
 
   // Initialize database connection
   public function __construct() {
-    try {
-      // bootstrap Eloquent ORM
-      $container = new Container();
-      $container->singleton(
-        'Illuminate\Contracts\Debug\ExceptionHandler'
-      , 'Bulckens\AppTools\DatabaseExceptionHandler'
-      );
+    // bootstrap Eloquent ORM
+    $container = new Container();
+    $container->singleton(
+      'Illuminate\Contracts\Debug\ExceptionHandler'
+    , 'Bulckens\AppTools\DatabaseExceptionHandler'
+    );
 
-      $factory    = new ConnectionFactory( $container );
-      $connection = $factory->make([
-        'driver'    => 'mysql'
-      , 'host'      => $this->config( 'host' )
-      , 'database'  => $this->config( 'name' )
-      , 'username'  => $this->config( 'user' )
-      , 'password'  => $this->config( 'password' )
-      , 'charset'   => $this->config( 'charset' )
-      , 'collation' => $this->config( 'collate' )
-      , 'prefix'    => ''
-      ]);
-      
-      $resolver = new ConnectionResolver();
-      $resolver->addConnection( 'default', $connection );
-      $resolver->setDefaultConnection( 'default' );
+    $factory    = new ConnectionFactory( $container );
+    $connection = $factory->make([
+      'driver'    => 'mysql'
+    , 'host'      => $this->config( 'host' )
+    , 'database'  => $this->config( 'name' )
+    , 'username'  => $this->config( 'user' )
+    , 'password'  => $this->config( 'password' )
+    , 'charset'   => $this->config( 'charset' )
+    , 'collation' => $this->config( 'collate' )
+    , 'prefix'    => ''
+    ]);
+    
+    $resolver = new ConnectionResolver();
+    $resolver->addConnection( 'default', $connection );
+    $resolver->setDefaultConnection( 'default' );
 
-      // initialize connection
-      Eloquent::setConnectionResolver( $resolver );
-
-    } catch ( Exception $e ) {
-      
-      if ( Notifier::active() )
-        Notifier::error( $e );
-      else
-        die( "Caught exception: {$e->getMessage()}\n" );
-    }
+    // initialize connection
+    Eloquent::setConnectionResolver( $resolver );
   }
 
 }
