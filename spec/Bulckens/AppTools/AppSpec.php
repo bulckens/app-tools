@@ -10,7 +10,7 @@ use Prophecy\Argument;
 class AppSpec extends ObjectBehavior {
 
   function let() {
-    $this->beConstructedWith( 'test' );
+    $this->beConstructedWith( 'dev' );
   }
 
 
@@ -60,40 +60,45 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_uses_the_given_root_variable_if_defined() {
-    $this->beConstructedWith( 'test', '/dev/alternative' );
+    $this->beConstructedWith( 'dev', '/dev/alternative' );
     $this->root()->shouldEndWith( '/dev/alternative/' );
   }
 
   function it_ensures_a_tailing_slash_on_the_app_root() {
-    $this->beConstructedWith( 'test', '/some/other/path/to/my/app' );
+    $this->beConstructedWith( 'dev', '/some/other/path/to/my/app' );
     $this->root()->shouldBe( '/some/other/path/to/my/app/' );
   }
 
   function it_fails_when_no_root_is_found() {
-    $this->beConstructedWith( 'test', '/' );
+    $this->beConstructedWith( 'dev', '/' );
     $this->shouldThrow( 'Bulckens\AppTools\RootNotFoundException' )->duringRoot();
   }
 
 
   // Env method
   function it_returns_the_defined_environment() {
-    $this->beConstructedWith( 'test' );
-    $this->env()->shouldBe( 'test' );
+    $this->beConstructedWith( 'dev' );
+    $this->env()->shouldBe( 'dev' );
   }
 
   function it_tests_positive_with_the_current_environment() {
-    $this->beConstructedWith( 'test' );
-    $this->env( 'test' )->shouldBe( true );
+    $this->beConstructedWith( 'dev' );
+    $this->env( 'dev' )->shouldBe( true );
   }
 
   function it_tests_negative_with_the_wrong_environment() {
-    $this->beConstructedWith( 'test' );
+    $this->beConstructedWith( 'dev' );
     $this->env( 'labs' )->shouldBe( false );
   }
 
   function it_tests_positive_with_the_current_environment_against_multiple_given() {
-    $this->beConstructedWith( 'test' );
-    $this->env([ 'test', 'development' ])->shouldBe( true );
+    $this->beConstructedWith( 'dev' );
+    $this->env([ 'dev', 'development' ])->shouldBe( true );
+  }
+
+  function it_tests_positive_with_the_current_environment_against_multiple_arguments_given() {
+    $this->beConstructedWith( 'dev' );
+    $this->env( 'development', 'dev' )->shouldBe( true );
   }
 
 
@@ -103,7 +108,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_an_array_with_the_env_parameter() {
-    $this->toArray()->shouldHaveKeyWithValue( 'env', 'test' );
+    $this->toArray()->shouldHaveKeyWithValue( 'env', 'dev' );
   }
 
 

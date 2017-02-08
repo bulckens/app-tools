@@ -1,4 +1,4 @@
-test:
+dev:
   host:     test
   name:     test
   user:     test

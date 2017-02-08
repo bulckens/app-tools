@@ -3,5 +3,5 @@ generic: &generic
     - database
     - view
 
-test:
+dev:
   <<: *generic

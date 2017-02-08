@@ -91,7 +91,7 @@ class Router {
         require_once( $routes );
       
       // run the app
-      $route->run();
+      $route->run( App::env( 'dev', 'test' ) );
 
       return $this;
 
