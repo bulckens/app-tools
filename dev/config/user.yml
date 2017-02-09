@@ -1,0 +1,7 @@
+dev:
+  host:     "127.0.0.1"
+  name:     "app_tools_users"
+  user:     "zow"
+  password: "zow"
+  charset:  "utf8"
+  collate:  "utf8_general_ci"

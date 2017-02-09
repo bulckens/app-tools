@@ -35,7 +35,10 @@
         "bulckens/validator": "dev-master",
         "illuminate/support": "^5.4",
         "slim/slim": "^3.7",
-        "twig/twig": "^1.31"
+        "twig/twig": "^1.31",
+        "cartalyst/sentinel": "^2.0",
+        "illuminate/events": "^5.4",
+        "symfony/http-foundation": "^3.2"
     },
     "require-dev": {
         "phpspec/phpspec": "^3.2"

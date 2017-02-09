@@ -49,6 +49,16 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'view' )->shouldBeNull();
   }
 
+  function it_initializes_a_user_if_required_in_the_modules() {
+    $this->run();
+    $this->module( 'user' )->shouldHaveType( 'Bulckens\AppTools\User' );
+  }
+
+  function it_does_not_initialize_a_user_if_missing_in_the_modules() {
+    $this->file( 'app_user_missing.yml' )->run();
+    $this->module( 'user' )->shouldBeNull();
+  }
+
 
   // Root method
   function it_finds_the_project_root() {
