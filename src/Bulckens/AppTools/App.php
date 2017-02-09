@@ -33,6 +33,10 @@ class App {
     if ( in_array( 'database', $modules ) )
       $this->module( 'database', new Database() );
 
+    // initialize user
+    if ( in_array( 'user', $modules ) )
+      $this->module( 'user', new User() );
+
     // initialize view
     if ( in_array( 'view', $modules ) )
       $this->module( 'view', new View() );

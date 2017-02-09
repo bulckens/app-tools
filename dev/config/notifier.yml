@@ -1,0 +1,10 @@
+dev:
+  level:          "DEBUG"
+  email:          "errors@zwartopwit.be"
+  from:           "noreply@zwartopwit.be"
+  subject:        "AppTools Error"
+  smtp:           "mail.bulckens.com"
+  port:           "465"
+  username:       "errors@zwartopwit.be"
+  password:       "[D>pTF93]#Jwb33ER9"
+  encryption:     "ssl"

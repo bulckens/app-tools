@@ -2,7 +2,6 @@ generic: &generic
   modules:
     - database
     - router
-    - user
     - view
 
 dev:

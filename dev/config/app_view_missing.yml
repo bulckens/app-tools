@@ -1,6 +1,7 @@
 generic: &generic
   modules:
     - database
+    - user
     - router
 
 dev:
