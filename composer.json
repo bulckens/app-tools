@@ -15,24 +15,28 @@
     },
     "repositories": [
         {   "type": "vcs",
-            "url": "git@github.com:bulckens/notifier.git",
-            "no-api": true
-        },
-        {   "type": "vcs",
             "url": "git@github.com:bulckens/cli-tools.git",
             "no-api": true
         },
         {   "type": "vcs",
             "url": "git@github.com:bulckens/validator.git",
             "no-api": true
+        },
+        {   "type": "vcs",
+            "url": "git@github.com:bulckens/helpers.git",
+            "no-api": true
         }
     ],
     "require": {
+        "twig/twig": "^1.27",
+        "twig/extensions": "^1.4",
+        "monolog/monolog": "^1.21",
+        "swiftmailer/swiftmailer": "^5.4",
         "illuminate/database": "^5.4",
         "symfony/yaml": "^3.2",
-        "bulckens/notifier": "dev-master",
         "bulckens/cli-tools": "dev-master",
         "bulckens/validator": "dev-master",
+        "bulckens/helpers": "dev-master",
         "illuminate/support": "^5.4",
         "slim/slim": "^3.7",
         "twig/twig": "^1.31",

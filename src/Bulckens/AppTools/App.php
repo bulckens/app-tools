@@ -3,7 +3,7 @@
 namespace Bulckens\AppTools;
 
 use Exception;
-use Bulckens\AppTraits\Configurable;
+use Bulckens\AppTools\Traits\Configurable;
 
 class App {
 
