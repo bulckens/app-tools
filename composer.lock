@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "823a9a1240db8b36f3edd6fa57fba84e",
+    "content-hash": "596f677e22112547257339c63ba53947",
     "packages": [
         {
             "name": "bulckens/cli-tools",
@@ -39,31 +39,27 @@
             "time": "2016-11-17 15:50:25"
         },
         {
-            "name": "bulckens/notifier",
+            "name": "bulckens/helpers",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:bulckens/notifier.git",
-                "reference": "4a19afd5bc762aa28d2387b204a3834ff29bd961"
+                "url": "git@github.com:bulckens/helpers.git",
+                "reference": "d08d097d3919a91b23d2c6fd8443e526adf1a336"
             },
             "dist": {
                 "type": "git",
-                "url": "git@github.com:bulckens/notifier.git",
+                "url": "git@github.com:bulckens/helpers.git",
                 "reference": null,
                 "shasum": null
             },
             "require": {
-                "bulckens/cli-tools": "dev-master",
-                "monolog/monolog": "^1.21",
-                "swiftmailer/swiftmailer": "^5.4",
-                "symfony/yaml": "^3.1",
-                "twig/extensions": "^1.4",
-                "twig/twig": "^1.27"
+                "illuminate/support": "^5.3",
+                "symfony/yaml": "^3.1"
+            },
+            "require-dev": {
+                "phpspec/phpspec": "^3.2"
             },
             "type": "library",
-            "extra": {
-                "class": "Bulckens\\Notifier\\Boot"
-            },
             "autoload": {
                 "psr-0": {
                     "Bulckens": "src/"
@@ -78,8 +74,8 @@
                     "email": "wout@mick-wout.com"
                 }
             ],
-            "description": "Logger and Exception/Error Notifier for PHP",
-            "time": "2017-02-05 16:53:56"
+            "description": "A collection of core helpers useful for any PHP app",
+            "time": "2017-02-10 18:13:32"
         },
         {
             "name": "bulckens/validator",
@@ -2383,9 +2379,9 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "bulckens/notifier": 20,
         "bulckens/cli-tools": 20,
-        "bulckens/validator": 20
+        "bulckens/validator": 20,
+        "bulckens/helpers": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

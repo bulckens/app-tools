@@ -6,7 +6,7 @@ use Exception;
 use Slim\App as Slim;
 use Slim\Container;
 use Bulckens\Notifier\ErrorHandler;
-use Bulckens\AppTraits\Configurable;
+use Bulckens\AppTools\Traits\Configurable;
 
 class Router {
 

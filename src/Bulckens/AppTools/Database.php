@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Database\Connectors\ConnectionFactory;
-use Bulckens\Notifier\Notifier;
-use Bulckens\AppTraits\Configurable;
+use Bulckens\AppTools\Traits\Configurable;
 
 class Database {
 
@@ -21,7 +20,7 @@ class Database {
     $container = new Container();
     $container->singleton(
       'Illuminate\Contracts\Debug\ExceptionHandler'
-    , 'Bulckens\AppTools\DatabaseExceptionHandler'
+    , 'Bulckens\AppTools\Notifier\DatabaseExceptionHandler'
     );
 
     $factory    = new ConnectionFactory( $container );

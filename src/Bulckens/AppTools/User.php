@@ -5,7 +5,7 @@ namespace Bulckens\AppTools;
 use Exception;
 use Cartalyst\Sentinel\Native\Facades\Sentinel;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Bulckens\AppTraits\Configurable;
+use Bulckens\AppTools\Traits\Configurable;
 
 class User {
 

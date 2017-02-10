@@ -11,7 +11,7 @@ use Twig_Extension_Escaper;
 use Twig_Extensions_Extension_Text;
 use Twig_SimpleFunction;
 use Twig_SimpleFilter;
-use Bulckens\AppTraits\Configurable;
+use Bulckens\AppTools\Traits\Configurable;
 
 class View {
 

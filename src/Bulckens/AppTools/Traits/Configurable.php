@@ -1,6 +1,6 @@
 <?php
 
-namespace Bulckens\AppTraits;
+namespace Bulckens\AppTools\Traits;
 
 use Illuminate\Support\Str;
 use Bulckens\AppTools\App;
