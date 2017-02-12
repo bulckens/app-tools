@@ -9,15 +9,15 @@ class App {
 
   use Configurable;
 
-  protected static $app;
+  protected static $instance;
   protected static $env;
   protected static $root;
   protected static $modules;
 
   public function __construct( $env, $root = null ) {
-    self::$app  = $this;
-    self::$env  = $env;
-    self::$root = $root;
+    self::$instance = $this;
+    self::$env      = $env;
+    self::$root     = $root;
   }
 
 
@@ -28,6 +28,10 @@ class App {
 
     // get modules
     $modules = $this->config( 'modules' );
+
+    // initialize notifier
+    if ( in_array( 'notifier', $modules ) )
+      $this->module( 'notifier', new Notifier() );
 
     // initialize database
     if ( in_array( 'database', $modules ) )
@@ -111,8 +115,8 @@ class App {
 
 
   // Get app instance 
-  public static function instance() {
-    return self::$app;
+  public static function get() {
+    return self::$instance;
   }
 
 
@@ -130,6 +134,12 @@ class App {
   // Get the database module
   public function database() {
     return $this->module( 'database' );
+  }
+
+
+  // Get the notifier module
+  public function notifier() {
+    return $this->module( 'notifier' );
   }
 
 

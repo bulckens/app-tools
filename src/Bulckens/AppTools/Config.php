@@ -8,6 +8,7 @@ use Symfony\Component\Yaml\Yaml;
 class Config {
 
   protected $config;
+  protected $file;
 
   public function __construct( $env ) {
     $this->env = $env;
@@ -16,6 +17,9 @@ class Config {
 
   // Load config file
   public function load( $file, $path = 'config' ) {
+    // store file name
+    $this->file = $file;
+
     // make sure to set testing environment dir if required
     if ( App::env( 'dev' ) && $path == 'config' )
       $path = 'dev/config';

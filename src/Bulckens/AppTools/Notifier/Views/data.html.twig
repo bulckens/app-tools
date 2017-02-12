@@ -1,0 +1,11 @@
+{% if array is not empty %}
+<h2 style="margin-bottom:5px;font-weight:normal;color:{{ theme.title }};">{{ title|upper }} DATA</h2>
+<div style="background-color:{{ theme.item }};padding:15px;border-radius:5px;">
+{% for key, value in array %}
+  <span style="color:{{ theme.text }};">{{ key }}</span>:
+  <span style="color:{{ theme.function }};">
+  {{ value }}
+  </span><br>
+{% endfor %}
+</div>
+{% endif %}

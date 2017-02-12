@@ -1,0 +1,39 @@
+<html style="background-color:{{ theme.body }};">
+<body style="font-size:0.1px;color:{{ theme.body }};background-color:{{ theme.body }};" link="{{ theme.link }}" alink="{{ theme.link }}" vlink="{{ theme.link }}">
+
+  <div style="font-family:Menlo,sans-serif;font-size:12px;line-height:15px;color:{{ theme.text }};">
+
+    <h2 style="margin-bottom:5px;font-weight:normal;text-transform:uppercase;color:{{ theme.title }};">{{ subject }} [{{ env }}]</h2>
+    <div style="background-color:{{ theme.item }};padding:15px;border-radius:5px;">
+      <div style="font-size:16px;color:{{ theme.text }};">{{ error }}</div>
+    </div>
+
+    <h2 style="margin-bottom:5px;font-weight:normal;color:{{ theme.title }};">OCCURENCES</h2>
+    <div style="background-color:{{ theme.item }};padding:15px;border-radius:5px;">
+    {% for value in trace %}
+      {% if value.file %}
+        {% if not loop.first %}
+        <span style="color:{{ theme.class }};">{{ value.class }}</span>
+        {{ value.type  }}
+        <span style="color:{{ theme.function }};">{{ value.function }}</span>
+        <br>
+        {% endif %}
+      <span style="color:{{ theme.text }};">{{ value.file }}:</span><span style="color:{{ theme.line }};">{{ value.line }}</span>
+      <br>
+      {% endif %}
+    {% endfor %}
+    </div>
+
+    {% include 'data.html.twig' with { array: server,  title: 'server'     } %}
+    {% include 'data.html.twig' with { array: session, title: 'session'    } %}
+    {% include 'data.html.twig' with { array: post,    title: 'post'       } %}
+    {% include 'data.html.twig' with { array: get,     title: 'get'        } %}
+    {% include 'data.html.twig' with { array: data,    title: 'additional' } %}
+
+  </div>
+
+  <div style="font-size:10px;color:{{ theme.title }};margin:50px 0;text-align:center;">
+    Delivered to you by the <strong>Bulckens AppTools Notifier</strong>
+  </div>
+</body>
+</html>

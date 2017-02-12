@@ -1,0 +1,13 @@
+dev:
+  level:      "partial"
+  email:      "partial"
+  from:       "partial"
+  subject:    "partial"
+  smtp:       "partial"
+  port:       "partial"
+  username:   "partial"
+  password:   "partial"
+  encryption: "partial"
+  theme:
+    body:     "#123456"
+    link:     "#654321"

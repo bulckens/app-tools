@@ -19,6 +19,16 @@ class AppSpec extends ObjectBehavior {
     $this->run()->shouldBe( $this );
   }
 
+  function it_initializes_a_notifier_if_required_in_the_modules() {
+    $this->run();
+    $this->module( 'notifier' )->shouldHaveType( 'Bulckens\AppTools\Notifier' );
+  }
+
+  function it_does_not_initialize_a_notifier_if_missing_in_the_modules() {
+    $this->file( 'app_notifier_missing.yml' )->run();
+    $this->module( 'notifier' )->shouldBeNull();
+  }
+
   function it_initializes_a_database_if_required_in_the_modules() {
     $this->run();
     $this->module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
@@ -165,9 +175,9 @@ class AppSpec extends ObjectBehavior {
   }
 
 
-  // Instance method
+  // Get method
   function it_references_the_app_instance() {
-    $this::instance()->shouldBe( $this );
+    $this::get()->shouldBe( $this );
   }
 
 
@@ -186,6 +196,17 @@ class AppSpec extends ObjectBehavior {
   function it_returns_nothing_if_no_database_is_defined() {
     $this->file( 'app_database_missing.yml' )->run();
     $this->database()->shouldBe( null );
+  }
+
+
+  // Notifier method
+  function it_returns_the_notifier_module() {
+    $this->notifier()->shouldHaveType( 'Bulckens\AppTools\Notifier' );
+  }
+
+  function it_returns_nothing_if_no_notifier_is_defined() {
+    $this->file( 'app_notifier_missing.yml' )->run();
+    $this->notifier()->shouldBe( null );
   }
 
 

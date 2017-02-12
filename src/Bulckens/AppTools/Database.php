@@ -47,15 +47,24 @@ class Database {
 
 
 class DatabaseExceptionHandler implements ExceptionHandler {
+
+  // Report
   public function report( Exception $e ) {
-    Notifier::error( $e );
+    $this->notifier()->error( $e );
   }
 
+  // Render
   public function render( $request, Exception $e ) {
-    Notifier::error( $e );
+    $this->notifier()->error( $e );
   }
 
+  // Console render 
   public function renderForConsole( $output, Exception $e ) {
     throw $e;
+  }
+
+  // Notifier getter
+  public function notifier() {
+    return App::get()->notifier();
   }
 }
