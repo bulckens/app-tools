@@ -19,14 +19,28 @@ class View {
 
   protected $view;
   protected $text;
+  protected $root;
 
-  // Initialize twig
-  public function __construct() {
-    if ( ! $this->config( 'root' ) )
-      throw new ViewRootNotDefinedException( "View root is not defined in {$this->file()}" );
+
+  public function __construct( $run = true ) {
+    if ( $run ) $this->run();
+  }
+
+
+  // Activate view engine
+  public function run() {
+    // make sure the root is defined
+    if ( ! $this->config( 'root' ) && is_null( $this->root ) )
+      throw new ViewRootNotDefinedException( "View root is not defined in {$this->file()} nor is there a custom root" );
+
+    // make sure the root exists
+    $root = $this->root ? $this->root : App::root( $this->config( 'root' ) );
+
+    if ( ! file_exists( $root ) )
+      throw new ViewRootMissingException( "The given view root $this->root does not exist" );      
 
     // initialize render environments
-    $loader = new Twig_Loader_Filesystem([ App::root( $this->config( 'root' ) )]);
+    $loader = new Twig_Loader_Filesystem([ $root ]);
     $string = new Twig_Loader_String();
 
     // initialize twig 
@@ -50,6 +64,8 @@ class View {
     // Add extensions
     $this->view->addExtension( new Twig_Extensions_Extension_Text() );
     $this->view->addExtension( new Twig_Extension_Escaper( 'html' ) );
+
+    return $this;
   }
 
 
@@ -79,6 +95,10 @@ class View {
 
   // Render a given view
   public function render( $view, $locals = [] ) {
+    // make sure view engine is running
+    if ( is_null( $this->view ) )
+      $this->run();
+
     // add current env locals
     $locals['app'] = App::toArray();
 
@@ -89,7 +109,31 @@ class View {
       return $this->text->render( $view, $locals );
   }
 
+
+  // Set custom root
+  public function root( $root = null ) {
+    // act as getter
+    if ( is_null( $root ) )
+      return $this->root;
+
+    // act as setter
+    $this->root = $root;
+
+    return $this;
+  }
+
+
+  // Reset stored variables
+  public function reset() {
+    unset( $this->view );
+    unset( $this->text );
+    $this->root = null;
+
+    return $this;
+  }
+
 }
 
 // Exceptions
 class ViewRootNotDefinedException extends Exception {};
+class ViewRootMissingException extends Exception {};

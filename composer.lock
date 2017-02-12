@@ -44,7 +44,7 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bulckens/helpers.git",
-                "reference": "d08d097d3919a91b23d2c6fd8443e526adf1a336"
+                "reference": "b6451c9474b4e47b698adcb22a11642f6b3a9940"
             },
             "dist": {
                 "type": "git",
@@ -75,7 +75,7 @@
                 }
             ],
             "description": "A collection of core helpers useful for any PHP app",
-            "time": "2017-02-10 18:13:32"
+            "time": "2017-02-12 19:32:55"
         },
         {
             "name": "bulckens/validator",

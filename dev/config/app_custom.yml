@@ -1,6 +1,7 @@
 generic: &generic
   modules:
     - database
+    - notifier
     - view
     - user
     - router

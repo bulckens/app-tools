@@ -2,18 +2,28 @@
 
 namespace Bulckens\AppTools\Notifier;
 
+use Bulckens\AppTools\App;
+use Bulckens\AppTools\Notifier;
+use Bulckens\AppTools\Render;
+
 class ErrorHandler {
 
   // Slim framework compatibility
   public static function slim( $c ) {
     return function ( $req, $res, $exception ) use ( $c ) {
+      // reference notifier
+      $notifier = App::get()->notifier();
+      
       // notify error
-      Notifier::error( $exception );
+      $notifier->error( $exception );
+
+      // prepare message
+      $render = new Render( $exception, $notifier->config() );
 
       // render output
       return $c['response']->withStatus( 500 )
                            ->withHeader( 'Content-Type', 'text/html' )
-                           ->write( View::error( $exception ) );
+                           ->write( View::error( $render->html( $exception->getMessage() ) ) );
     };
   }
 
@@ -33,14 +43,18 @@ class ErrorHandler {
       $trace   = $e->getTrace();
     }
 
+    // reference notifier
+    $notifier = App::get()->notifier();
+
     // build error instance
     $error = new Error( "ERROR $message", $trace );
 
-    // render instance
-    echo View::error( $error );
+    // prepare message
+    $render = new Render( $error, $notifier->config() );
+    echo $render->html( $message );
 
     // notify error
-    Notifier::error( $error );
+    $notifier->error( $error );
 
     die();
   }

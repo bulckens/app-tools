@@ -10,13 +10,54 @@ class ViewSpec extends ObjectBehavior {
 
   function letGo() {
     $this->file( null );
+    $this->reset();
+  }
+
+  // Initialization
+  function it_runs_on_initialization() {
+    $this->file( 'non_existent.yml' );
+    $this->shouldThrow( 'Bulckens\AppTools\ConfigFileMissingException' )->duringRun();
+  }
+
+  function it_can_be_initialized_without_calling_run() {
+    $this->file( 'non_existent.yml' );
+    $this->shouldNotThrow( 'Bulckens\AppTools\ConfigFileMissingException' )->during__Construct( false );
   }
 
 
-  // Initialization
+  // Root method
+  function it_returns_nothing_if_no_root_is_set() {
+    $this->root()->shouldBe( null );
+  }
+
+  function it_sets_and_gets_a_view_root_directory() {
+    $this->root( __DIR__ );
+    $this->root()->shouldBe( __DIR__ );
+  }
+
+  function it_sets_the_root_and_returns_itself() {
+    $this->root( __DIR__ )->shouldBe( $this );
+  }
+
+
+  // Run method
   function it_fails_when_no_view_root_is_defined() {
     $this->file( 'view_fail.yml' );
-    $this->shouldThrow( 'Bulckens\AppTools\ViewRootNotDefinedException' )->during__Construct();
+    $this->shouldThrow( 'Bulckens\AppTools\ViewRootNotDefinedException' )->duringRun();
+  }
+
+  function it_fails_not_with_a_custom_root_but_no_root_defened_in_the_config() {
+    $this->file( 'view_fail.yml' )->root( __DIR__ );
+    $this->shouldNotThrow( 'Bulckens\AppTools\ViewRootNotDefinedException' )->duringRun();
+  }
+
+  function it_returns_itself_after_initializing() {
+    $this->run()->shouldBe( $this );
+  }
+
+  function it_fails_when_the_given_view_root_does_not_exist() {
+    $this->file( 'view_fail.yml' )->root( '/get/out/of/here' );
+    $this->shouldThrow( 'Bulckens\AppTools\ViewRootMissingException' )->duringRun();
   }
 
 
@@ -113,6 +154,17 @@ class ViewSpec extends ObjectBehavior {
 
   function it_returns_itself_after_defining_a_custom_config_file() {
     $this->file( 'view_custom.yml' )->shouldBe( $this );
+  }
+
+
+  // Reset method
+  function it_returns_itself_after_resetting() {
+    $this->reset()->shouldBe( $this );
+  }
+
+  function it_clears_the_custom_root() {
+    $this->root( __DIR__ );
+    $this->reset()->root()->shouldBe( null );
   }
 
 }

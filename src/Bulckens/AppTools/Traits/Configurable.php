@@ -39,9 +39,14 @@ trait Configurable {
       return Str::snake( end( $names ) ) . '.yml';
     }
 
-    // act as setter
+    // clear stored data
     $this->config = null;
-    $this->file   = $file;
+
+    if ( is_callable([ $this, 'reset' ]) )
+      $this->reset();
+
+    // act as setter
+    $this->file = $file;
 
     return $this;
   }

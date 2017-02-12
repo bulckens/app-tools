@@ -78,7 +78,7 @@ class Router {
   public function run() {
     if ( $root = $this->config( 'root' ) ) {
       // reference app instance
-      $app = App::instance();
+      $app = App::get();
 
       // alias view
       $view = $app->view();
