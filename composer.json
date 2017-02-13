@@ -19,10 +19,6 @@
             "no-api": true
         },
         {   "type": "vcs",
-            "url": "git@github.com:bulckens/validator.git",
-            "no-api": true
-        },
-        {   "type": "vcs",
             "url": "git@github.com:bulckens/helpers.git",
             "no-api": true
         }
@@ -35,7 +31,6 @@
         "illuminate/database": "^5.4",
         "symfony/yaml": "^3.2",
         "bulckens/cli-tools": "dev-master",
-        "bulckens/validator": "dev-master",
         "bulckens/helpers": "dev-master",
         "illuminate/support": "^5.4",
         "slim/slim": "^3.7",

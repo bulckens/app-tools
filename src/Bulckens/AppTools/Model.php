@@ -2,7 +2,7 @@
 
 namespace Bulckens\AppTools;
 
-use Bulckens\Validator\ValidModel;
+use Bulckens\AppTools\Validator\ValidModel;
 
 abstract class Model extends ValidModel {
   
