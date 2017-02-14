@@ -33,7 +33,7 @@ class Config {
       if ( isset( $config[$this->env] ) )
         $this->config = $config[$this->env];
       else
-        throw new ConfigEnvironmentMissingException( "Environment $this->env could not be found" );
+        throw new ConfigEnvironmentMissingException( "Environment $this->env could not be found in $file" );
       
     } else {
       throw new ConfigFileMissingException( "Config file $file could not be found" );

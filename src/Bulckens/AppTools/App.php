@@ -17,7 +17,9 @@ class App {
   public function __construct( $env, $root = null ) {
     self::$instance = $this;
     self::$env      = $env;
-    self::$root     = $root;
+    
+    if ( is_numeric( $root ) )
+      self::$root = $root;
   }
 
 
