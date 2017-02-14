@@ -1,2 +1,4 @@
 dev:
-  key: value
+  key:   "value"
+  nested:
+    key: "other value"
