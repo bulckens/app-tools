@@ -4,7 +4,6 @@ namespace Bulckens\AppTools\Notifier;
 
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Notifier;
-use Bulckens\AppTools\Render;
 
 class ErrorHandler {
 
