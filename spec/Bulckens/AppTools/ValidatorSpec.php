@@ -3,6 +3,7 @@
 namespace spec\Bulckens\AppTools;
 
 use Bulckens\AppTools\Validator;
+use Bulckens\AppTests\TestModel;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -14,7 +15,7 @@ class ValidatorSpec extends ObjectBehavior {
 
 
   // Data method
-  function it_sets_and_gets_arbitrary_data_for_validation() {
+  function it_sets_and_returns_arbitrary_data_for_validation() {
     $this->data([ 'more' => 'info' ]);
     $this->data()->shouldHaveKeyWithValue( 'more', 'info' );
   }
@@ -25,6 +26,14 @@ class ValidatorSpec extends ObjectBehavior {
 
   function it_sets_data_and_returns_itself() {
     $this->data([ 'more' => 'info' ])->shouldBe( $this );
+  }
+
+
+  // Model method
+  function it_sets_and_returns_a_model() {
+    $model = new TestModel();
+    $this->model( $model );
+    $this->model()->shouldBe( $model );
   }
 
 }

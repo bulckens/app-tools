@@ -56,7 +56,11 @@ class Validator {
   }
 
   // Store object and its status
-  public function model( $model, $id = null ) {
+  public function model( $model = null, $id = null ) {
+    // act as getter
+    if ( is_null( $model ) )
+      return $this->model;
+
     // store class
     $this->class = is_string( $model ) ? $model : get_class( $model );
 
