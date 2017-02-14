@@ -45,10 +45,18 @@ class Config {
 
   // Get config value by given key
   public function get( $key, $default = null ) {
-    if ( isset( $this->config[$key] ) )
-      return $this->config[$key];
+    // prepare path iteration
+    $parts = explode( '.', $key );
+    $value = $this->config;
 
-    return $default;
+    // find value for path
+    foreach ( $parts as $part ) {
+      if ( isset( $value[$part] ) )
+        $value = $value[$part];
+      else return $default;
+    }
+
+    return $value;
   }
 
 }
