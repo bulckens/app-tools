@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "596f677e22112547257339c63ba53947",
+    "content-hash": "578f5c87abf2d019b5979da99269f85c",
     "packages": [
         {
             "name": "bulckens/cli-tools",
@@ -44,7 +44,7 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bulckens/helpers.git",
-                "reference": "b6451c9474b4e47b698adcb22a11642f6b3a9940"
+                "reference": "fafe359636ce8a826151da7a2812d95196147968"
             },
             "dist": {
                 "type": "git",
@@ -75,42 +75,7 @@
                 }
             ],
             "description": "A collection of core helpers useful for any PHP app",
-            "time": "2017-02-12 19:32:55"
-        },
-        {
-            "name": "bulckens/validator",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "git@github.com:bulckens/validator.git",
-                "reference": "059e9e00dbec97dd8c2f23b7b8804b99b46886da"
-            },
-            "dist": {
-                "type": "git",
-                "url": "git@github.com:bulckens/validator.git",
-                "reference": "059e9e00dbec97dd8c2f23b7b8804b99b46886da",
-                "shasum": null
-            },
-            "require": {
-                "illuminate/database": "^5.3"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Bulckens": "src/"
-                }
-            },
-            "license": [
-                "Proprietary"
-            ],
-            "authors": [
-                {
-                    "name": "wout",
-                    "email": "wout@mick-wout.com"
-                }
-            ],
-            "description": "Model data validator compatible with but not dependent on Eloquent",
-            "time": "2017-01-08 13:15:21"
+            "time": "2017-02-14 14:30:26"
         },
         {
             "name": "cartalyst/sentinel",
@@ -1030,16 +995,16 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v5.4.5",
+            "version": "v5.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "cd142238a339459b10da3d8234220963f392540c"
+                "reference": "81fdccfaf8bdc5d5d7a1ef6bb3a61bbb1a6c4a3e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/cd142238a339459b10da3d8234220963f392540c",
-                "reference": "cd142238a339459b10da3d8234220963f392540c",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/81fdccfaf8bdc5d5d7a1ef6bb3a61bbb1a6c4a3e",
+                "reference": "81fdccfaf8bdc5d5d7a1ef6bb3a61bbb1a6c4a3e",
                 "shasum": ""
             },
             "require": {
@@ -1080,7 +1045,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2016-12-29T10:02:40+00:00"
+            "time": "2017-02-13T07:52:53+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -2380,7 +2345,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "bulckens/cli-tools": 20,
-        "bulckens/validator": 20,
         "bulckens/helpers": 20
     },
     "prefer-stable": false,

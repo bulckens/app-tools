@@ -22,7 +22,7 @@ class ErrorHandler {
       // render output
       return $c['response']->withStatus( 500 )
                            ->withHeader( 'Content-Type', 'text/html' )
-                           ->write( View::error( $render->html( $exception->getMessage() ) ) );
+                           ->write( $render->html( $exception->getMessage() ) );
     };
   }
 
