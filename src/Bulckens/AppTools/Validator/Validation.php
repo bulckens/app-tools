@@ -2,6 +2,8 @@
 
 namespace Bulckens\AppTools\Validator;
 
+use Bulckens\AppTools\Validator;
+
 trait Validation {
 
   protected $errors = [];
