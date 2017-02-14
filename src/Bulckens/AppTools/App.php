@@ -3,6 +3,7 @@
 namespace Bulckens\AppTools;
 
 use Exception;
+use Bulckens\Helpers\FileHelper;
 use Bulckens\AppTools\Traits\Configurable;
 
 class App {
@@ -14,12 +15,11 @@ class App {
   protected static $root;
   protected static $modules;
 
-  public function __construct( $env, $root = null ) {
+  public function __construct( $env, $root = null, $up = null ) {
     self::$instance = $this;
     self::$env      = $env;
-    
-    if ( is_numeric( $root ) )
-      self::$root = $root;
+
+    self::$root = is_null( $up ) ? $root : FileHelper::parent( $root, $up );
   }
 
 
