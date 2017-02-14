@@ -81,7 +81,12 @@ class AppSpec extends ObjectBehavior {
 
   function it_uses_the_given_root_variable_if_defined() {
     $this->beConstructedWith( 'dev', '/dev/alternative' );
-    $this->root()->shouldEndWith( '/dev/alternative/' );
+    $this->root()->shouldBe( '/dev/alternative/' );
+  }
+
+  function it_finds_a_parent_directory_a_number_of_levels_up() {
+    $this->beConstructedWith( 'dev', __DIR__, 2 );
+    $this->root()->shouldEndWith( '/app-tools/spec/' );
   }
 
   function it_ensures_a_tailing_slash_on_the_app_root() {
@@ -93,7 +98,6 @@ class AppSpec extends ObjectBehavior {
     $this->beConstructedWith( 'dev', '/' );
     $this->shouldThrow( 'Bulckens\AppTools\RootNotFoundException' )->duringRoot();
   }
-
 
   // Env method
   function it_returns_the_defined_environment() {
