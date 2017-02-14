@@ -4,16 +4,16 @@ namespace Bulckens\AppTools;
 
 use Exception;
 use Bulckens\Helpers\FileHelper;
+use Bulckens\AppTools\Traits\Modulized;
 use Bulckens\AppTools\Traits\Configurable;
 
 class App {
 
+  use Modulized;
   use Configurable;
-
-  protected static $instance;
+  
   protected static $env;
   protected static $root;
-  protected static $modules;
 
   public function __construct( $env, $root = null, $up = null ) {
     self::$instance = $this;
@@ -113,23 +113,6 @@ class App {
     return [
       'env' => self::env()
     ];
-  }
-
-
-  // Get app instance 
-  public static function get() {
-    return self::$instance;
-  }
-
-
-  // Set and get module instances
-  public function module( $name, $module = null ) {
-    if ( is_null( $module ) ) {
-      if ( isset( self::$modules[$name] ) )
-        return self::$modules[$name];
-    }
-
-    self::$modules[$name] = $module;
   }
 
 
