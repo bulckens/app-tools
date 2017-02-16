@@ -2,6 +2,7 @@
 
 namespace Bulckens\AppTools\Traits;
 
+use Exception;
 
 trait Modulized {
 
@@ -12,6 +13,7 @@ trait Modulized {
   public static function get() {
     return self::$instance;
   }
+
 
   // Set and get module instances
   public function module( $name, $module = null ) {
@@ -24,3 +26,7 @@ trait Modulized {
   }
 
 }
+
+
+// Exceptions
+class ModuleNotFoundException extends Exception {}

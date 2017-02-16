@@ -2,6 +2,7 @@
 
 namespace spec\Bulckens\AppTools;
 
+use stdClass;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Database;
 use PhpSpec\ObjectBehavior;
