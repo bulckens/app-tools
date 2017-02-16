@@ -90,8 +90,8 @@ class Router {
       foreach ( glob( App::root( "$root/*Routes.php" ) ) as $routes )
         require_once( $routes );
       
-      // run the app
-      $route->run( App::env( 'dev', 'test' ) );
+      // run the app (but not in cli environments)
+      $route->run( App::cli() );
 
       return $this;
 
