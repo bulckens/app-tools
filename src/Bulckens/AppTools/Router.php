@@ -5,7 +5,7 @@ namespace Bulckens\AppTools;
 use Exception;
 use Slim\App as Slim;
 use Slim\Container;
-use Bulckens\Notifier\ErrorHandler;
+use Bulckens\AppTools\Notifier\ErrorHandler;
 use Bulckens\AppTools\Traits\Configurable;
 
 class Router {
