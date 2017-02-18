@@ -65,4 +65,7 @@ trait Validation {
     return $this->errors[$attr];
   }
 
+  // Protect rules
+  protected function rules() {}
+
 }
