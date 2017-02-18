@@ -14,11 +14,7 @@ class TestModelWithValidatorSpec extends ObjectBehavior {
     $app->run();
   }
   
-  // Validate method
-  function it_returns_an_array_with_rules() {
-    $this::rules()->shouldBeArray();
-  }
-
+  // Rules method
   function it_is_valid_when_a_name_is_given() {
     $this->beConstructedWith([ 'name' => 'lovely' ]);
     $this->isValid()->shouldBe( true );
