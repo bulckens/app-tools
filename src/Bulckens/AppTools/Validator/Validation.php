@@ -6,12 +6,15 @@ use Bulckens\AppTools\Validator;
 
 trait Validation {
 
+  protected $rules;
   protected $errors = [];
 
   // Validate data before saving
   public function isValid() {
+    // get rules
+    $rules = $this->rules() ?: $this->$rules;
     
-    if ( $rules = $this->validate ) {
+    if ( $rules ) {
       // initialize validator
       $validation = new Validator( $rules );
       $validation->data( $this->getAttributes() );
@@ -29,7 +32,7 @@ trait Validation {
       if ( isset( $this->associations ) && is_array( $this->associations ) ) {
         foreach ( $this->associations as $models ) {
           foreach ( $models as $model ) {
-            if ( ! $model->validate() ) {
+            if ( ! $model->isValid() ) {
               // add association errors
               $this->errors = array_replace( $this->errors, $model->errors() );
 
