@@ -40,6 +40,16 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'database' )->shouldBeNull();
   }
 
+  function it_initializes_a_cache_module_if_required_in_the_modules() {
+    $this->run();
+    $this->module( 'cache' )->shouldHaveType( 'Bulckens\AppTools\Cache' );
+  }
+
+  function it_does_not_initialize_a_cache_module_if_missing_in_the_modules() {
+    $this->file( 'app_cache_missing.yml' )->run();
+    $this->module( 'cache' )->shouldBeNull();
+  }
+
   function it_initializes_a_router_if_required_in_the_modules() {
     $this->run();
     $this->module( 'router' )->shouldHaveType( 'Bulckens\AppTools\Router' );
@@ -193,7 +203,16 @@ class AppSpec extends ObjectBehavior {
   }
 
 
-  // Database method
+  // Dynamic module methods (__call)
+  function it_returns_the_cache_module() {
+    $this->cache()->shouldHaveType( 'Bulckens\AppTools\Cache' );
+  }
+
+  function it_returns_nothing_if_no_cache_is_defined() {
+    $this->file( 'app_cache_missing.yml' )->run();
+    $this->cache()->shouldBe( null );
+  }
+
   function it_returns_the_database_module() {
     $this->database()->shouldHaveType( 'Bulckens\AppTools\Database' );
   }
@@ -203,8 +222,6 @@ class AppSpec extends ObjectBehavior {
     $this->database()->shouldBe( null );
   }
 
-
-  // Notifier method
   function it_returns_the_notifier_module() {
     $this->notifier()->shouldHaveType( 'Bulckens\AppTools\Notifier' );
   }
@@ -214,8 +231,6 @@ class AppSpec extends ObjectBehavior {
     $this->notifier()->shouldBe( null );
   }
 
-
-  // Router method
   function it_returns_the_router_module() {
     $this->router()->shouldHaveType( 'Bulckens\AppTools\Router' );
   }
@@ -225,8 +240,6 @@ class AppSpec extends ObjectBehavior {
     $this->router()->shouldBe( null );
   }
 
-
-  // View method
   function it_returns_the_view_module() {
     $this->view()->shouldHaveType( 'Bulckens\AppTools\View' );
   }
@@ -234,6 +247,10 @@ class AppSpec extends ObjectBehavior {
   function it_returns_nothing_if_no_view_is_defined() {
     $this->file( 'app_view_missing.yml' )->run();
     $this->view()->shouldBe( null );
+  }
+
+  function it_fails_for_non_existant_methods() {
+    $this->shouldThrow( 'Bulckens\AppTools\AppMethodMissingException' )->duringFlamunitrapus();
   }
 
 

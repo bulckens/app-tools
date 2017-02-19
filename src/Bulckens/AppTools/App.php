@@ -3,6 +3,7 @@
 namespace Bulckens\AppTools;
 
 use Exception;
+use Illuminate\Support\Str;
 use Bulckens\Helpers\FileHelper;
 use Bulckens\AppTools\Traits\Modulized;
 use Bulckens\AppTools\Traits\Configurable;
@@ -15,11 +16,29 @@ class App {
   protected static $env;
   protected static $root;
 
+  // available modules (in order of initialization)
+  protected static $available_modules = [ 'notifier', 'database', 'user', 'cache', 'view' ];
+
+
   public function __construct( $env, $root = null, $up = null ) {
     self::$instance = $this;
     self::$env      = $env;
 
     self::$root = is_null( $up ) ? $root : FileHelper::parent( $root, $up );
+  }
+
+
+  // Dynamic methods
+  public function __call( $name, $arguments ) {
+    // named module methods
+    if ( $name == 'router' || in_array( $name, self::$available_modules ) )
+      return $this->module( $name );
+
+    // reset callback (not necessary on this class)
+    elseif ( $name == 'reset')
+      return;
+
+    throw new AppMethodMissingException( "Missing method " . self::class . "::$name" );
   }
 
 
@@ -31,21 +50,18 @@ class App {
     // get modules
     $modules = $this->config( 'modules' );
 
-    // initialize notifier
-    if ( in_array( 'notifier', $modules ) )
-      $this->module( 'notifier', new Notifier() );
+    // initialize modules
+    foreach ( self::$available_modules as $module ) {
+      // initialize module if required
+      if ( in_array( $module, $modules ) ) {
+        // get class name for module
+        $class = Str::studly( $module );
+        $class = "Bulckens\AppTools\\$class";
 
-    // initialize database
-    if ( in_array( 'database', $modules ) )
-      $this->module( 'database', new Database() );
-
-    // initialize user
-    if ( in_array( 'user', $modules ) )
-      $this->module( 'user', new User() );
-
-    // initialize view
-    if ( in_array( 'view', $modules ) )
-      $this->module( 'view', new View() );
+        // register module
+        $this->module( $module, new $class() );
+      }
+    }
     
     // initialize router
     if ( in_array( 'router', $modules ) ) {
@@ -115,31 +131,8 @@ class App {
     ];
   }
 
-
-  // Get the database module
-  public function database() {
-    return $this->module( 'database' );
-  }
-
-
-  // Get the notifier module
-  public function notifier() {
-    return $this->module( 'notifier' );
-  }
-
-
-  // Get the router module
-  public function router() {
-    return $this->module( 'router' );
-  }
-
-  
-  // Get the view module
-  public function view() {
-    return $this->module( 'view' );
-  }
-
 }
 
 // Exceptions
 class RootNotFoundException extends Exception {};
+class AppMethodMissingException extends Exception {};

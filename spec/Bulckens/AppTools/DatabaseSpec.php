@@ -5,8 +5,14 @@ namespace spec\Bulckens\AppTools;
 use Bulckens\AppTools\Database;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Bulckens\AppTools\App;
 
 class DatabaseSpec extends ObjectBehavior {
+
+  function let() {
+    $app = new App( 'dev' );
+    $app->run();
+  }
 
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
