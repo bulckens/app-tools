@@ -1,5 +1,6 @@
 generic: &generic
   modules:
+    - cache
     - database
     - notifier
     - user
