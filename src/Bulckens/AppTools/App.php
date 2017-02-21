@@ -139,8 +139,17 @@ class App {
     if ( file_exists( $version = self::root( 'config/.version' ) ) )
       return file_get_contents( $version );
 
+    // build command
+    $command = 'git describe --abbrev=0 --tags';
+
+    // check for capistrano installation
+    $path = dirname( self::root() ) . "/shared/cached-copy";
+
+    if ( file_exists( $path ) )
+      $command = "cd $path && $command";
+
     // get raw version from git
-    return exec( 'git describe --abbrev=0 --tags' );
+    return exec( $command );
   }
 
 }
