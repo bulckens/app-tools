@@ -123,11 +123,12 @@ class App {
     return php_sapi_name() == 'cli';
   }
   
-
+  
   // Public representation as array
   public static function toArray() {
     return [
-      'env' => self::env()
+      'env'     => self::env()
+    , 'version' => self::version()
     ];
   }
 
