@@ -153,7 +153,7 @@ class App {
 
     // cache version for capistrano installations
     if ( file_exists( $path ) )
-      file_put_contents( self::root( 'config/.version' ), $version . ' cached' );
+      file_put_contents( self::root( 'config/.version' ), $version );
 
     return $version;
   }
