@@ -131,6 +131,17 @@ class App {
     ];
   }
 
+
+  // Get version tag of project
+  public static function version() {
+    // check for version file
+    if ( file_exists( $version = self::root( 'config/.version' ) ) )
+      return file_get_contents( $version );
+
+    // get raw version from git
+    return exec( 'git describe --abbrev=0 --tags' );
+  }
+
 }
 
 // Exceptions
