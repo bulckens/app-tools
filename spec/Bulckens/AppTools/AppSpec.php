@@ -203,7 +203,7 @@ class AppSpec extends ObjectBehavior {
   }
 
 
-  // Dynamic module methods (__call)
+  // Dynamic methods (__call)
   function it_returns_the_cache_module() {
     $this->cache()->shouldHaveType( 'Bulckens\AppTools\Cache' );
   }
@@ -251,6 +251,12 @@ class AppSpec extends ObjectBehavior {
 
   function it_fails_for_non_existant_methods() {
     $this->shouldThrow( 'Bulckens\AppTools\AppMethodMissingException' )->duringFlamunitrapus();
+  }
+
+
+  // Version method
+  function it_returns_the_current_version_tag() {
+    $this->version()->shouldMatch( '/\d+\.\d+\.\d+/' );
   }
 
 
