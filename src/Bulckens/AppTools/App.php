@@ -149,7 +149,13 @@ class App {
       $command = "cd $path && $command";
 
     // get raw version from git
-    return exec( $command );
+    $version = exec( $command );
+
+    // cache version for capistrano installations
+    if ( file_exists( $path ) )
+      file_put_contents( self::root( 'config/.version' ), $version . ' cached' );
+
+    return $version;
   }
 
 }
