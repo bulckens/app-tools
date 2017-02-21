@@ -88,6 +88,9 @@ class Router {
       $route = new Slim( $this->c );
       $this->engine = $route;
 
+      // alias router
+      $router = $this;
+
       // pre-load routes
       foreach ( glob( App::root( "$root/*Routes.php" ) ) as $routes )
         require_once( $routes );
