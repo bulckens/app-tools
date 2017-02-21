@@ -132,6 +132,12 @@ class View {
     return $this;
   }
 
+
+  // Returns the render engine
+  public function engine() {
+    return $this->view;
+  }
+
 }
 
 // Exceptions

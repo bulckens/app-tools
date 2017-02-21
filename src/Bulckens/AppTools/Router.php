@@ -13,6 +13,7 @@ class Router {
   use Configurable;
 
   protected $c;
+  protected $engine;
 
   public function __construct() {
     // define environment-specific settings
@@ -85,6 +86,7 @@ class Router {
 
       // initialize new slim app
       $route = new Slim( $this->c );
+      $this->engine = $route;
 
       // pre-load routes
       foreach ( glob( App::root( "$root/*Routes.php" ) ) as $routes )
@@ -98,6 +100,12 @@ class Router {
     } else {
       throw new RouterRoutesRootNotDefinedException( 'Router routes root is not defined in ' . $this->file() );
     }
+  }
+
+
+  // Engine method
+  public function engine() {
+    return $this->engine;
   }
 
 }

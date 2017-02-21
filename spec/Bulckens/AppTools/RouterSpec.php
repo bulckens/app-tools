@@ -90,4 +90,11 @@ class RouterSpec extends ObjectBehavior {
   function it_returns_itself_after_defining_a_custom_config_file() {
     $this->file( 'router_custom.yml' )->shouldBe( $this );
   }
+
+
+  // Engine method
+  function it_returns_the_render_engine() {
+    $this->run();
+    $this->engine()->shouldHaveType( 'Slim\App' );
+  }
 }

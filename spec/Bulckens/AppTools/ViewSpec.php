@@ -2,6 +2,7 @@
 
 namespace spec\Bulckens\AppTools;
 
+use Bulckens\AppTools\App;
 use Bulckens\AppTools\View;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
@@ -9,6 +10,8 @@ use Prophecy\Argument;
 class ViewSpec extends ObjectBehavior {
 
   function letGo() {
+    $app = new App( 'dev' );
+    $app->run();
     $this->file( null );
     $this->reset();
   }
@@ -165,6 +168,12 @@ class ViewSpec extends ObjectBehavior {
   function it_clears_the_custom_root() {
     $this->root( __DIR__ );
     $this->reset()->root()->shouldBe( null );
+  }
+
+
+  // Engine method
+  function it_returns_the_render_engine() {
+    $this->engine()->shouldHaveType( 'Twig_Environment' );
   }
 
 }
