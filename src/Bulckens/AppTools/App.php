@@ -5,6 +5,7 @@ namespace Bulckens\AppTools;
 use Exception;
 use Illuminate\Support\Str;
 use Bulckens\Helpers\FileHelper;
+use Bulckens\Helpers\ArrayHelper;
 use Bulckens\AppTools\Traits\Modulized;
 use Bulckens\AppTools\Traits\Configurable;
 
@@ -18,7 +19,6 @@ class App {
 
   // available modules (in order of initialization)
   protected static $bundled_modules = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
-  protected static $known_modules   = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
 
 
   public function __construct( $env, $root = null, $up = null ) {
@@ -31,8 +31,11 @@ class App {
 
   // Dynamic methods
   public function __call( $name, $arguments ) {
+    // get all bundled and registered modules
+    $modules = array_merge( self::$bundled_modules, $this->modules() );
+
     // named module methods
-    if ( in_array( $name, self::$known_modules ) )
+    if ( in_array( $name, $modules ) )
       return $this->module( $name );
 
     // reset callback (not necessary on this class)
@@ -46,10 +49,10 @@ class App {
   // Run the app
   public function run() {
     // clear existing modules
-    self::$modules = [];
+    $this->clear();
 
     // get modules
-    $modules = $this->config( 'modules' );
+    $modules = $this->config( 'modules', [] );
 
     // initialize modules
     foreach ( self::$bundled_modules as $module ) {

@@ -14,6 +14,10 @@ class AppSpec extends ObjectBehavior {
     $this->beConstructedWith( 'dev' );
   }
 
+  function letGo() {
+    $this->clear( true );
+  }
+
 
   // Run method
   function it_returns_itself_after_initializing_the_app() {
@@ -80,6 +84,18 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'user' )->shouldBeNull();
   }
 
+  function it_retains_any_registered_custom_modules_as_active_after_running() {
+    $lala = new Database();
+    $this->module( 'lala', $lala );
+    $this->run();
+    $this->module( 'lala' )->shouldBe( $lala );
+  }
+
+  function it_runs_without_any_modules() {
+    $this->file( 'app_moduleless.yml' )->run();
+    $this->modules()->shouldHaveCount( 0 );
+  }
+
 
   // Root method
   function it_finds_the_project_root() {
@@ -109,6 +125,7 @@ class AppSpec extends ObjectBehavior {
     $this->beConstructedWith( 'dev', '/' );
     $this->shouldThrow( 'Bulckens\AppTools\RootNotFoundException' )->duringRoot();
   }
+
 
   // Env method
   function it_returns_the_defined_environment() {
@@ -214,50 +231,107 @@ class AppSpec extends ObjectBehavior {
 
 
 
+  // Modules method
+  function it_returns_a_list_of_registered_modules() {
+    $this->file( 'app.yml' );
+    $this->run();
+    $this->modules()->shouldContain( 'cache' );
+    $this->modules()->shouldContain( 'database' );
+    $this->modules()->shouldContain( 'notifier' );
+    $this->modules()->shouldContain( 'router' );
+    $this->modules()->shouldContain( 'user' );
+    $this->modules()->shouldContain( 'view' );
+  }
+
+  function it_returns_no_modules_if_none_are_registered() {
+    $this->file( 'app_moduleless.yml' );
+    $this->modules()->shouldNotContain( 'cache' );
+    $this->modules()->shouldNotContain( 'database' );
+    $this->modules()->shouldNotContain( 'notifier' );
+    $this->modules()->shouldNotContain( 'router' );
+    $this->modules()->shouldNotContain( 'user' );
+    $this->modules()->shouldNotContain( 'view' );
+  }
+
+
+  // Clear method
+  function it_removes_all_registered_bundled_modules() {
+    $this->run();
+    $this->modules()->shouldContain( 'cache' );
+    $this->modules()->shouldContain( 'database' );
+    $this->modules()->shouldContain( 'notifier' );
+    $this->modules()->shouldContain( 'router' );
+    $this->modules()->shouldContain( 'user' );
+    $this->modules()->shouldContain( 'view' );
+    $this->clear();
+    $this->modules()->shouldNotContain( 'cache' );
+    $this->modules()->shouldNotContain( 'database' );
+    $this->modules()->shouldNotContain( 'notifier' );
+    $this->modules()->shouldNotContain( 'router' );
+    $this->modules()->shouldNotContain( 'user' );
+    $this->modules()->shouldNotContain( 'view' );
+  }
+
+  function it_removes_no_registered_custom_modules() {
+    $this->module( 'fropy', new Database() );
+    $this->clear();
+    $this->modules()->shouldContain( 'fropy' );
+  }
+
+  function it_forces_registered_custom_modules_to_be_removed() {
+    $this->module( 'fropy', new Database() );
+    $this->clear( true );
+    $this->modules()->shouldNotContain( 'fropy' );
+  }
+
+  function it_returns_itself_after_clearing() {
+    $this->clear()->shouldBe( $this );
+  }
+
   // Dynamic methods (__call)
   function it_returns_the_cache_module() {
-    $this->cache()->shouldHaveType( 'Bulckens\AppTools\Cache' );
+    $this->run()->cache()->shouldHaveType( 'Bulckens\AppTools\Cache' );
   }
 
   function it_returns_nothing_if_no_cache_is_defined() {
     $this->file( 'app_cache_missing.yml' )->run();
-    $this->cache()->shouldBe( null );
+    $this->run()->cache()->shouldBe( null );
   }
 
   function it_returns_the_database_module() {
-    $this->database()->shouldHaveType( 'Bulckens\AppTools\Database' );
+    $this->run()->database()->shouldHaveType( 'Bulckens\AppTools\Database' );
   }
 
   function it_returns_nothing_if_no_database_is_defined() {
     $this->file( 'app_database_missing.yml' )->run();
-    $this->database()->shouldBe( null );
+    $this->run()->database()->shouldBe( null );
   }
 
   function it_returns_the_notifier_module() {
-    $this->notifier()->shouldHaveType( 'Bulckens\AppTools\Notifier' );
+    $this->run()->notifier()->shouldHaveType( 'Bulckens\AppTools\Notifier' );
   }
 
   function it_returns_nothing_if_no_notifier_is_defined() {
     $this->file( 'app_notifier_missing.yml' )->run();
-    $this->notifier()->shouldBe( null );
+    $this->run()->notifier()->shouldBe( null );
   }
 
   function it_returns_the_router_module() {
-    $this->router()->shouldHaveType( 'Bulckens\AppTools\Router' );
+    $this->run()->router()->shouldHaveType( 'Bulckens\AppTools\Router' );
   }
 
   function it_returns_nothing_if_no_router_is_defined() {
     $this->file( 'app_router_missing.yml' )->run();
-    $this->router()->shouldBe( null );
+    $this->run()->router()->shouldBe( null );
   }
 
   function it_returns_the_view_module() {
-    $this->view()->shouldHaveType( 'Bulckens\AppTools\View' );
+    $this->run()->view()->shouldHaveType( 'Bulckens\AppTools\View' );
   }
 
   function it_returns_nothing_if_no_view_is_defined() {
     $this->file( 'app_view_missing.yml' )->run();
-    $this->view()->shouldBe( null );
+    $this->run()->view()->shouldBe( null );
   }
 
   function it_fails_for_non_existant_methods() {
