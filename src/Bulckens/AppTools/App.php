@@ -17,7 +17,7 @@ class App {
   protected static $root;
 
   // available modules (in order of initialization)
-  protected static $available_modules = [ 'notifier', 'database', 'user', 'cache', 'view' ];
+  protected static $available_modules = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
 
 
   public function __construct( $env, $root = null, $up = null ) {
@@ -31,7 +31,7 @@ class App {
   // Dynamic methods
   public function __call( $name, $arguments ) {
     // named module methods
-    if ( $name == 'router' || in_array( $name, self::$available_modules ) )
+    if ( in_array( $name, self::$available_modules ) )
       return $this->module( $name );
 
     // reset callback (not necessary on this class)
@@ -63,11 +63,9 @@ class App {
       }
     }
     
-    // initialize router
-    if ( in_array( 'router', $modules ) ) {
-      $router = new Router();
-      $this->module( 'router', $router->run() );
-    }
+    // run router
+    if ( in_array( 'router', $modules ) )
+      $this->router()->run();
 
     return $this;
   }
