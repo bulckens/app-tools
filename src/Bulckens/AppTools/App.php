@@ -42,7 +42,7 @@ class App {
     elseif ( $name == 'reset')
       return;
 
-    throw new AppMethodMissingException( "Missing method " . self::class . "::$name" );
+    throw new AppMethodMissingException( 'Missing method ' . self::class . "::$name" );
   }
 
 
