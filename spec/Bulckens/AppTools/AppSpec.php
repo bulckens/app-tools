@@ -202,6 +202,17 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'database' )->shouldHaveType( 'Bulckens\AppTools\Database' );
   }
 
+  function it_returns_itself_after_setting_a_module() {
+    $this->module( 'database', new Database() )->shouldBe( $this );
+  }
+
+  function it_created_a_named_method_for_registered_custom_modules() {
+    $flas = new Database();
+    $this->module( 'flas', $flas );
+    $this->flas()->shouldBe( $flas );
+  }
+
+
 
   // Dynamic methods (__call)
   function it_returns_the_cache_module() {

@@ -20,9 +20,16 @@ trait Modulized {
     if ( is_null( $module ) ) {
       if ( isset( self::$modules[$name] ) )
         return self::$modules[$name];
-    }
+    } else {
+      // set module
+      self::$modules[$name] = $module;
 
-    self::$modules[$name] = $module;
+      // regiter module if if is not a bundled one
+      if ( ! in_array( $name, self::$available_modules ) )
+        array_push( self::$available_modules, $name );
+
+      return $this;
+    }
   }
 
 }

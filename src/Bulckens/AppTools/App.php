@@ -19,7 +19,7 @@ class App {
   // available modules (in order of initialization)
   protected static $available_modules = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
 
-
+  
   public function __construct( $env, $root = null, $up = null ) {
     self::$instance = $this;
     self::$env      = $env;
