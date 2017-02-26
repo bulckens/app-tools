@@ -7,11 +7,23 @@ use Exception;
 trait Modulized {
 
   protected static $instance;
-  protected static $modules;
+  protected static $modules = [];
 
   // Get app instance 
   public static function get() {
     return self::$instance;
+  }
+
+
+  // Clear modules
+  public function clear( $force = false ) {
+    if ( $force )
+      self::$modules = [];
+    else
+      foreach ( self::$bundled_modules as $name )
+        unset( self::$modules[$name] );
+
+    return $this;
   }
 
 
@@ -24,12 +36,14 @@ trait Modulized {
       // set module
       self::$modules[$name] = $module;
 
-      // regiter module if if is not a bundled one
-      if ( ! in_array( $name, self::$known_modules ) )
-        array_push( self::$known_modules, $name );
-
       return $this;
     }
+  }
+
+
+  // get registered modules
+  public function modules() {
+    return array_keys( self::$modules );
   }
 
 }
