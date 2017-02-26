@@ -25,8 +25,8 @@ trait Modulized {
       self::$modules[$name] = $module;
 
       // regiter module if if is not a bundled one
-      if ( ! in_array( $name, self::$available_modules ) )
-        array_push( self::$available_modules, $name );
+      if ( ! in_array( $name, self::$known_modules ) )
+        array_push( self::$known_modules, $name );
 
       return $this;
     }

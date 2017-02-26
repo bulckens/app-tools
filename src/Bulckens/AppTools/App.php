@@ -17,9 +17,10 @@ class App {
   protected static $root;
 
   // available modules (in order of initialization)
-  protected static $available_modules = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
+  protected static $bundled_modules = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
+  protected static $known_modules   = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
 
-  
+
   public function __construct( $env, $root = null, $up = null ) {
     self::$instance = $this;
     self::$env      = $env;
@@ -31,7 +32,7 @@ class App {
   // Dynamic methods
   public function __call( $name, $arguments ) {
     // named module methods
-    if ( in_array( $name, self::$available_modules ) )
+    if ( in_array( $name, self::$known_modules ) )
       return $this->module( $name );
 
     // reset callback (not necessary on this class)
@@ -51,7 +52,7 @@ class App {
     $modules = $this->config( 'modules' );
 
     // initialize modules
-    foreach ( self::$available_modules as $module ) {
+    foreach ( self::$bundled_modules as $module ) {
       // initialize module if required
       if ( in_array( $module, $modules ) ) {
         // get class name for module
