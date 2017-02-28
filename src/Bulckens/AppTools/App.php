@@ -66,6 +66,10 @@ class App {
         $this->module( $module, new $class() );
       }
     }
+
+    // run customize method, if present
+    if ( method_exists( $this, 'customize' ) )
+      $this->customize();
     
     // run router
     if ( in_array( 'router', $modules ) )
