@@ -24,6 +24,11 @@ class AppSpec extends ObjectBehavior {
     $this->run()->shouldBe( $this );
   }
 
+  function it_always_initializes_the_statistics_module() {
+    $this->run();
+    $this->module( 'statistics' )->shouldHaveType( 'Bulckens\AppTools\Statistics' );
+  }
+
   function it_initializes_a_notifier_if_required_in_the_modules() {
     $this->run();
     $this->module( 'notifier' )->shouldHaveType( 'Bulckens\AppTools\Notifier' );
@@ -91,9 +96,11 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'lala' )->shouldBe( $lala );
   }
 
-  function it_runs_without_any_modules() {
+  function it_runs_only_with_the_statistics_module_if_no_modules_are_configured() {
     $this->file( 'app_moduleless.yml' )->run();
-    $this->modules()->shouldHaveCount( 0 );
+    $modules = $this->modules();
+    $modules->shouldHaveCount( 1 );
+    $modules[0]->shouldBe( 'statistics' );
   }
 
 
