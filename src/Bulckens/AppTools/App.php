@@ -18,7 +18,7 @@ class App {
   protected static $root;
 
   // available modules (in order of initialization)
-  protected static $bundled_modules = [ 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
+  protected static $bundled_modules = [ 'statistics', 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
 
 
   public function __construct( $env, $root = null, $up = null ) {
@@ -53,6 +53,9 @@ class App {
 
     // get modules
     $modules = $this->config( 'modules', [] );
+
+    // always include statistics
+    array_unshift( $modules, 'statistics' );
 
     // initialize modules
     foreach ( self::$bundled_modules as $module ) {

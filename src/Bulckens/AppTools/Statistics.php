@@ -2,56 +2,53 @@
 
 namespace Bulckens\AppTools;
 
-use Bulckens\Helpers\TimeHelper;
-use Bulckens\Helpers\MemoryHelper;
+use Bulckens\Helpers\TimeHelper as T;
+use Bulckens\Helpers\MemoryHelper as M;
 
 class Statistics {
 
-  protected static $env;
-  protected static $start_time;
-  protected static $start_memory;
+  protected $start_time;
+  protected $start_memory;
 
-  public function __construct( $env ) {
+  public function __construct() {
     // get current situation
-    self::$env          = $env;
-    self::$start_time   = TimeHelper::milliseconds();
-    self::$start_memory = MemoryHelper::snapshot();
+    $this->start_time   = T::milliseconds();
+    $this->start_memory = M::snapshot();
   }
 
   // Get start time
-  public static function startTime() {
-    return self::$start_time;
+  public function startTime() {
+    return $this->start_time;
   }
 
   // Get used time
-  public static function usedTime() {
-    return ( TimeHelper::milliseconds() - self::$start_time ) . 'ms';
+  public function usedTime() {
+    return ( T::milliseconds() - $this->start_time ) . 'ms';
   }
 
   // Get start memory
-  public static function startMemory() {
-    return MemoryHelper::humanize( self::$start_memory );
+  public function startMemory() {
+    return M::humanize( $this->start_memory );
   }
 
   // Get used memory
-  public static function usedMemory() {
-    return MemoryHelper::humanize( MemoryHelper::snapshot() - self::$start_memory );
+  public function usedMemory() {
+    return M::humanize( M::snapshot() - $this->start_memory );
   }
 
   // Get end memory
-  public static function endMemory() {
-    return MemoryHelper::humanize( MemoryHelper::snapshot() );
+  public function endMemory() {
+    return M::humanize( M::snapshot() );
   }
 
   // Get status as array
-  public static function toArray( $external = [] ) {
+  public function toArray( $external = [] ) {
     return array_replace( $external, [
-      'env'          => self::$env
-    , 'start_time'   => self::startTime()
-    , 'used_time'    => self::usedTime()
-    , 'start_memory' => self::startMemory()
-    , 'used_memory'  => self::usedMemory()
-    , 'end_memory'   => self::endMemory()
+      'start_time'   => $this->startTime()
+    , 'used_time'    => $this->usedTime()
+    , 'start_memory' => $this->startMemory()
+    , 'used_memory'  => $this->usedMemory()
+    , 'end_memory'   => $this->endMemory()
     ]);
   }
 
