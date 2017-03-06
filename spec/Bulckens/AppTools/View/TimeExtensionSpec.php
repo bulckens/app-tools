@@ -15,6 +15,7 @@ class TimeExtensionSpec extends ObjectBehavior {
 
   function it_returns_only_twig_simple_functions() {
     $functions = $this->getFunctions();
+    $functions->shouldHaveCount( 1 );
     $functions[0]->shouldHaveType( 'Twig_SimpleFunction' );
   }
 
