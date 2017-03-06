@@ -15,6 +15,7 @@ class UrlExtensionSpec extends ObjectBehavior {
 
   function it_returns_only_twig_simple_functions() {
     $functions = $this->getFunctions();
+    $functions->shouldHaveCount( 3 );
     $functions[0]->shouldHaveType( 'Twig_SimpleFunction' );
     $functions[1]->shouldHaveType( 'Twig_SimpleFunction' );
     $functions[2]->shouldHaveType( 'Twig_SimpleFunction' );

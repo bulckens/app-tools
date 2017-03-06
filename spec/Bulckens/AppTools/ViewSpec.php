@@ -5,6 +5,7 @@ namespace spec\Bulckens\AppTools;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\View;
 use Bulckens\AppTools\View\UrlExtension;
+use Bulckens\AppTools\View\StringExtension;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -125,14 +126,30 @@ class ViewSpec extends ObjectBehavior {
 
 
   // Extensions method
-  function it_adds_custom_extensions_to_the_view_render_engine() {
+  function it_accepts_the_url_extension_to_the_view_render_engine() {
     $this->extension( new UrlExtension() );
     $this->render( 'extensions.html.twig' )->shouldContain( 'Given path: /' );
   }
 
-  function it_adds_custom_extensions_to_the_text_render_engine() {
+  function it_accepts_the_url_extension_to_the_text_render_engine() {
     $this->extension( new UrlExtension() );
     $this->render( "Is root: {{ root_path( '/' ) }}" )->shouldContain( 'Is root: 1' );
+  }
+
+  function it_accepts_the_singular_extension_to_the_render_engines() {
+    $this->extension( new StringExtension() );
+    $this->render( "This {{ 'entities'|singular }}" )->shouldContain( 'This entity' );
+  }
+
+  function it_accepts_the_plural_extension_to_the_render_engines() {
+    $this->extension( new StringExtension() );
+    $this->render( "These {{ 'entity'|plural }}" )->shouldContain( 'These entities' );
+  }
+
+  function it_accepts_the_pluralize_extension_to_the_render_engines() {
+    $this->extension( new StringExtension() );
+    $this->render( "Subject: {{ 'entity'|pluralize(1) }}" )->shouldContain( 'Subject: entity' );
+    $this->render( "Subject: {{ 'entity'|pluralize(10) }}" )->shouldContain( 'Subject: entities' );
   }
 
   
