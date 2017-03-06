@@ -93,6 +93,13 @@ class View {
   }
 
 
+  // Add extension
+  public function extension( $extension ) {
+    $this->view->addExtension( $extension );
+    $this->text->addExtension( $extension );
+  }
+
+
   // Render a given view
   public function render( $view, $locals = [] ) {
     // make sure view engine is running

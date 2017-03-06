@@ -44,7 +44,7 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:bulckens/helpers.git",
-                "reference": "96d846821a16066b6a4ae0ed0afd887f17510cf0"
+                "reference": "45c2e8c0bd9bfca8c501605d9c1596da95636151"
             },
             "dist": {
                 "type": "git",
@@ -75,7 +75,7 @@
                 }
             ],
             "description": "A collection of core helpers useful for any PHP app",
-            "time": "2017-02-26 15:23:43"
+            "time": "2017-03-06 08:38:29"
         },
         {
             "name": "cartalyst/sentinel",

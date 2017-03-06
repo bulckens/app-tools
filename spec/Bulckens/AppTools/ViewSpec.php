@@ -4,6 +4,7 @@ namespace spec\Bulckens\AppTools;
 
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\View;
+use Bulckens\AppTools\View\UrlExtension;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -12,7 +13,7 @@ class ViewSpec extends ObjectBehavior {
   function letGo() {
     $app = new App( 'dev' );
     $app->run();
-    $this->file( null );
+    $this->file( 'view.yml' );
     $this->reset();
   }
 
@@ -120,6 +121,18 @@ class ViewSpec extends ObjectBehavior {
 
   function it_fails_with_a_string_when_a_custom_filter_is_not_defined() {
     $this->shouldThrow( 'Twig_Error_Syntax' )->duringRender( "Hello {{ 'world'|emphasize }}" );
+  }
+
+
+  // Extensions method
+  function it_adds_custom_extensions_to_the_view_render_engine() {
+    $this->extension( new UrlExtension() );
+    $this->render( 'extensions.html.twig' )->shouldContain( 'Given path: /' );
+  }
+
+  function it_adds_custom_extensions_to_the_text_render_engine() {
+    $this->extension( new UrlExtension() );
+    $this->render( "Is root: {{ root_path( '/' ) }}" )->shouldContain( 'Is root: 1' );
   }
 
   
