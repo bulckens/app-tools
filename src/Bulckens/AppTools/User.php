@@ -30,7 +30,7 @@ class User {
 
     $capsule->bootEloquent();
 
-    // setup chckpoints checkpoints
+    // setup checkpoints
     Sentinel::enableCheckpoints();
 
     // configure activation checkpoint
@@ -86,19 +86,23 @@ class User {
 
 
   // Find user by email or id
-  public static function find( $id ) {
-    if ( is_numeric( $id ) )
-      return Sentinel::findById( $id );
+  public static function find( $email_or_id ) {
+    if ( is_numeric( $email_or_id ) )
+      return Sentinel::findById( $email_or_id );
 
-    return Sentinel::findByCredentials([ 'login' => $id ]);
+    return Sentinel::findByCredentials([ 'login' => $email_or_id ]);
   }
 
 
   // Generate password reset link
   public static function resetCode( $email ) {
     if ( $user = self::find( $email ) ) {
-      $reminder = Sentinel::getReminderRepository()->create( $user );
-      return $reminder->code;
+      // get reminder repo and clean old codes
+      $reminder = Sentinel::getReminderRepository();
+      $reminder->removeExpired();
+
+      // generate new code
+      return $reminder->create( $user )->code;
 
     } else {
       throw new UserNotFoundException( "Unable to find user for email $email" );
@@ -111,7 +115,7 @@ class User {
     if ( $user = self::find( $email ) ) {
       // get reminder repo
       $reminder = Sentinel::getReminderRepository();
-
+      
       // test existance
       if ( $reminder->exists( $user, $code ) )
         return $reminder->complete( $user, $code, $password );
