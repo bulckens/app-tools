@@ -11,7 +11,7 @@ class User {
 
   use Configurable;
 
-  protected static $activate_at_login = false;
+  protected static $activate = false;
 
   // Initialize database connection
   public function __construct() {
@@ -33,20 +33,28 @@ class User {
     // setup checkpoints
     Sentinel::enableCheckpoints();
 
-    // configure activation checkpoint
-    if ( in_array( 'activation', $this->config( 'checkpoints' ) ) )
-      self::$activate_at_login = $this->config( 'login.activate', false );
-    else
-      Sentinel::removeCheckpoint( 'activation' );
+    if ( $checkpoints = $this->config( 'checkpoints' ) ) {
+      // configure activation checkpoint
+      if ( ! in_array( 'activation', $checkpoints ) )
+        Sentinel::removeCheckpoint( 'activation' );
 
-    // configure activation checkpoint
-    if ( ! in_array( 'throttle', $this->config( 'checkpoints' ) ) )
-      Sentinel::removeCheckpoint( 'throttle' );
+      // configure activation checkpoint
+      if ( ! in_array( 'throttle', $checkpoints ) )
+        Sentinel::removeCheckpoint( 'throttle' );
+    }
+
+    // configure activation
+    self::$activate = $this->config( 'signup.activate', ! in_array( 'activation', $checkpoints ) );
   }
 
 
   // Register user
-  public static function register( $email, $pass, $activate = false ) {
+  public static function register( $email, $pass, $activate = null ) {
+    // detect activation
+    if ( is_null( $activate ) )
+      $activate = self::$activate;
+
+    // prepare credentials
     $credentials = [
       'email'    => $email
     , 'password' => $pass

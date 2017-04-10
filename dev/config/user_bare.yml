@@ -5,8 +5,3 @@ dev:
   password:   "zow"
   charset:    "utf8"
   collate:    "utf8_general_ci"
-  checkpoints:
-    - activation
-    - throttle
-  signup:
-    activate: false

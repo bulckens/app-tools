@@ -26,6 +26,17 @@ class UserSpec extends ObjectBehavior {
     Sentinel::logout();
   }
 
+
+  // Initialization
+  function it_initializes_with_the_full_configuration() {
+    $this->shouldHaveType( User::class );
+  }
+
+  function it_initializes_with_the_bare_configuration() {
+    $this->file( 'user_bare.yml' );
+    $this->shouldHaveType( User::class );
+  }
+
   
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
