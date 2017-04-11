@@ -14,10 +14,10 @@ class User {
 
   // Initialize database connection
   public function __construct() {
-    // setup checkpoints
-    Sentinel::enableCheckpoints();
-
     if ( $checkpoints = $this->config( 'checkpoints' ) ) {
+      // setup checkpoints
+      Sentinel::enableCheckpoints();
+
       // configure activation checkpoint
       if ( in_array( 'activation', $checkpoints ) )
         self::$activate_on_signup = $this->config( 'signup.activate', false );
@@ -27,6 +27,10 @@ class User {
       // configure activation checkpoint
       if ( ! in_array( 'throttle', $checkpoints ) )
         Sentinel::removeCheckpoint( 'throttle' );
+
+    } else {
+      // disable checkpoints
+      Sentinel::disableCheckpoints();
     }
   }
 
