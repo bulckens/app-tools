@@ -1,7 +1,6 @@
 dev:
-  host:     custom
-  name:     custom
-  user:     custom
-  password: custom
-  charset:  custom
-  collate:  custom
+  custom: "custom"
+  checkpoints:
+    - activation
+  signup:
+    activate: false

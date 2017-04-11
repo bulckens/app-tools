@@ -16,34 +16,13 @@ class DatabaseSpec extends ObjectBehavior {
   }
 
 
-  // Initialize
-  function it_sets_the_main_connection_resolver_on_the_main_model() {
-    $this->resolver()->shouldBe( Eloquent::getConnectionResolver() );
-  }
-
-
-  // Resolver method
-  function it_builds_a_connection_resolver() {
-    $this->resolver()->shouldHaveType( 'Illuminate\Database\ConnectionResolver' );
-  }
-
-  function it_builds_a_named_connection_resolver() {
-    $this->resolver( 'febreze' )->shouldNotBe( $this->resolver() );
-  }
-
-  function it_builds_a_resolver_only_once() {
-    $resolver = $this->resolver( 'frenzy' );
-    $this->resolver( 'frenzy' )->shouldBe( $resolver );
-  }
-
-
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
     $this->config()->shouldHaveType( 'Bulckens\AppTools\Config' );
   }
 
   function it_returns_the_the_value_for_a_given_key() {
-    $this->config( 'host' )->shouldBe( 'test' );
+    $this->config( 'host' )->shouldBe( '127.0.0.1' );
   }
 
   function it_returns_a_given_default_value_if_key_is_not_existing() {
