@@ -3,18 +3,26 @@
 namespace Bulckens\AppTools;
 
 use Exception;
-use Cartalyst\Sentinel\Native\Facades\Sentinel;
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Bulckens\AppTools\Traits\Configurable;
+use Cartalyst\Sentinel\Native\Facades\Sentinel;
+use Cartalyst\Sentinel\Users\EloquentUser;
+use Cartalyst\Sentinel\Reminders\EloquentReminder;
+use Cartalyst\Sentinel\Activations\EloquentActivation;
+use Cartalyst\Sentinel\Persistences\EloquentPersistence;
 
-class User {
-
-  use Configurable;
+class User extends Database {
 
   protected static $activate_on_signup = true;
+  protected static $connection = 'default';
 
   // Initialize database connection
   public function __construct() {
+    // apply connection resolver to sentinel classes
+    EloquentUser::setConnectionResolver( $this->resolver() );
+    EloquentReminder::setConnectionResolver( $this->resolver() );
+    EloquentActivation::setConnectionResolver( $this->resolver() );
+    EloquentPersistence::setConnectionResolver( $this->resolver() );
+
     // setup a new Eloquent Capsule instance
     $capsule = new Capsule;
     

@@ -4,7 +4,6 @@ namespace Bulckens\AppTools;
 
 use Exception;
 use Illuminate\Container\Container;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\ConnectionResolver;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Illuminate\Database\Connectors\ConnectionFactory;
@@ -14,33 +13,47 @@ class Database {
 
   use Configurable;
 
+  protected static $resolvers  = [];
+  protected static $connection = 'app_tools_database';
+
   // Initialize database connection
   public function __construct() {
-    // bootstrap Eloquent ORM
-    $container = new Container();
-    $container->singleton(
-      'Illuminate\Contracts\Debug\ExceptionHandler'
-    , 'Bulckens\AppTools\Notifier\DatabaseExceptionHandler'
-    );
+    Model::setConnectionResolver( $this->resolver() );
+  }
 
-    $factory    = new ConnectionFactory( $container );
-    $connection = $factory->make([
-      'driver'    => 'mysql'
-    , 'host'      => $this->config( 'host' )
-    , 'database'  => $this->config( 'name' )
-    , 'username'  => $this->config( 'user' )
-    , 'password'  => $this->config( 'password' )
-    , 'charset'   => $this->config( 'charset' )
-    , 'collation' => $this->config( 'collate' )
-    , 'prefix'    => ''
-    ]);
+
+  // build or get a resolver
+  public function resolver( $name = null ) {
+    // ensure connection name
+    if ( is_null( $name) )
+      $name = self::$connection ?: 'default';
+
+    // build resolver if none is present
+    if ( ! isset( self::$resolvers[$name] ) ) {
+      // bootstrap Eloquent ORM
+      $container = new Container();
+      $container->singleton(
+        'Illuminate\Contracts\Debug\ExceptionHandler'
+      , 'Bulckens\AppTools\Notifier\DatabaseExceptionHandler'
+      );
+
+      $factory    = new ConnectionFactory( $container );
+      $connection = $factory->make([
+        'driver'    => 'mysql'
+      , 'host'      => $this->config( 'host' )
+      , 'database'  => $this->config( 'name' )
+      , 'username'  => $this->config( 'user' )
+      , 'password'  => $this->config( 'password' )
+      , 'charset'   => $this->config( 'charset' )
+      , 'collation' => $this->config( 'collate' )
+      , 'prefix'    => ''
+      ]);
+      
+      self::$resolvers[$name] = new ConnectionResolver();
+      self::$resolvers[$name]->addConnection( $name, $connection );
+    }
     
-    $resolver = new ConnectionResolver();
-    $resolver->addConnection( 'default', $connection );
-    $resolver->setDefaultConnection( 'default' );
-
-    // initialize connection
-    Eloquent::setConnectionResolver( $resolver );
+    return self::$resolvers[$name];
   }
 
 }
