@@ -28,13 +28,17 @@ class UserSpec extends ObjectBehavior {
 
 
   // Initialization
-  function it_initializes_with_the_full_configuration() {
+  function it_initializes_with_the_default_configuration() {
     $this->shouldHaveType( User::class );
   }
 
   function it_initializes_with_the_bare_configuration() {
     $this->file( 'user_bare.yml' );
     $this->shouldHaveType( User::class );
+  }
+
+  function it_defines_the_resolver_to_the_sentinel_user_class() {
+    $this->resolver()->shouldBe( EloquentUser::getConnectionResolver() );
   }
 
   
