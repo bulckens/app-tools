@@ -1,7 +1,1 @@
 dev:
-  host:       "127.0.0.1"
-  name:       "users_test"
-  user:       "zow"
-  password:   "zow"
-  charset:    "utf8"
-  collate:    "utf8_general_ci"

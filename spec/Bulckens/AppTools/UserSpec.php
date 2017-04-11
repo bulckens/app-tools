@@ -16,6 +16,7 @@ class UserSpec extends ObjectBehavior {
 
   function let() {
     $app = new App( 'dev' );
+    $app->run();
   }
 
   function letGo() {
@@ -37,10 +38,6 @@ class UserSpec extends ObjectBehavior {
     $this->shouldHaveType( User::class );
   }
 
-  function it_defines_the_resolver_to_the_sentinel_user_class() {
-    $this->resolver()->shouldBe( EloquentUser::getConnectionResolver() );
-  }
-
   
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
@@ -48,7 +45,7 @@ class UserSpec extends ObjectBehavior {
   }
 
   function it_returns_the_the_value_for_a_given_key() {
-    $this->config( 'host' )->shouldBe( '127.0.0.1' );
+    $this->config( 'checkpoints' )->shouldBeArray();
   }
 
   function it_returns_a_given_default_value_if_key_is_not_existing() {
@@ -64,7 +61,7 @@ class UserSpec extends ObjectBehavior {
   function it_defines_a_custom_config_file() {
     $this->file( 'user_custom.yml' );
     $this->file()->shouldBe( 'user_custom.yml' );
-    $this->config( 'host' )->shouldBe( 'custom' );
+    $this->config( 'custom' )->shouldBe( 'custom' );
   }
 
   function it_unsets_the_custom_config_file_with_null_given() {

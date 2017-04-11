@@ -3,41 +3,17 @@
 namespace Bulckens\AppTools;
 
 use Exception;
-use Illuminate\Database\Capsule\Manager as Capsule;
 use Cartalyst\Sentinel\Native\Facades\Sentinel;
-use Cartalyst\Sentinel\Users\EloquentUser;
-use Cartalyst\Sentinel\Reminders\EloquentReminder;
-use Cartalyst\Sentinel\Activations\EloquentActivation;
-use Cartalyst\Sentinel\Persistences\EloquentPersistence;
+use Bulckens\AppTools\Traits\Configurable;
 
-class User extends Database {
+class User {
+
+  use Configurable;
 
   protected static $activate_on_signup = true;
-  protected static $connection = 'default';
 
   // Initialize database connection
   public function __construct() {
-    // apply connection resolver to sentinel classes
-    EloquentUser::setConnectionResolver( $this->resolver() );
-    EloquentReminder::setConnectionResolver( $this->resolver() );
-    EloquentActivation::setConnectionResolver( $this->resolver() );
-    EloquentPersistence::setConnectionResolver( $this->resolver() );
-
-    // setup a new Eloquent Capsule instance
-    $capsule = new Capsule;
-    
-    $capsule->addConnection([
-      'driver'    => 'mysql'
-    , 'host'      => $this->config( 'host' )
-    , 'database'  => $this->config( 'name' )
-    , 'username'  => $this->config( 'user' )
-    , 'password'  => $this->config( 'password' )
-    , 'charset'   => $this->config( 'charset' )
-    , 'collation' => $this->config( 'collate' )
-    ]);
-
-    $capsule->bootEloquent();
-
     // setup checkpoints
     Sentinel::enableCheckpoints();
 
