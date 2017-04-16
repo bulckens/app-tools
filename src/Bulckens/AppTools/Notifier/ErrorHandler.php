@@ -50,7 +50,9 @@ class ErrorHandler {
 
     // prepare message
     $render = new Render( $error, $notifier->config() );
-    echo $render->html( $message );
+
+    // render message
+    echo App::cli() ? $render->cli( $message ) : $render->html( $message );
 
     // notify error
     $notifier->error( $error );
