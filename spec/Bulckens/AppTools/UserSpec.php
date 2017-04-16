@@ -78,46 +78,48 @@ class UserSpec extends ObjectBehavior {
 
   // Register method
   function it_registeres_a_new_user() {
-    $this::register( 'we@you.them', '12345678' );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ]);
     $this::find( 'we@you.them' )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_registeres_and_activates_a_new_user() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_registeres_a_new_user_without_activating() {
-    $this::register( 'we@you.them', '12345678' );
-    $this::shouldThrow( 'Cartalyst\Sentinel\Checkpoints\NotActivatedException' )->duringLogin( 'we@you.them', '12345678' );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ]);
+    $this::shouldThrow( 'Cartalyst\Sentinel\Checkpoints\NotActivatedException' )
+      ->duringLogin( 'we@you.them', '12345678' );
   }
 
   function it_registeres_a_new_user_without_explicitly_activating() {
-    $this::register( 'we@you.them', '12345678', false );
-    $this::shouldThrow( 'Cartalyst\Sentinel\Checkpoints\NotActivatedException' )->duringLogin( 'we@you.them', '12345678' );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], false );
+    $this::shouldThrow( 'Cartalyst\Sentinel\Checkpoints\NotActivatedException' )
+      ->duringLogin( 'we@you.them', '12345678' );
   }
 
 
   // Login method
   function it_authenticates_a_user() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_authenticates_and_remembers_a_user() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678', true )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_fails_to_authenticate_a_user_with_wrong_credentials() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'them@you.me', '12345678', true )->shouldBe( false );
   }
 
 
   // Logout method
   function it_logs_the_current_user_out() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
     $this::loggedIn()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
     $this::logout();
@@ -125,7 +127,7 @@ class UserSpec extends ObjectBehavior {
   }
 
   function it_returns_null_after_logging_out() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
     $this::logout()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
@@ -133,38 +135,38 @@ class UserSpec extends ObjectBehavior {
 
   // LoggedIn method
   function it_is_positive_if_a_user_is_logged_in() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
     $this::loggedIn()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_is_negative_if_a_user_is_not_logged_in() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::loggedIn()->shouldBe( false ); 
   }
 
 
   // Get method
   function it_returns_the_currently_logged_in_user() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
     $this::get()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_returns_null_if_no_user_is_logged_in() {
-    $this::register( 'we@you.them', '12345678', true );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::get()->shouldBe( null );
   }
 
 
   // Find a user, either by id or by email
   function it_finds_a_user_by_id() {
-    $this::register( 'we@you.them', '12345678' );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ]);
     $this::find( 1 )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_finds_a_user_by_email() {
-    $this::register( 'we@you.them', '12345678' );
+    $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ]);
     $this::find( 'we@you.them' )
       ->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
@@ -181,7 +183,7 @@ class UserSpec extends ObjectBehavior {
 
   // Create password reminder
   function it_generates_a_password_reset_code() {
-    $this::register( 'yes@yes.yes', '12345678', true );
+    $this::register( [ 'email' => 'yes@yes.yes', 'password' => '12345678' ], true );
     $this::resetCode( 'yes@yes.yes' )->shouldMatch( '/^[a-zA-Z0-9]{32}$/' );
   }
 
@@ -193,7 +195,7 @@ class UserSpec extends ObjectBehavior {
 
   // Reset password
   function it_resets_the_password() {
-    $this::register( 'yes@yes.yes', '12345678', true );
+    $this::register( [ 'email' => 'yes@yes.yes', 'password' => '12345678' ], true );
     $object = $this::getWrappedObject();
     $code = $object::resetCode( 'yes@yes.yes' );
     $this::resetPassword( 'yes@yes.yes', '87654321', $code );
@@ -207,7 +209,7 @@ class UserSpec extends ObjectBehavior {
   }
 
   function it_fails_to_reset_the_password_with_a_wrong_code() {
-    $this::register( 'yes@yes.yes', '12345678', true );
+    $this::register( [ 'email' => 'yes@yes.yes', 'password' => '12345678' ], true );
     $this::shouldThrow( 'Bulckens\AppTools\UserResetCodeNotValidException' )
       ->duringResetPassword( 'yes@yes.yes', '87654321', 'hihihisisisja' );
   }
