@@ -36,7 +36,7 @@ class User {
 
 
   // Register user
-  public static function register( $credentials, $activate = null ) {
+  public static function register( array $credentials, $activate = null ) {
     // detect activation
     if ( is_null( $activate ) )
       $activate = self::$activate_on_signup;

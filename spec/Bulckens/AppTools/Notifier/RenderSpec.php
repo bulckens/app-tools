@@ -13,16 +13,30 @@ class RenderSpec extends ObjectBehavior {
 
   function let() {
     $app = new App( 'dev' );
+    $app->run();
     $this->beConstructedWith( new Exception( 'Fal che ou' ), new Config( 'dev' ) );
   }
   
+
+  // Cli method
+  function it_renders_the_given_exception_for_cli_with_given_subject() {
+    $this->cli( 'Manastaba' )->shouldContain( 'Manastaba [dev]' );
+  }
+
+  function it_renders_custom_data_for_cli() {
+    $text = $this->cli( 'AbFab', [ 'absolutely' => 'fabulous' ]);
+    $text->shouldContain( 'ADDITIONAL DATA' );
+    $text->shouldContain( 'absolutely' );
+    $text->shouldContain( 'fabulous' );
+  }
+
 
   // Html method
   function it_renders_the_given_exception_as_html_with_given_subject() {
     $this->html( 'Manastaba' )->shouldContain( 'Manastaba [dev]</h2>' );
   }
 
-  function it_renders_custom_data() {
+  function it_renders_custom_data_as_html() {
     $html = $this->html( 'AbFab', [ 'absolutely' => 'fabulous' ]);
     $html->shouldContain( '<h2 style="margin-bottom:5px;font-weight:normal;color:#b2b2b2;">ADDITIONAL DATA</h2>' );
     $html->shouldContain( 'absolutely' );
