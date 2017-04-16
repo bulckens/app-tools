@@ -36,16 +36,10 @@ class User {
 
 
   // Register user
-  public static function register( $email, $pass, $activate = null ) {
+  public static function register( $credentials, $activate = null ) {
     // detect activation
     if ( is_null( $activate ) )
       $activate = self::$activate_on_signup;
-
-    // prepare credentials
-    $credentials = [
-      'email'    => $email
-    , 'password' => $pass
-    ];
 
     return $activate === true ?
       Sentinel::registerAndActivate( $credentials ) :
