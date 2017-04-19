@@ -106,7 +106,7 @@ class User {
 
 
   // Reset password using code
-  public function resetPassword( $user, $password, $code ) {
+  public static function resetPassword( $user, $password, $code ) {
     // find user or fail
     $user = self::find( $user );
 
