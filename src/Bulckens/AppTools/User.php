@@ -4,6 +4,7 @@ namespace Bulckens\AppTools;
 
 use Exception;
 use Cartalyst\Sentinel\Native\Facades\Sentinel;
+use Cartalyst\Sentinel\Users\EloquentUser;
 use Bulckens\AppTools\Traits\Configurable;
 
 class User {
@@ -75,45 +76,48 @@ class User {
 
 
   // Find user by email or id
-  public static function find( $email_or_id ) {
-    if ( is_numeric( $email_or_id ) )
-      return Sentinel::findById( $email_or_id );
-
-    return Sentinel::findByCredentials([ 'login' => $email_or_id ]);
+  public static function find( $user ) {
+    if ( ! is_a( $user, EloquentUser::class ) ) {
+      if ( is_numeric( $user ) )
+        $user = Sentinel::findById( $user );
+      else
+        $user = Sentinel::findByCredentials([ 'login' => $user ]);
+    }
+    
+    // return user if found
+    if ( $user ) return $user;
+    
+    throw new UserNotFoundException( 'Unable to find user' );
   }
 
 
   // Generate password reset link
-  public static function resetCode( $email ) {
-    if ( $user = self::find( $email ) ) {
-      // get reminder repo and clean old codes
-      $reminder = Sentinel::getReminderRepository();
-      $reminder->removeExpired();
+  public static function resetCode( $user ) {
+    // find user or fail
+    $user = self::find( $user );
+      
+    // get reminder repo and clean old codes
+    $reminder = Sentinel::getReminderRepository();
+    $reminder->removeExpired();
 
-      // generate new code
-      return $reminder->create( $user )->code;
-
-    } else {
-      throw new UserNotFoundException( "Unable to find user for email $email" );
-    }
+    // generate new code
+    return $reminder->create( $user )->code;
   }
 
 
   // Reset password using code
-  public function resetPassword( $email, $password, $code ) {
-    if ( $user = self::find( $email ) ) {
-      // get reminder repo
-      $reminder = Sentinel::getReminderRepository();
-      
-      // test existance
-      if ( $reminder->exists( $user, $code ) )
-        return $reminder->complete( $user, $code, $password );
+  public function resetPassword( $user, $password, $code ) {
+    // find user or fail
+    $user = self::find( $user );
 
-      throw new UserResetCodeNotValidException( "The password reset code $code is not or no longer valid" );
+    // get reminder repo
+    $reminder = Sentinel::getReminderRepository();
+    
+    // test existance
+    if ( $reminder->exists( $user, $code ) )
+      return $reminder->complete( $user, $code, $password );
 
-    } else {
-      throw new UserNotFoundException( "Unable to find user for email $email" );
-    }
+    throw new UserResetCodeNotValidException( "The password reset code $code is not or no longer valid" );
   }
 
 }
