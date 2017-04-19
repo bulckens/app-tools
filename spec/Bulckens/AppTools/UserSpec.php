@@ -210,8 +210,7 @@ class UserSpec extends ObjectBehavior {
   // ResetPassword method
   function it_resets_the_password_for_a_given_email_address() {
     $this::register([ 'email' => 'yes@yes.yes', 'password' => '12345678' ], true );
-    $object = $this::getWrappedObject();
-    $code = $object::resetCode( 'yes@yes.yes' );
+    $code = $this::resetCode( 'yes@yes.yes' );
     $this::resetPassword( 'yes@yes.yes', '87654321', $code );
     $this::login( 'yes@yes.yes', '87654321', true )
       ->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
@@ -223,6 +222,12 @@ class UserSpec extends ObjectBehavior {
     $this::resetPassword( $user, '87654321', $code );
     $this::login( 'yes@yes.yes', '87654321', true )
       ->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
+  }
+
+  function it_returns_true_after_resetting_the_password_for_a_given_email_address() {
+    $this::register([ 'email' => 'yes@yes.yes', 'password' => '12345678' ], true );
+    $code = $this::resetCode( 'yes@yes.yes' );
+    $this::resetPassword( 'yes@yes.yes', '87654321', $code )->shouldBe( true );
   }
 
   function it_fails_to_reset_the_password_when_the_user_does_not_exist() {
