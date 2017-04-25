@@ -49,10 +49,10 @@ class User {
 
 
   // Log user in
-  public static function login( $email, $pass, $remember = false ) {
+  public static function login( $email, $password, $remember = false ) {
     return Sentinel::authenticate([
       'email'    => $email
-    , 'password' => $pass
+    , 'password' => $password
     ], $remember );
   }
 
