@@ -19,4 +19,13 @@ class TestApp extends App {
     return $this->customized;
   }
 
+  // Parent app render method
+  public static function render( $output ) {
+    switch ( $output->format() ) {
+      case 'html':
+        return '<html><head><title></title></head><body>Rendered from the outside!</body></html>';
+      break;
+    }
+  }
+
 }

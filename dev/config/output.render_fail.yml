@@ -1,0 +1,3 @@
+dev:
+  methods:
+    render: "Some\\Class::render"
