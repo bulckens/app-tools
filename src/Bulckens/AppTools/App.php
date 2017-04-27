@@ -6,15 +6,13 @@ use Exception;
 use Illuminate\Support\Str;
 use Bulckens\Helpers\FileHelper;
 use Bulckens\Helpers\ArrayHelper;
-use Bulckens\AppTools\Traits\Modulized;
-use Bulckens\AppTools\Traits\Configurable;
 
 class App {
 
-  use Modulized;
-  use Configurable;
-  
-  protected static $env;
+  use Traits\Modulized;
+  use Traits\Configurable;
+  use Traits\Environmentalized;
+
   protected static $root;
 
   // available modules (in order of initialization)
@@ -108,22 +106,6 @@ class App {
       throw new RootNotFoundException( 'Project root ' . self::$root . ' is not acceptable' );
 
     return str_replace( '//', '/', self::$root . "/$path" );
-  }
-
-
-  // Test current environment
-  public static function env( $test = null ) {
-    if ( count( $arguments = func_get_args() ) > 1 )
-      return self::env( $arguments );
-
-    elseif ( is_null( $test ) )
-      return self::$env;
-
-    elseif ( is_array( $test ) )
-      return in_array( self::$env, $test );
-
-
-    return $test == self::$env;
   }
 
 

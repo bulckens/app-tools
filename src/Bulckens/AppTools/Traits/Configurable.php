@@ -15,7 +15,8 @@ trait Configurable {
   public function config( $key = null, $default = null ) {
     // make sure config is loaded
     if ( ! $this->config ) {
-      $this->config = new Config( App::env() );
+      $env = method_exists( self::class, 'env' ) ? self::env() : App::env();
+      $this->config = new Config( $env );
       $this->config->load( $this->file() );
     }    
 
