@@ -19,9 +19,9 @@ class UserAuth {
 
     // initialize output container
     $output = new Output( $format );
-
-    // test if user is logged in 
-    $logged_in = User::loggedIn();
+    
+    // test if user is logged in
+    $logged_in = User::loggedIn( $req->getParam( 'user_token' ) );
 
     // if credentials are provided, start a login session
     // note: currently only possible in dev and test environments for testing purposes

@@ -58,19 +58,34 @@ class User {
 
 
   // log user out
-  public static function logout() {
-    return Sentinel::logout();
+  public static function logout( $user_token = null ) {
+    if ( $user_token ) {
+      if ( $user = self::get( $user_token ) )
+        $user->persistences()->delete();
+    }
+
+    Sentinel::logout();
   }
 
 
   // Checks if user is logged in
-  public static function loggedIn() {
+  public static function loggedIn( $user_token = null ) {
+    if ( $user_token ) {
+      if ( $user = self::get( $user_token ) )
+        return $user;
+    }
+
     return Sentinel::check();
   }
 
 
   // Get the instance of the current logged in user
-  public static function get() {
+  public static function get( $user_token = null ) {
+    if ( $user_token ) {
+      if ( $code = UserToken::persistenceCode( $user_token ) )
+        return Sentinel::findByPersistenceCode( $code );
+    }
+
     return Sentinel::getUser();
   }
 
@@ -78,8 +93,15 @@ class User {
   // Find user by email or id
   public static function find( $user ) {
     if ( ! is_a( $user, EloquentUser::class ) ) {
+      // find by id
       if ( is_numeric( $user ) )
         $user = Sentinel::findById( $user );
+
+      // find by user token/persistence code
+      else if ( $code = UserToken::persistenceCode( $user ) )
+        $user = Sentinel::findByPersistenceCode( $code );
+
+      // find by login
       else
         $user = Sentinel::findByCredentials([ 'login' => $user ]);
     }

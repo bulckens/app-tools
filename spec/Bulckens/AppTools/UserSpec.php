@@ -9,6 +9,7 @@ use Cartalyst\Sentinel\Activations\EloquentActivation;
 use Cartalyst\Sentinel\Persistences\EloquentPersistence;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\User;
+use Bulckens\AppTools\UserToken;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -134,10 +135,22 @@ class UserSpec extends ObjectBehavior {
     $this::loggedIn()->shouldBe( false ); 
   }
 
-  function it_returns_null_after_logging_out() {
+  function it_logs_the_current_user_out_using_a_user_token() {
+    $user = User::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
+    User::login( 'we@you.them', '12345678' );
+
+    $code  = $user->persistences()->first()->code;
+    $token = new UserToken( $code, 'generic' );
+
+    $this::loggedIn( $token->get() )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
+    $this::logout( $token->get() );
+    $this::loggedIn( $token->get() )->shouldBe( false ); 
+  }
+
+  function it_returns_the_nothing_after_logging_out() {
     $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
-    $this::logout()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
+    $this::logout()->shouldBe( null );
   }
 
 
@@ -146,6 +159,16 @@ class UserSpec extends ObjectBehavior {
     $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
     $this::loggedIn()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
+  }
+
+  function it_is_positive_if_a_user_is_logged_in_using_a_user_token() {
+    $user = User::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
+    User::login( 'we@you.them', '12345678' );
+
+    $code  = $user->persistences()->first()->code;
+    $token = new UserToken( $code, 'generic' );
+
+    $this::loggedIn(  $token->get() )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_is_negative_if_a_user_is_not_logged_in() {
@@ -159,6 +182,16 @@ class UserSpec extends ObjectBehavior {
     $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
     $this::login( 'we@you.them', '12345678' );
     $this::get()->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
+  }
+
+  function it_returns_the_user_logged_in_using_a_user_token() {
+    $user = User::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
+    User::login( 'we@you.them', '12345678' );
+
+    $code  = $user->persistences()->first()->code;
+    $token = new UserToken( $code, 'generic' );
+
+    $this::get( $token->get() )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_returns_null_if_no_user_is_logged_in() {
@@ -177,6 +210,16 @@ class UserSpec extends ObjectBehavior {
     $this::register([ 'email' => 'we@you.them', 'password' => '12345678' ]);
     $this::find( 'we@you.them' )
       ->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
+  }
+
+  function it_finds_a_user_by_token() {
+    $user = User::register([ 'email' => 'we@you.them', 'password' => '12345678' ], true );
+    User::login( 'we@you.them', '12345678' );
+
+    $code  = $user->persistences()->first()->code;
+    $token = new UserToken( $code, 'generic' );
+
+    $this::find( $token->get() )->shouldHaveType( 'Cartalyst\Sentinel\Users\EloquentUser' );
   }
 
   function it_accepts_a_user_object_and_returns_it() {

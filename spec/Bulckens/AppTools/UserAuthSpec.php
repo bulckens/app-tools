@@ -13,6 +13,7 @@ use Slim\Http\Environment;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\User;
 use Bulckens\AppTools\UserAuth;
+use Bulckens\AppTools\UserToken;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -58,6 +59,25 @@ class UserAuthSpec extends ObjectBehavior {
     $response = $this->__invoke( $this->req, $this->res, $this->next )->__toString();
     $response->shouldStartWith( 'HTTP/1.1 401 Unauthorized' );
     $response->shouldContain( '{"error":"login.required"}' );
+  }
+
+  function it_allows_logging_in_using_a_user_token() {
+    $user = Sentinel::register( $this->credentials, true );
+    $user->addPermission( 'test.permission' );
+    $user->save();
+    $user = User::login( $this->credentials['email'], $this->credentials['password'] );
+
+    $code  = $user->persistences()->first()->code;
+    $token = new UserToken( $code, 'generic' );
+
+    $environment = Environment::mock([
+      'REQUEST_URI'  => '/fake.json'
+    , 'QUERY_STRING' => "user_token=$token"
+    ]);
+    $this->req = Request::createFromEnvironment( $environment );
+
+    $response = $this->__invoke( $this->req, $this->res, $this->next );
+    $response->shouldBe( 'testful success' );
   }
 
   function it_allows_logging_in_using_credentials_in_test_and_dev_environments() {
