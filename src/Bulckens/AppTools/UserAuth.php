@@ -20,23 +20,13 @@ class UserAuth {
     // initialize output container
     $output = new Output( $format );
     
-    // test if user is logged in
-    $logged_in = User::loggedIn( $req->getParam( 'user_token' ) );
-
-    // if credentials are provided, start a login session
-    // note: currently only possible in dev and test environments for testing purposes
-    if ( App::env([ 'dev', 'test' ]) && ! $logged_in ) {
-      if ( $credentials = $req->getParam( 'credentials' ) )
-        $logged_in = User::login( $credentials['email'], $credentials['password'] );
-    }
-
     // fail when not being logged in
-    if ( ! $logged_in ) {
+    if ( ! User::loggedIn( $req->getParam( 'user_token' ) ) ) {
       $output->add([ 'error' => 'login.required' ])->status( 401 );
 
     } else {
       // get user
-      $user = User::get();
+      $user = User::get( $req->getParam( 'user_token' ) );
 
       // test permissions
       if ( ! $user->hasAnyAccess( $this->permission ) )

@@ -80,21 +80,6 @@ class UserAuthSpec extends ObjectBehavior {
     $response->shouldBe( 'testful success' );
   }
 
-  function it_allows_logging_in_using_credentials_in_test_and_dev_environments() {
-    $environment = Environment::mock([
-      'REQUEST_URI'  => '/fake.json'
-    , 'QUERY_STRING' => "credentials[email]={$this->credentials['email']}&credentials[password]={$this->credentials['password']}"
-    ]);
-    $this->req = Request::createFromEnvironment( $environment );
-
-    $user = Sentinel::register( $this->credentials, true );
-    $user->addPermission( 'test.permission' );
-    $user->save();
-
-    $response = $this->__invoke( $this->req, $this->res, $this->next );
-    $response->shouldBe( 'testful success' );
-  }
-
   function it_requires_the_correct_permissions() {
     Sentinel::register( $this->credentials, true );
     Sentinel::authenticate( $this->credentials );
