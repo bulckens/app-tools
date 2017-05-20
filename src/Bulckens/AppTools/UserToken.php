@@ -34,7 +34,7 @@ class UserToken {
   // Get generated token
   public function get() {
     $parts = [ $this->secret, $this->stamp, $this->code ];
-    return $this->hash( $parts ) . dechex( $this->stamp ) . strrev( $this->code );
+    return $this->hash( $parts ) . strrev( $this->code );
   }
 
 

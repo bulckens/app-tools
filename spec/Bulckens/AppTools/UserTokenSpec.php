@@ -21,7 +21,7 @@ class UserTokenSpec extends ObjectBehavior {
   // Initialization
   function it_fails_when_no_secret_could_be_found() {
     $this
-      ->shouldThrow( 'Bulckens\AppTools\Traits\TokenSecretMissingException' )
+      ->shouldThrow( 'Bulckens\AppTools\Traits\TokenishSecretMissingException' )
       ->during__construct( 'gGOml0Nt9PiCr09lYWt5z123kIu1y4Hk', 'phish' );
   }
 
@@ -48,10 +48,11 @@ class UserTokenSpec extends ObjectBehavior {
   // Hash method
   function it_hashes_the_given_parts() {
     $code  = StringHelper::generate( 32 );
+    $stamp = TimeHelper::ms();
     $parts = [ 'a', 'b', 'c' ];
-    $hash  = hash( 'sha256', implode( '---', $parts ) );
+    $hash  = hash( 'sha256', implode( '---', $parts ) ) . dechex( $stamp );
 
-    $this->beConstructedWith( $code, 'generic' );
+    $this->beConstructedWith( $code, 'generic', $stamp );
     $this->hash( $parts )->shouldBe( $hash );
   }
 
@@ -94,7 +95,7 @@ class UserTokenSpec extends ObjectBehavior {
   function it_verifies_the_existence_of_a_secret() {
     $this->beConstructedWith( StringHelper::generate( 32 ), 'generic', TimeHelper::ms() );
     $this
-      ->shouldNotThrow( 'Bulckens\AppTools\Traits\TokenSecretMissingException' )
+      ->shouldNotThrow( 'Bulckens\AppTools\Traits\TokenishSecretMissingException' )
       ->duringVerify( 'generic' );
   }
 
