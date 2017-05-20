@@ -22,9 +22,9 @@ trait Tokenish {
   }
 
 
-  // Hash given array with parameters
+  // Hash given array with parameters and current timestamp
   public function hash( array $parts ) {
-  	return hash( 'sha256', implode( '---', $parts ) );
+  	return hash( 'sha256', implode( '---', $parts ) ) . dechex( $this->stamp );
   }
 
 
@@ -41,7 +41,7 @@ trait Tokenish {
   // Verify presence of given secret
   public function verify( $secret ) {
   	if ( ! $this->secret )
-  	  throw new TokenSecretMissingException( "Secret could not be found for $secret" ); 
+  	  throw new TokenishSecretMissingException( "Secret could not be found for $secret" ); 
 
   	return $this;
   }
@@ -62,4 +62,4 @@ trait Tokenish {
 }
 
 // Exceptions
-class TokenSecretMissingException extends Exception {}
+class TokenishSecretMissingException extends Exception {}
