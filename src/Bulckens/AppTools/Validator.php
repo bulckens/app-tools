@@ -39,11 +39,13 @@ class Validator {
     ]
   ];
 
+
   // Initialization
   public function __construct( $rules ) {
     // store rules
     $this->rules = $rules;
   }
+
 
   // Store data to test against
   public function data( $data = null ) {
@@ -54,6 +56,7 @@ class Validator {
 
     return $this;
   }
+
 
   // Store object and its status
   public function model( $model = null, $id = null ) {
@@ -80,12 +83,14 @@ class Validator {
     return $this;
   }
 
+
   // Store custom messages
   public function messages( $messages ) {
     $this->messages = array_replace_recursive( $this->messages, $messages );
 
     return $this;
   }
+
 
   // Perform validation
   public function passes() {
@@ -105,39 +110,42 @@ class Validator {
       }
     }
 
-    return count( $this->errors() ) == 0;
+    return empty( $this->errors() );
   }
+
 
   // Perform negative validation
   public function fails() {
     return ! $this->passes();
   }
 
+
   // Return errors variable
-  public function errors() {
-    return $this->errors;
+  public function errors( $key = null ) {
+    if ( is_null( $key ) )
+      return $this->errors;
+    
+    if ( isset( $this->errors[$key] ) )
+      return $this->errors[$key];
   }
 
-  // Get all errors on a specific field
-  public function errorsOn( $name ) {
-    return $this->errors[$name];
-  }
 
   // Return error messages
-  public function errorMessages() {
+  public function errorMessages( $key = null ) {
+    if ( ! is_null( $key ) ) {
+      if ( isset( $this->errors[$key] ) )
+        return array_values( $this->errors[$key] );
+    }
+
     $messages = [];
 
     // flatten array
-    foreach ( $this->errors as $name => $errors )
-      $messages[$name] = array_values( $errors );
+    foreach ( $this->errors as $key => $errors )
+      $messages[$key] = array_values( $errors );
     
     return $messages;
   }
 
-  // Return error messages
-  public function errorMessagesOn( $name ) {
-    return $messages[$name] = array_values( $errors );
-  }
 
   // Add an error
   protected function error( $name, $key, $values = [] ) {
@@ -154,7 +162,7 @@ class Validator {
       $message = $values['message'];
 
       // delete message in values
-      $values['message'] = null;
+      unset( $values['message'] );
     }
 
     // get it from the user-isset specific messages
@@ -185,6 +193,7 @@ class Validator {
     $this->errors[$name][$key] = $this->interpolate( $message, $values );
   }
 
+
   // Validate presence
   protected function required( $name, $constraint ) {
     // make constraint dependent
@@ -204,8 +213,8 @@ class Validator {
         $this->model->$name = $original[$name];
       }
     }
-      
   }
+
 
   // Validate non-presence
   protected function forbidden( $name ) {
@@ -213,17 +222,20 @@ class Validator {
       $this->error( $name, 'forbidden' );
   }
 
+
   // Validate min length
   protected function min( $name, $length ) {
-    if ( ! empty( $this->data[$name] ) && strlen( $this->data[$name] ) < $length * 1.0 )
+    if ( ! empty( $this->data[$name] ) && strlen( $this->data[$name] ) < $length )
       $this->error( $name, 'min', [ 'length' => $length ] );
   }
 
+
   // Validate max length
   protected function max( $name, $length ) {
-    if ( strlen( $this->data[$name] ) > $length * 1.0 )
+    if ( strlen( $this->data[$name] ) > $length )
       $this->error( $name, 'max', [ 'length' => $length ] );
   }
+
 
   // Validate against a regex
   protected function match( $name, $regex ) {
@@ -246,14 +258,16 @@ class Validator {
       $this->error( $name, "match$key" );
   }
 
+
   // Validate confirmation
   protected function confirmation( $name, $confirmation ) {
     // define confirming field name
-    $confirmation_name = is_string( $confirmation ) ? $confirmation : "{$name}_confirmation";
+    $c = is_string( $confirmation ) ? $confirmation : "{$name}_confirmation";
 
-    if ( $this->data[$name] != $this->data[$confirmation_name] )
+    if ( ! isset( $this->data[$c] ) || $this->data[$name] != $this->data[$c] )
       $this->error( $name, 'confirmation' );
   }
+
 
   // Validate against an exact value
   protected function exactly( $name, $expectation ) {
@@ -261,11 +275,13 @@ class Validator {
       $this->error( $name, 'exactly', [ 'expectation' => $expectation ] );
   }
 
+
   // Validate as item in an array
   protected function in( $name, $list ) {
     if ( ! in_array( $this->data[$name], $list ) )
       $this->error( $name, 'in', [ 'list' => $list ] );
   }
+
 
   // Validate numeric value
   protected function numeric( $name, $expectation ) {
@@ -307,6 +323,7 @@ class Validator {
       $this->error( $name, $key, [ 'expectation' => $expectation ] );
   }
 
+
   // Uniqueness tester
   protected function unique( $name, $options ) {
     // build new query
@@ -322,7 +339,10 @@ class Validator {
       $scope = $options['scope'];
 
       // get scope value
-      $value = isset( $options['value'] ) ? $options['value'] : $this->model->$scope;
+      $value = isset( $options['value'] ) ?
+        $options['value']    : isset( $this->data[$scope] ) ?
+        $this->data[$scope]  : isset( $this->model ) ?
+        $this->model->$scope : null;
 
       // define scope
       if ( is_null( $value ) )
@@ -338,16 +358,19 @@ class Validator {
       $this->error( $name, 'unique', [ 'found' => $found ] );
   }
 
+
   // Custom validation using a closure
   protected function custom( $name, $closure, $message = null ) {
     if ( ! $closure( $name, $this ) )
       $this->error( $name, 'custom', [ 'message' => $message ] );
   }
 
+
   // Test for empty of blank value
   protected function isBlank( $value ) {
     return preg_match( '/\A(\s+)?\z/', $value );
   }
+
 
   // Interpolate values
   protected function interpolate( $message, $values = [] ) {

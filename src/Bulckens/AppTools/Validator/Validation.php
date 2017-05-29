@@ -12,7 +12,7 @@ trait Validation {
   // Validate data before saving
   public function isValid() {
     // get rules
-    $rules = $this->rules() ?: $this->$rules;
+    $rules = $this->rules() ?: $this->rules;
     
     if ( $rules ) {
       // initialize validator
