@@ -574,16 +574,30 @@ class ValidatorSpec extends ObjectBehavior {
 
 
   // Custom validation
-  function it_fails_when_a_closure_returns_false() {
+  function it_fails_when_a_custom_closure_returns_false() {
     $this->beConstructedWith([ 'faduba' => [ 'custom' => function() { return false; } ] ]);
     $this->passes()->shouldBe( false );
     $this->errorMessages( 'faduba' )->shouldContain( 'is invalid' );
   }
 
-  function it_ensures_a_value_isacceptable_using_a_closure() {
+  function it_ensures_a_value_is_acceptable_using_a_custom_closure() {
     $this->beConstructedWith([ 'faduba' => [ 'custom' => function() { return true; } ] ]);
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'faduba' )->shouldHaveCount( 0 );
   }
+
+  function it_ensures_a_value_is_acceptable_using_a_method_name() {
+    $this->beConstructedWith([ 'truthy' => [ 'custom' => 'Bulckens\AppTests\TestValidatorHelper::truthy' ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'truthy' )->shouldHaveCount( 0 );
+  }
+
+  function it_ensures_a_value_is_unacceptable_using_a_method_name() {
+    $this->beConstructedWith([ 'falsy' => [ 'custom' => 'Bulckens\AppTests\TestValidatorHelper::falsy' ] ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'falsy' )->shouldContain( 'is invalid' );
+  }
+
+
 
 }
