@@ -94,6 +94,9 @@ class Validator {
 
   // Perform validation
   public function passes() {
+    // rules to execute even if no data is present
+    $force = [ 'required', 'custom' ];
+
     // clear errors array
     $this->errors = [];
 
@@ -101,12 +104,9 @@ class Validator {
     foreach ( $this->rules as $name => $value ) {
       // run every rule
       foreach ( $value as $rule => $constraint ) {
-        // make sure key exists in data array
-        if ( ! isset( $this->data[$name] ) )
-          $this->data[$name] = null;
-
         // perform test
-        $this->{$rule}( $name, $constraint );
+        if ( in_array( $rule, $force ) || isset( $this->data[$name] ) )
+          $this->{$rule}( $name, $constraint );
       }
     }
 
@@ -197,7 +197,7 @@ class Validator {
   // Validate presence
   protected function required( $name, $constraint ) {
     // make constraint dependent
-    $required = true;
+    $required = $constraint;
 
     if ( $constraint == 'create' )
       $required = ! $this->exists;
@@ -205,7 +205,7 @@ class Validator {
       $required = $this->exists;
 
     // make sure value is restored to original if not present
-    if ( $this->isBlank( $this->data[$name] ) ) {
+    if ( ! isset( $this->data[$name] ) ||  $this->isBlank( $this->data[$name] ) ) {
       if ( $required ) {
         $this->error( $name, 'required' );
       } else if ( $this->model ) {
