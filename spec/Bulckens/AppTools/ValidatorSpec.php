@@ -158,6 +158,12 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'email' )->shouldContain( 'is required' );
   }
 
+  function it_allows_not_to_be_required_explicitly() {
+    $this->beConstructedWith([ 'email' => [ 'required' => false ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'email' )->shouldHaveCount( 0 );
+  }
+
 
   // Value forbidden
   function it_ensures_a_value_is_forbidden() {
@@ -189,6 +195,12 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'email' )->shouldHaveCount( 0 );
   }
 
+  function it_allows_absense_of_data_while_testing_the_minimum_length() {
+    $this->beConstructedWith([ 'email' => [ 'min' => 20 ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'email' )->shouldHaveCount( 0 );
+  }
+
 
   // Value max
   function it_ensures_the_maximum_length_of_a_value() {
@@ -201,6 +213,12 @@ class ValidatorSpec extends ObjectBehavior {
   function it_ensures_the_value_has_a_maximum_length() {
     $this->beConstructedWith([ 'email' => [ 'max' => 1000 ] ]);
     $this->data([ 'email' => 'aaaaaaaaa@bbbbbbbbb.ccccccccc' ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'email' )->shouldHaveCount( 0 );
+  }
+
+  function it_allows_absense_of_data_while_testing_for_the_maximum_length() {
+    $this->beConstructedWith([ 'email' => [ 'max' => 1000 ] ]);
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'email' )->shouldHaveCount( 0 );
   }
@@ -333,6 +351,12 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
   }
 
+  function it_allows_absense_of_data_when_matching_a_value_against_a_regex() {
+    $this->beConstructedWith([ 'name' => [ 'match' => '/^1?23?$/' ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
 
   // Value confirmation
   function it_ensures_the_confirmation_of_a_value() {
@@ -363,6 +387,19 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
   }
 
+  function it_allows_absence_of_data_when_testing_the_confirmation_value() {
+    $this->beConstructedWith([ 'name' => [ 'confirmation' => true ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
+  function it_does_not_allow_absence_of_the_confirmation_value_when_the_confirmable_value_is_given() {
+    $this->beConstructedWith([ 'name' => [ 'confirmation' => true ] ]);
+    $this->data([ 'name' => 'Flubert' ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'name' )->shouldContain( 'confirmation does not match' );
+  }
+
 
   // Exact value
   function it_ensures_the_exact_match_of_a_value() {
@@ -379,6 +416,12 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
   }
 
+  function it_allows_absense_of_data_when_matching_exactly() {
+    $this->beConstructedWith([ 'name' => [ 'exactly' => 'famosa' ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
 
   // Value in
   function it_ensures_the_presence_of_a_value_in_an_array() {
@@ -391,6 +434,12 @@ class ValidatorSpec extends ObjectBehavior {
   function it_ensures_a_value_is_inside_an_array() {
     $this->beConstructedWith([ 'name' => [ 'in' => [ 'aap', 'noot', 'mies' ] ] ]);
     $this->data([ 'name' => 'aap' ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
+  function it_allows_absense_of_data_when_testing_the_presens_in_an_array() {
+    $this->beConstructedWith([ 'name' => [ 'in' => [ 'aap', 'noot', 'mies' ] ] ]);
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
   }
@@ -453,6 +502,12 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'age' )->shouldHaveCount( 0 );
   }
 
+  function it_allows_absense_of_data_when_testing_for_a_numeric_value() {
+    $this->beConstructedWith([ 'age' => [ 'numeric' => true ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'age' )->shouldHaveCount( 0 );
+  }
+
 
   // Value uniqueness
   function it_fails_when_a_value_is_not_unique() {
@@ -502,6 +557,16 @@ class ValidatorSpec extends ObjectBehavior {
     $model = new TestModel();
     $this->beConstructedWith([ 'name' => [ 'unique' => [ 'scope' => 'group' ] ] ]);
     $this->data([ 'name' => 'roof', 'group' => 'werk' ]);
+    $this->model( $model );
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
+  function it_allows_absense_of_data_while_testing_for_uniqueness() {
+    $model = new TestModel();
+    $model->save();
+    $model = new TestModel();
+    $this->beConstructedWith([ 'name' => [ 'unique' => true ] ]);
     $this->model( $model );
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
