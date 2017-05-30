@@ -361,7 +361,11 @@ class Validator {
 
   // Custom validation using a closure
   protected function custom( $name, $closure, $message = null ) {
-    if ( ! $closure( $name, $this ) )
+    $passed = is_string( $closure ) ?
+      call_user_func( $closure, $name, $this ) :
+      $closure( $name, $this );
+
+    if ( ! $passed )
       $this->error( $name, 'custom', [ 'message' => $message ] );
   }
 
