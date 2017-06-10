@@ -30,7 +30,7 @@ class Validator {
     , 'confirmation'        => 'confirmation does not match'
     , 'exactly'             => 'is not the expected value'
     , 'in'                  => 'could not be found in the list'
-    , 'not_in'              => 'should not be found in the list'
+    , 'not_in'              => 'is not an allowed value'
     , 'numeric'             => 'is not the right numeric value'
     , 'numeric_even'        => 'is not a an even number'
     , 'numeric_odd'         => 'is not a an odd number'

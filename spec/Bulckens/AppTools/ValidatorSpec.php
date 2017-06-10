@@ -457,7 +457,7 @@ class ValidatorSpec extends ObjectBehavior {
     $this->beConstructedWith([ 'name' => [ 'not_in' => [ 'aap', 'noot', 'mies' ] ] ]);
     $this->data([ 'name' => 'aap' ]);
     $this->passes()->shouldBe( false );
-    $this->errorMessages( 'name' )->shouldContain( 'should not be found in the list' );
+    $this->errorMessages( 'name' )->shouldContain( 'is not an allowed value' );
   }
 
   function it_ensures_a_value_is_not_inside_an_array() {
