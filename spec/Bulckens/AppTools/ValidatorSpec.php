@@ -158,6 +158,13 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'email' )->shouldContain( 'is required' );
   }
 
+  function it_ensures_a_value_is_required_when_it_is_blank() {
+    $this->beConstructedWith([ 'email' => [ 'required' => true ] ]);
+    $this->data([ 'email' => '' ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'email' )->shouldHaveCount( 1 );
+  }
+
   function it_allows_not_to_be_required_explicitly() {
     $this->beConstructedWith([ 'email' => [ 'required' => false ] ]);
     $this->passes()->shouldBe( true );
@@ -438,8 +445,30 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
   }
 
-  function it_allows_absense_of_data_when_testing_the_presens_in_an_array() {
+  function it_allows_absense_of_data_when_testing_the_presence_in_an_array() {
     $this->beConstructedWith([ 'name' => [ 'in' => [ 'aap', 'noot', 'mies' ] ] ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
+
+  // Value not in
+  function it_ensures_the_presence_of_a_value_is_not_in_an_array() {
+    $this->beConstructedWith([ 'name' => [ 'not_in' => [ 'aap', 'noot', 'mies' ] ] ]);
+    $this->data([ 'name' => 'aap' ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'name' )->shouldContain( 'should not be found in the list' );
+  }
+
+  function it_ensures_a_value_is_not_inside_an_array() {
+    $this->beConstructedWith([ 'name' => [ 'not_in' => [ 'aap', 'noot', 'mies' ] ] ]);
+    $this->data([ 'name' => 'wim' ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
+  function it_allows_absense_of_data_when_testing_the_absence_in_an_array() {
+    $this->beConstructedWith([ 'name' => [ 'not_in' => [ 'aap', 'noot', 'mies' ] ] ]);
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
   }

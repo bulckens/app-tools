@@ -30,6 +30,7 @@ class Validator {
     , 'confirmation'        => 'confirmation does not match'
     , 'exactly'             => 'is not the expected value'
     , 'in'                  => 'could not be found in the list'
+    , 'not_in'              => 'should not be found in the list'
     , 'numeric'             => 'is not the right numeric value'
     , 'numeric_even'        => 'is not a an even number'
     , 'numeric_odd'         => 'is not a an odd number'
@@ -280,6 +281,13 @@ class Validator {
   protected function in( $name, $list ) {
     if ( ! in_array( $this->data[$name], $list ) )
       $this->error( $name, 'in', [ 'list' => $list ] );
+  }
+
+
+  // Validate as item not in an array
+  protected function not_in( $name, $list ) {
+    if ( in_array( $this->data[$name], $list ) )
+      $this->error( $name, 'not_in', [ 'list' => $list ] );
   }
 
 
