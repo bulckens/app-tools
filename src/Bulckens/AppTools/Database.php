@@ -20,7 +20,7 @@ class Database {
     $container = new Container();
     $container->singleton(
       'Illuminate\Contracts\Debug\ExceptionHandler'
-    , 'Bulckens\AppTools\Notifier\DatabaseExceptionHandler'
+    , 'Bulckens\AppTools\DatabaseExceptionHandler'
     );
 
     $factory    = new ConnectionFactory( $container );
