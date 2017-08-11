@@ -115,7 +115,7 @@ class Output {
     } else {
       // get pure keys
       $keys = $this->config( 'keys', [] );
-      $pure = array_merge( $keys, [ 'error', 'details' ] );
+      $pure = array_merge( $keys, [ 'error', 'details', 'body' ] );
 
       // remove impure keys
       foreach ( $this->output as $key => $value )

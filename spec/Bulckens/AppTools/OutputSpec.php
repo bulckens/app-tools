@@ -270,11 +270,13 @@ class OutputSpec extends ObjectBehavior {
       'error'    => 'bad'
     , 'success'  => 'good'
     , 'details'  => [ 'unimportant' => 'right now' ]
+    , 'body'     => 'bestanding be beloved'
     , 'resource' => 'which is not there'
     ]);
     $this->status( 418 )->purify();
     $this->render()->shouldHaveKey( 'error' );
     $this->render()->shouldHaveKey( 'details' );
+    $this->render()->shouldHaveKey( 'body' );
     $this->render()->shouldNotHaveKey( 'success' );
     $this->render()->shouldNotHaveKey( 'resource' );
   }
