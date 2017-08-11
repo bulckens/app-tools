@@ -166,10 +166,7 @@ class Output {
       case 'txt':
       case 'css':
       case 'js':
-        // return error if error is given
-        if ( isset( $this->output['error'] ))
-          return Mime::comment( "error: {$this->output['error']}", $this->format );
-
+        // output body
         if ( isset( $this->output['body'] ) ) {
           $body = $this->output['body'];
           unset( $this->output['body'] );
@@ -180,6 +177,11 @@ class Output {
           return $body;
         }
 
+        // return error if error is given
+        if ( isset( $this->output['error'] ))
+          return Mime::comment( "error: {$this->output['error']}", $this->format );
+
+        // extra verbose
         if ( $this->config( 'verbose' ) )
           return Mime::comment( print_r( $this->output, true ), $this->format );
       break;
