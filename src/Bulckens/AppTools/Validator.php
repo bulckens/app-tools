@@ -229,8 +229,13 @@ class Validator {
 
   // Validate unchangeable value
   protected function unchangeable( $name ) {
-    if ( $this->model && $this->model->id && $this->model->$name != $this->data[$name] ) {
-      $this->error( $name, 'unchangeable' );
+    if ( ( $class = $this->class ) && ( $id = $this->model->id ) ) {
+      // find existing record
+      $old = $class::find( $id );
+      
+      if ( $old->$name != $this->data[$name] ) {
+        $this->error( $name, 'unchangeable' );
+      }
     }
   }
 
