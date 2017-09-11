@@ -16,6 +16,7 @@ class Validator {
     'base' => [
       'required'            => 'is required'
     , 'forbidden'           => 'is not allowed'
+    , 'unchangeable'        => 'can not be changed'
     , 'min'                 => 'should be longer than {{ length }} characters'
     , 'max'                 => 'should be shorter than {{ length }} characters'
     , 'match'               => 'does not have the right format'
@@ -200,10 +201,11 @@ class Validator {
     // make constraint dependent
     $required = $constraint;
 
-    if ( $constraint == 'create' )
+    if ( $constraint == 'create' ) {
       $required = ! $this->exists;
-    else if ( $constraint == 'update' )
+    } else if ( $constraint == 'update' ) {
       $required = $this->exists;
+    }
 
     // make sure value is restored to original if not present
     if ( ! isset( $this->data[$name] ) ||  $this->isBlank( $this->data[$name] ) ) {
@@ -219,22 +221,33 @@ class Validator {
 
   // Validate non-presence
   protected function forbidden( $name ) {
-    if ( ! $this->isBlank( $this->data[$name] ) )
+    if ( ! $this->isBlank( $this->data[$name] ) ) {
       $this->error( $name, 'forbidden' );
+    }
+  }
+
+
+  // Validate unchangeable value
+  protected function unchangeable( $name ) {
+    if ( $this->model && $this->model->id && $this->model->$name != $this->data[$name] ) {
+      $this->error( $name, 'unchangeable' );
+    }
   }
 
 
   // Validate min length
   protected function min( $name, $length ) {
-    if ( ! empty( $this->data[$name] ) && strlen( $this->data[$name] ) < $length )
+    if ( ! empty( $this->data[$name] ) && strlen( $this->data[$name] ) < $length ) {
       $this->error( $name, 'min', [ 'length' => $length ] );
+    }
   }
 
 
   // Validate max length
   protected function max( $name, $length ) {
-    if ( strlen( $this->data[$name] ) > $length )
+    if ( strlen( $this->data[$name] ) > $length ) {
       $this->error( $name, 'max', [ 'length' => $length ] );
+    }
   }
 
 
@@ -255,8 +268,9 @@ class Validator {
       case 'Alphanumeric':  $key = "_$regex"; $regex = '/\A[A-Z0-9]+\z/i';  break;
     }
 
-    if ( ! empty( $this->data[$name] ) && ! preg_match( $regex, $this->data[$name] ) )
+    if ( ! empty( $this->data[$name] ) && ! preg_match( $regex, $this->data[$name] ) ) {
       $this->error( $name, "match$key" );
+    }
   }
 
 

@@ -187,6 +187,37 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
 
+  // Value unchangeable
+  function it_ensures_a_value_is_unchangeable() {
+    $model = new TestModel();
+    $model->name = 'foof';
+    $model->save();
+    $this->beConstructedWith([ 'name' => [ 'unchangeable' => true ] ]);
+    $this->data([ 'name' => 'offo' ]);
+    $this->model( $model );
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'name' )->shouldContain( 'can not be changed' );
+  }
+
+  function it_allows_a_value_to_be_changed_with_new_models() {
+    $model = new TestModel();
+    $model->name = 'foof';
+    $this->beConstructedWith([ 'name' => [ 'unchangeable' => true ] ]);
+    $this->data([ 'name' => 'offo' ]);
+    $this->model( $model );
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_allows_the_unchangeable_value_to_be_blank() {
+    $model = new TestModel();
+    $model->save();
+    $this->beConstructedWith([ 'name' => [ 'unchangeable' => true ] ]);
+    $this->data([ 'name' => '' ]);
+    $this->model( $model );
+    $this->passes()->shouldBe( true );
+  }
+
+
   // Value min
   function it_ensures_the_minimum_length_of_a_value() {
     $this->beConstructedWith([ 'email' => [ 'min' => 200 ] ]);
