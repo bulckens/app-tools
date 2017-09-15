@@ -318,6 +318,27 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
     $this->sibling->shouldBe( null );
   }
 
+  function it_creates_children_and_grandchildren() {
+    $this->beConstructedWith([
+      'name' => 'I have grandchildren'
+    , 'nested_associations' => [
+        'children' => [
+          [ 'name' => 'I have children'
+          , 'nested_associations' => [
+              'children' => [
+                [ 'name' => 'I am a grandchild' ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]);
+    $this->save();
+
+    $this->children->get( 0 )->name->shouldBe( 'I have children' );
+    $this->children->get( 0 )->children->get( 0 )->name->shouldBe( 'I am a grandchild' );
+  }
+
 
   // SaveWithNestedAssociations method
   function it_saves_itself_and_the_nested_associations() {

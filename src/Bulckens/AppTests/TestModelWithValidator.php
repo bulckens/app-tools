@@ -6,14 +6,21 @@ use Bulckens\AppTools\Model;
 
 class TestModelWithValidator extends Model {
 
-  // Fillable and visible attributes
-  protected $fillable = [ 'name' ];
   protected $table = 'test_models';
+
+  // Fillable and visible attributes
+  protected $fillable = [ 'name', 'nested_associations' ];
+  protected $nested_associations = [ 'children' ];
 
   public function rules() {
     return [
       'name' => [ 'required' => true ]
     ];
+  }
+
+  // Children relation
+  public function children() {
+    return $this->hasMany( 'Bulckens\AppTests\TestModelWithValidator', 'parent_id' );
   }
 
 }
