@@ -69,8 +69,10 @@ trait NestedAssociations {
           $instance->delete();
         }
 
-        // remove eloquent relations cache
-        $this->setRelations( [] );
+        // remove relation from eloquent relations cache
+        $relations = $this->getRelations();
+        unset( $relations[$name] );
+        $this->setRelations( $relations );
       }
     }
   }
