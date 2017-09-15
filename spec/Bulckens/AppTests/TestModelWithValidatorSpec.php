@@ -18,7 +18,7 @@ class TestModelWithValidatorSpec extends ObjectBehavior {
   function it_has_many_children() {
     $this->children()->shouldHaveType( 'Illuminate\Database\Eloquent\Relations\HasMany' );
   }
-  
+
   
   // Rules method
   function it_is_valid_when_a_name_is_given() {

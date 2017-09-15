@@ -33,39 +33,38 @@ trait Validatable {
 
       // validate associations
       if ( isset( $this->associations ) && is_array( $this->associations ) ) {
-        // initialize error storage for associations
-        $this->errors['associations'] = [];
-
         // validate every given list of associations
-        foreach ( $this->associations as $name => $relation ) {
+        foreach ( $this->associations as $name => $instance ) {
           // get relation type
           $type = $this->$name();
 
-          // initialize error storage for relation
-          $this->errors['associations'][$name] = [];
-
           // detect relation type
           if ( $type instanceof HasOne ) {
-            if ( $relation->isInvalid() ) {
+            if ( $instance->isInvalid() ) {
               // add association model errors
-              $this->errors['associations'][$name] = $relation->errors();
+              $this->errors[$name] = $instance->errors();
               
               $valid = false;
             }
 
           } elseif ( $type instanceof HasMany ) {
-            for ( $i = 0; $i < count( $relation ); $i++ ) {
-              // initialize error store for instance at given position
-              $this->errors['associations'][$name][$i] = [];
+            for ( $i = 0; $i < count( $instance ); $i++ ) {
+              if ( $instance[$i]->isInvalid() ) {
+                // add association index to errors
+                $errors = $instance[$i]->errors();
+                $errors['_index'] = $i;
 
-              if ( $relation[$i]->isInvalid() ) {
+                // make sure array exists
+                if ( ! isset( $this->errors[$name] ) ) {
+                  $this->errors[$name] = [];
+                }
+
                 // add association model errors
-                $this->errors['associations'][$name][$i] = $relation[$i]->errors();
+                array_push( $this->errors[$name], $errors );
                 
                 $valid = false;
               }
             }
-
           }
         }
       }

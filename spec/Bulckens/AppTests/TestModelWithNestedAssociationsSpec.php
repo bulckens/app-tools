@@ -372,6 +372,89 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
     $this->saveWithNestedAssociations()->shouldBe( true );
   }
 
+
+
+  // Deep validation messages
+  function it_creates_validation_errors_for_the_instance() {
+    $this->beConstructedWith([
+      'group' => 'I am nameless'
+    , 'nested_associations' => [
+        'children' => [
+          [ 'name' => 'been' ]
+        , [ 'name' => 'deen' ]
+        ]
+      ]
+    ]);
+
+    $this->isValid();
+    $errors = $this->errors();
+    $errors->shouldHaveKey( 'name' );
+    $errors['name']->shouldHaveKeyWithValue( 'required', 'is required' );
+  }
+
+  function it_creates_validation_errors_for_the_children() {
+    $this->beConstructedWith([
+      'name' => 'Most of my children are just wrong'
+    , 'nested_associations' => [
+        'children' => [
+          [ 'group' => 'been' ]
+        , [ 'name'  => 'leen' ]
+        , [ 'group' => 'deen' ]
+        ]
+      ]
+    ]);
+
+    $this->isValid();
+    $errors = $this->errors();
+    $errors->shouldHaveKey( 'children' );    
+    $errors['children']->shouldHaveCount( 2 );
+    $errors['children'][0]->shouldHaveKey( 'name' );
+    $errors['children'][0]['name']->shouldHaveKeyWithValue( 'required', 'is required' );
+    $errors['children'][0]->shouldHaveKey( '_index' );
+    $errors['children'][0]['_index']->shouldBe( 0 );
+    $errors['children'][1]->shouldHaveKey( 'name' );
+    $errors['children'][1]['name']->shouldHaveKeyWithValue( 'required', 'is required' );
+    $errors['children'][1]->shouldHaveKey( '_index' );
+    $errors['children'][1]['_index']->shouldBe( 2 );
+  }
+
+  function it_creates_validation_errors_for_the_grandchildren() {
+    $this->beConstructedWith([
+      'name' => 'My children are ok, my grandchildren are not'
+    , 'nested_associations' => [
+        'children' => [
+          [ 'name' => 'leen' ]
+        , [ 'name' => 'zeen'
+          , 'nested_associations' => [
+              'children' => [
+                [ 'name'  => 'lano' ]
+              , [ 'name'  => 'zano' ]
+              , [ 'group' => 'bano' ]
+              , [ 'name'  => 'hano' ]
+              , [ 'group' => 'dano' ]
+              ]
+            ]
+          ]
+        ]
+      ]
+    ]);
+
+    $this->isValid();
+    $errors = $this->errors();
+    $errors->shouldHaveKey( 'children' );    
+    $errors['children']->shouldHaveCount( 1 );
+    $errors['children'][0]->shouldHaveKey( 'children' );
+    $errors['children'][0]['children']->shouldHaveCount( 2 );
+    $errors['children'][0]['children'][0]->shouldHaveKey( 'name' );
+    $errors['children'][0]['children'][0]['name']->shouldHaveKeyWithValue( 'required', 'is required' );
+    $errors['children'][0]['children'][0]->shouldHaveKey( '_index' );
+    $errors['children'][0]['children'][0]['_index']->shouldBe( 2 );
+    $errors['children'][0]['children'][1]->shouldHaveKey( 'name' );
+    $errors['children'][0]['children'][1]['name']->shouldHaveKeyWithValue( 'required', 'is required' );
+    $errors['children'][0]['children'][1]->shouldHaveKey( '_index' );
+    $errors['children'][0]['children'][1]['_index']->shouldBe( 4 );
+  }
+
 }
 
 
