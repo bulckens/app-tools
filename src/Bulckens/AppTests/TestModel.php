@@ -6,7 +6,7 @@ use Bulckens\AppTools\Model;
 
 class TestModel extends Model {
 
-  public function parents() {
+  public function parent() {
     return $this->belongsTo( 'Bulckens\AppTests\TestModel' );
   }
 
