@@ -3,16 +3,19 @@
 namespace Bulckens\AppTools;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use Bulckens\AppTools\Validator\Validation;
+use Bulckens\AppTools\Traits\Validatable;
+use Bulckens\AppTools\Traits\NestedAssociations;
 
 abstract class Model extends Eloquent {
 
-  use Validation;
+  use Validatable;
+  use NestedAssociations;
 
   // Make sure model is valid before saving
   public function save( array $options = [] ) {
-    if ( $this->isValid() )
-      return parent::save();
+    if ( $this->isValid() ) {
+      return $this->saveWithNestedAssociations();
+    }
 
     return false;
   }
