@@ -5,6 +5,9 @@ namespace Bulckens\AppTools\Traits;
 use Exception;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Bulckens\AppTools\Helpers\NestedAssociationsHelper;
 
 trait NestedAssociations {
 
@@ -16,19 +19,19 @@ trait NestedAssociations {
   // Dynamic nested association mutator
   public function setNestedAssociationsAttribute( array $associations ) {
     if ( isset( $this->nested_associations ) ) {
+
       // check if nested association is allowed
       foreach ( $associations as $name => $items ) {
+
         if ( in_array( $name, $this->nested_associations ) ) {
-          // get relation type
-          $relation = $this->$name();
 
           // typecast and store association(s)
-          if ( $relation instanceof HasOne ) {
+          if ( NestedAssociationsHelper::hasOne( $this->$name() ) ) {
             if ( $instance = $this->findBuildOrKillNestedAssociation( $name, $items ) ) {
               $this->associations[$name] = $instance;
             }
 
-          } elseif ( $relation instanceof HasMany ) {
+          } elseif ( NestedAssociationsHelper::hasMany( $this->$name() ) ) {
             $this->associations[$name] = [];
 
             foreach ( $items as $item ) {
@@ -52,15 +55,14 @@ trait NestedAssociations {
   // Nested association saver
   public function saveNestedAssociations() {
     if ( isset( $this->nested_associations ) && ! empty( $this->associations ) ) {
-      foreach ( $this->associations as $name => $instances ) {
-        // get relation type
-        $relation = $this->$name();
 
+      foreach ( $this->associations as $name => $instances ) {
+        
         // attach and save association(s)
-        if ( $relation instanceof HasOne ) {
+        if ( NestedAssociationsHelper::hasOne( $this->$name() ) ) {
           $this->$name()->save( $instances );
 
-        } elseif ( $relation instanceof HasMany ) {
+        } elseif ( NestedAssociationsHelper::hasMany( $this->$name() ) ) {
           $this->$name()->saveMany( $instances );
         }
 
