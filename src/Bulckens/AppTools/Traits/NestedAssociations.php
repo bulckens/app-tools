@@ -79,8 +79,8 @@ trait NestedAssociations {
 
 
   // Saves itself and the nested associations
-  public function saveWithNestedAssociations() {
-    if ( $save = parent::save() ) {
+  public function saveWithNestedAssociations( array $options = [] ) {
+    if ( $save = parent::save( $options ) ) {
       $this->saveNestedAssociations();
     }
 
