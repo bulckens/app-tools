@@ -15,7 +15,7 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
   }
 
   function letGo() {
-    TestModelWithNestedAssociations::truncate();
+    // TestModelWithNestedAssociations::truncate();
   }
 
 
@@ -337,6 +337,22 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
 
     $this->children->get( 0 )->name->shouldBe( 'I have children' );
     $this->children->get( 0 )->children->get( 0 )->name->shouldBe( 'I am a grandchild' );
+  }
+
+  function it_creates_polymorphic_associations() {
+    $this->beConstructedWith([
+      'name' => 'I have friends'
+    , 'nested_associations' => [
+        'friends' => [
+          [ 'name' => 'I am a friend' ]
+        , [ 'name' => 'I am another friend' ]
+        ]
+      ]
+    ]);
+    $this->save();
+    
+    $this->friends->get( 0 )->name->shouldBe( 'I am a friend' );
+    $this->friends->get( 1 )->name->shouldBe( 'I am another friend' );
   }
 
 

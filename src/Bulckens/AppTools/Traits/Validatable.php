@@ -3,8 +3,7 @@
 namespace Bulckens\AppTools\Traits;
 
 use Bulckens\AppTools\Validator;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Bulckens\AppTools\Helpers\NestedAssociationsHelper;
 
 trait Validatable {
 
@@ -39,7 +38,7 @@ trait Validatable {
           $type = $this->$name();
 
           // detect relation type
-          if ( $type instanceof HasOne ) {
+          if ( NestedAssociationsHelper::hasOne( $type ) ) {
             if ( $instance->isInvalid() ) {
               // add association model errors
               $this->errors[$name] = $instance->errors();
@@ -47,7 +46,7 @@ trait Validatable {
               $valid = false;
             }
 
-          } elseif ( $type instanceof HasMany ) {
+          } elseif ( NestedAssociationsHelper::hasMany( $type ) ) {
             for ( $i = 0; $i < count( $instance ); $i++ ) {
               if ( $instance[$i]->isInvalid() ) {
                 // add association index to errors
