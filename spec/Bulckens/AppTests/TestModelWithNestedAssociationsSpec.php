@@ -367,8 +367,8 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
         ]
       ]
     ]);
-    $this->saveWithNestedAssociations();
 
+    $this->save();
     $this->name->shouldBe( 'I save it all' );
     $this->children->count()->shouldBe( 2 );
     $this->children->get( 0 )->name->shouldBe( 'been' );
@@ -385,7 +385,7 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
         ]
       ]
     ]);
-    $this->saveWithNestedAssociations()->shouldBe( true );
+    $this->save()->shouldBe( true );
   }
 
 

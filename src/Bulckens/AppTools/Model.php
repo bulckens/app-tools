@@ -14,7 +14,11 @@ abstract class Model extends Eloquent {
   // Make sure model is valid before saving
   public function save( array $options = [] ) {
     if ( $this->isValid() ) {
-      return $this->saveWithNestedAssociations();
+      if ( $save = parent::save( $options ) ) {
+        $this->saveNestedAssociations();
+      }
+      
+      return $save;
     }
 
     return false;
