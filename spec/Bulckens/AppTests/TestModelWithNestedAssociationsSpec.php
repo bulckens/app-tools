@@ -422,6 +422,28 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
     $this->nieces->get( 4 )->position->shouldBe( 4 );
   }
 
+  function it_does_not_overwrite_given_order_values() {
+    $this->beConstructedWith([
+      'name' => 'I have nieces in a specific sort order'
+    , 'nested_associations' => [
+        'nieces' => [
+          [ 'name' => 'I am niece one',   'position' => 4 ]
+        , [ 'name' => 'I am niece two',   'position' => 1 ]
+        , [ 'name' => 'I am niece three', 'position' => 3 ]
+        , [ 'name' => 'I am niece four',  'position' => 2 ]
+        , [ 'name' => 'I am niece five',  'position' => 0 ]
+        ]
+      ]
+    ]);
+    $this->save();
+
+    $this->nieces->get( 0 )->name->shouldBe( 'I am niece five' );
+    $this->nieces->get( 1 )->name->shouldBe( 'I am niece two' );
+    $this->nieces->get( 2 )->name->shouldBe( 'I am niece four' );
+    $this->nieces->get( 3 )->name->shouldBe( 'I am niece three' );
+    $this->nieces->get( 4 )->name->shouldBe( 'I am niece one' );
+  }
+
 
   // SaveWithNestedAssociations method
   function it_saves_itself_and_the_nested_associations() {
