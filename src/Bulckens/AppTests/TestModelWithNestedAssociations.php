@@ -10,7 +10,12 @@ class TestModelWithNestedAssociations extends Model {
 
   // Fillable and visible attributes
   protected $fillable = [ 'name', 'nested_associations' ];
-  protected $nested_associations = [ 'children', 'sibling', 'friends' ];
+  protected $nested_associations = [
+    'children' => true
+  , 'sibling'  => true
+  , 'friends'  => true
+  , 'nieces'   => [ 'order' => 'position' ]
+  ];
 
 
   public function rules() {
@@ -47,6 +52,14 @@ class TestModelWithNestedAssociations extends Model {
   // Polymorphic relation to one
   public function friend() {
     return $this->morphOne( 'Bulckens\AppTests\TestModelWithNestedAssociations', 'friendable' );
+  }
+
+
+  // Aunts relation (for sortable tests)
+  public function nieces() {
+    return $this
+      ->hasMany( 'Bulckens\AppTests\TestModelWithValidator', 'parent_id' )
+      ->orderBy( 'position', 'asc' );
   }
 
 

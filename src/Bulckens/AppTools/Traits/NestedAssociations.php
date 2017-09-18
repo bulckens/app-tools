@@ -23,7 +23,7 @@ trait NestedAssociations {
       // check if nested association is allowed
       foreach ( $associations as $name => $items ) {
 
-        if ( in_array( $name, $this->nested_associations ) ) {
+        if ( isset( $this->nested_associations[$name] ) ) {
 
           // typecast and store association(s)
           if ( NestedAssociationsHelper::hasOne( $this->$name() ) ) {
@@ -32,10 +32,18 @@ trait NestedAssociations {
             }
 
           } elseif ( NestedAssociationsHelper::hasMany( $this->$name() ) ) {
+            // initialize store
             $this->associations[$name] = [];
 
-            foreach ( $items as $item ) {
-              if ( $instance = $this->findBuildOrKillNestedAssociation( $name, $item ) ) {
+            // detect order
+            $order = isset( $this->nested_associations[$name]['order'] ) ?
+              $this->nested_associations[$name]['order'] : false;
+
+            for ( $i = 0; $i < count( $items ); $i++ ) { 
+              if ( $instance = $this->findBuildOrKillNestedAssociation( $name, $items[$i] ) ) {
+                // mark order index if required
+                if ( $order ) $instance->$order = $i;
+                
                 array_push( $this->associations[$name], $instance );
               }
             }

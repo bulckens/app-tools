@@ -355,6 +355,73 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
     $this->friends->get( 1 )->name->shouldBe( 'I am another friend' );
   }
 
+  function it_creates_associations_with_the_given_index() {
+    $this->beConstructedWith([
+      'name' => 'I have nieces in a specific sort order'
+    , 'nested_associations' => [
+        'nieces' => [
+          [ 'name' => 'I am niece one' ]
+        , [ 'name' => 'I am niece two' ]
+        , [ 'name' => 'I am niece three' ]
+        , [ 'name' => 'I am niece four' ]
+        , [ 'name' => 'I am niece five' ]
+        ]
+      ]
+    ]);
+    $this->save();
+
+    $this->nieces->get( 0 )->name->shouldBe( 'I am niece one' );
+    $this->nieces->get( 0 )->position->shouldBe( 0 );
+    $this->nieces->get( 1 )->name->shouldBe( 'I am niece two' );
+    $this->nieces->get( 1 )->position->shouldBe( 1 );
+    $this->nieces->get( 2 )->name->shouldBe( 'I am niece three' );
+    $this->nieces->get( 2 )->position->shouldBe( 2 );
+    $this->nieces->get( 3 )->name->shouldBe( 'I am niece four' );
+    $this->nieces->get( 3 )->position->shouldBe( 3 );
+    $this->nieces->get( 4 )->name->shouldBe( 'I am niece five' );
+    $this->nieces->get( 4 )->position->shouldBe( 4 );
+  }
+
+  function it_updates_associations_with_the_given_index() {
+    $this->beConstructedWith([
+      'name' => 'I have nieces in a specific sort order'
+    , 'nested_associations' => [
+        'nieces' => [
+          [ 'name' => 'I am niece one' ]
+        , [ 'name' => 'I am niece two' ]
+        , [ 'name' => 'I am niece three' ]
+        , [ 'name' => 'I am niece four' ]
+        , [ 'name' => 'I am niece five' ]
+        ]
+      ]
+    ]);
+    $this->save();
+
+    $this->fill([
+      'nested_associations' => [
+        'nieces' => [
+          [ 'id' => $this->nieces->get( 4 )->id ]
+        , [ 'id' => $this->nieces->get( 3 )->id ]
+        , [ 'id' => $this->nieces->get( 2 )->id ]
+        , [ 'id' => $this->nieces->get( 1 )->id ]
+        , [ 'id' => $this->nieces->get( 0 )->id ]
+        ]
+      ]
+    ]);
+    $this->save();
+
+    $this->nieces->get( 0 )->name->shouldBe( 'I am niece five' );
+    $this->nieces->get( 0 )->position->shouldBe( 0 );
+    $this->nieces->get( 1 )->name->shouldBe( 'I am niece four' );
+    $this->nieces->get( 1 )->position->shouldBe( 1 );
+    $this->nieces->get( 2 )->name->shouldBe( 'I am niece three' );
+    $this->nieces->get( 2 )->position->shouldBe( 2 );
+    $this->nieces->get( 3 )->name->shouldBe( 'I am niece two' );
+    $this->nieces->get( 3 )->position->shouldBe( 3 );
+    $this->nieces->get( 4 )->name->shouldBe( 'I am niece one' );
+    $this->nieces->get( 4 )->position->shouldBe( 4 );
+  }
+
 
   // SaveWithNestedAssociations method
   function it_saves_itself_and_the_nested_associations() {
