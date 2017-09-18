@@ -15,7 +15,7 @@ class TestModelWithNestedAssociationsSpec extends ObjectBehavior {
   }
 
   function letGo() {
-    // TestModelWithNestedAssociations::truncate();
+    TestModelWithNestedAssociations::truncate();
   }
 
 
