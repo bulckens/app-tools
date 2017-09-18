@@ -9,7 +9,7 @@ class TestModelWithValidator extends Model {
   protected $table = 'test_models';
 
   // Fillable and visible attributes
-  protected $fillable = [ 'name', 'nested_associations' ];
+  protected $fillable = [ 'name', 'position', 'nested_associations' ];
   protected $nested_associations = [
     'children' => true
   ];

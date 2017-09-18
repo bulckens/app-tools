@@ -41,8 +41,10 @@ trait NestedAssociations {
 
             for ( $i = 0; $i < count( $items ); $i++ ) { 
               if ( $instance = $this->findBuildOrKillNestedAssociation( $name, $items[$i] ) ) {
-                // mark order index if required
-                if ( $order ) $instance->$order = $i;
+                // mark sort order based on current index if required
+                if ( $order && ! isset( $items[$i][$order] ) ) {
+                  $instance->$order = $i;
+                }
                 
                 array_push( $this->associations[$name], $instance );
               }
