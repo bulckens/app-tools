@@ -101,7 +101,7 @@ class Router {
       return $this;
 
     } else {
-      throw new RouterRoutesRootNotDefinedException( 'Router routes root is not defined in ' . $this->file() );
+      throw new RouterRoutesRootNotDefinedException( 'Router routes root is not defined in ' . $this->configFile() );
     }
   }
 

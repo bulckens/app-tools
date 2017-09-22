@@ -35,7 +35,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_does_not_initialize_a_notifier_if_missing_in_the_modules() {
-    $this->file( 'app_notifier_missing.yml' )->run();
+    $this->configFile( 'app_notifier_missing.yml' )->run();
     $this->module( 'notifier' )->shouldBeNull();
   }
 
@@ -45,7 +45,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_does_not_initialize_a_database_if_missing_in_the_modules() {
-    $this->file( 'app_database_missing.yml' )->run();
+    $this->configFile( 'app_database_missing.yml' )->run();
     $this->module( 'database' )->shouldBeNull();
   }
 
@@ -55,7 +55,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_does_not_initialize_a_cache_module_if_missing_in_the_modules() {
-    $this->file( 'app_cache_missing.yml' )->run();
+    $this->configFile( 'app_cache_missing.yml' )->run();
     $this->module( 'cache' )->shouldBeNull();
   }
 
@@ -65,7 +65,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_does_not_initialize_a_router_if_missing_in_the_modules() {
-    $this->file( 'app_router_missing.yml' )->run();
+    $this->configFile( 'app_router_missing.yml' )->run();
     $this->module( 'router' )->shouldBeNull();
   }
 
@@ -75,7 +75,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_does_not_initialize_a_view_if_missing_in_the_modules() {
-    $this->file( 'app_view_missing.yml' )->run();
+    $this->configFile( 'app_view_missing.yml' )->run();
     $this->module( 'view' )->shouldBeNull();
   }
 
@@ -85,7 +85,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_does_not_initialize_a_user_if_missing_in_the_modules() {
-    $this->file( 'app_user_missing.yml' )->run();
+    $this->configFile( 'app_user_missing.yml' )->run();
     $this->module( 'user' )->shouldBeNull();
   }
 
@@ -97,7 +97,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_runs_only_with_the_statistics_module_if_no_modules_are_configured() {
-    $this->file( 'app_moduleless.yml' )->run();
+    $this->configFile( 'app_moduleless.yml' )->run();
     $modules = $this->modules();
     $modules->shouldHaveCount( 1 );
     $modules[0]->shouldBe( 'statistics' );
@@ -193,24 +193,24 @@ class AppSpec extends ObjectBehavior {
 
   // File method
   function it_builds_config_file_name_from_class() {
-    $this->file()->shouldBe( 'app.yml' );
+    $this->configFile()->shouldBe( 'app.yml' );
   }
 
   function it_defines_a_custom_config_file() {
-    $this->file( 'app_custom.yml' );
-    $this->file()->shouldBe( 'app_custom.yml' );
+    $this->configFile( 'app_custom.yml' );
+    $this->configFile()->shouldBe( 'app_custom.yml' );
     $this->config( 'custom' )->shouldBe( 'different' );
   }
 
   function it_unsets_the_custom_config_file_with_null_given() {
-    $this->file( 'app_custom.yml' );
-    $this->file()->shouldBe( 'app_custom.yml' );
-    $this->file( null );
-    $this->file()->shouldBe( 'app.yml' );
+    $this->configFile( 'app_custom.yml' );
+    $this->configFile()->shouldBe( 'app_custom.yml' );
+    $this->configFile( null );
+    $this->configFile()->shouldBe( 'app.yml' );
   }
 
   function it_returns_itself_after_defining_a_custom_config_file() {
-    $this->file( 'app_custom.yml' )->shouldBe( $this );
+    $this->configFile( 'app_custom.yml' )->shouldBe( $this );
   }
 
 
@@ -240,7 +240,7 @@ class AppSpec extends ObjectBehavior {
 
   // Modules method
   function it_returns_a_list_of_registered_modules() {
-    $this->file( 'app.yml' );
+    $this->configFile( 'app.yml' );
     $this->run();
     $this->modules()->shouldContain( 'cache' );
     $this->modules()->shouldContain( 'database' );
@@ -251,7 +251,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_no_modules_if_none_are_registered() {
-    $this->file( 'app_moduleless.yml' );
+    $this->configFile( 'app_moduleless.yml' );
     $this->modules()->shouldNotContain( 'cache' );
     $this->modules()->shouldNotContain( 'database' );
     $this->modules()->shouldNotContain( 'notifier' );
@@ -301,7 +301,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_nothing_if_no_cache_is_defined() {
-    $this->file( 'app_cache_missing.yml' )->run();
+    $this->configFile( 'app_cache_missing.yml' )->run();
     $this->run()->cache()->shouldBe( null );
   }
 
@@ -310,7 +310,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_nothing_if_no_database_is_defined() {
-    $this->file( 'app_database_missing.yml' )->run();
+    $this->configFile( 'app_database_missing.yml' )->run();
     $this->run()->database()->shouldBe( null );
   }
 
@@ -319,7 +319,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_nothing_if_no_notifier_is_defined() {
-    $this->file( 'app_notifier_missing.yml' )->run();
+    $this->configFile( 'app_notifier_missing.yml' )->run();
     $this->run()->notifier()->shouldBe( null );
   }
 
@@ -328,7 +328,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_nothing_if_no_router_is_defined() {
-    $this->file( 'app_router_missing.yml' )->run();
+    $this->configFile( 'app_router_missing.yml' )->run();
     $this->run()->router()->shouldBe( null );
   }
 
@@ -337,7 +337,7 @@ class AppSpec extends ObjectBehavior {
   }
 
   function it_returns_nothing_if_no_view_is_defined() {
-    $this->file( 'app_view_missing.yml' )->run();
+    $this->configFile( 'app_view_missing.yml' )->run();
     $this->run()->view()->shouldBe( null );
   }
 

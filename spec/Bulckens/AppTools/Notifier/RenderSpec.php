@@ -57,7 +57,7 @@ class RenderSpec extends ObjectBehavior {
 
   function it_renders_with_custom_theme_colors() {
     $notifier = App::get()->notifier();
-    $notifier->file( 'notifier_full_theme.yml' );
+    $notifier->configFile( 'notifier_full_theme.yml' );
     $this->beConstructedWith( new Exception( 'Full theme' ), $notifier->config() );
 
     $html = $this->html( 'Full theme' );
@@ -75,7 +75,7 @@ class RenderSpec extends ObjectBehavior {
   // Theme method
   function it_returns_the_default_theme_when_no_custom_theme_is_configured() {
     $notifier = App::get()->notifier();
-    $notifier->file( 'notifier_themeless.yml' );
+    $notifier->configFile( 'notifier_themeless.yml' );
     $this->beConstructedWith( new Exception( 'Partial theme' ), $notifier->config() );
 
     $theme = $this->theme();
@@ -91,7 +91,7 @@ class RenderSpec extends ObjectBehavior {
 
   function it_uses_the_default_theme_values_as_fallback() {
     $notifier = App::get()->notifier();
-    $notifier->file( 'notifier_partial_theme.yml' );
+    $notifier->configFile( 'notifier_partial_theme.yml' );
     $this->beConstructedWith( new Exception( 'Partial theme' ), $notifier->config() );
 
     $theme = $this->theme();
@@ -107,7 +107,7 @@ class RenderSpec extends ObjectBehavior {
 
   function it_uses_the_complete_custom_theme() {
     $notifier = App::get()->notifier();
-    $notifier->file( 'notifier_full_theme.yml' );
+    $notifier->configFile( 'notifier_full_theme.yml' );
     $this->beConstructedWith( new Exception( 'Full theme' ), $notifier->config() );
 
     $theme = $this->theme();

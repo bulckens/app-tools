@@ -17,7 +17,7 @@ class RouterSpec extends ObjectBehavior {
   }
 
   function letGo() {
-    $this->file( null );
+    $this->configFile( null );
   }
 
 
@@ -32,7 +32,7 @@ class RouterSpec extends ObjectBehavior {
   }
 
   function it_fails_to_run_when_no_view_root_is_defined() {
-    $this->file( 'router_fail.yml' );
+    $this->configFile( 'router_fail.yml' );
     $this->shouldThrow( 'Bulckens\AppTools\RouterRoutesRootNotDefinedException' )->duringRun();
   }
 
@@ -71,24 +71,24 @@ class RouterSpec extends ObjectBehavior {
 
   // File method
   function it_builds_config_file_name_from_class() {
-    $this->file()->shouldBe( 'router.yml' );
+    $this->configFile()->shouldBe( 'router.yml' );
   }
 
   function it_defines_a_custom_config_file() {
-    $this->file( 'router_custom.yml' );
-    $this->file()->shouldBe( 'router_custom.yml' );
+    $this->configFile( 'router_custom.yml' );
+    $this->configFile()->shouldBe( 'router_custom.yml' );
     $this->config( 'debug' )->shouldBe( false );
   }
 
   function it_unsets_the_custom_config_file_with_null_given() {
-    $this->file( 'router_custom.yml' );
-    $this->file()->shouldBe( 'router_custom.yml' );
-    $this->file( null );
-    $this->file()->shouldBe( 'router.yml' );
+    $this->configFile( 'router_custom.yml' );
+    $this->configFile()->shouldBe( 'router_custom.yml' );
+    $this->configFile( null );
+    $this->configFile()->shouldBe( 'router.yml' );
   }
 
   function it_returns_itself_after_defining_a_custom_config_file() {
-    $this->file( 'router_custom.yml' )->shouldBe( $this );
+    $this->configFile( 'router_custom.yml' )->shouldBe( $this );
   }
 
 

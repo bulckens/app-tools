@@ -1,0 +1,7 @@
+dev:
+  storage:
+    default:
+      dir: "tmp"
+    s3:
+      access: "123456789"
+      secret: "123456789"

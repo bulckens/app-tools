@@ -13,7 +13,7 @@ class UserToken {
   protected $code;
 
   public function __construct( $code, $secret, $stamp = null ) {
-    $this->file( 'user.yml' );
+    $this->configFile( 'user.yml' );
 
     // store code
     $this->code = $code;
