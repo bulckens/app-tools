@@ -48,24 +48,24 @@ class NotifierSpec extends ObjectBehavior {
 
   // File method
   function it_builds_config_file_name_from_class() {
-    $this->file()->shouldBe( 'notifier.yml' );
+    $this->configFile()->shouldBe( 'notifier.yml' );
   }
 
   function it_defines_a_custom_config_file() {
-    $this->file( 'notifier_custom.yml' );
-    $this->file()->shouldBe( 'notifier_custom.yml' );
+    $this->configFile( 'notifier_custom.yml' );
+    $this->configFile()->shouldBe( 'notifier_custom.yml' );
     $this->config( 'level' )->shouldBe( 'custom' );
   }
 
   function it_unsets_the_custom_config_file_with_null_given() {
-    $this->file( 'notifier_custom.yml' );
-    $this->file()->shouldBe( 'notifier_custom.yml' );
-    $this->file( null );
-    $this->file()->shouldBe( 'notifier.yml' );
+    $this->configFile( 'notifier_custom.yml' );
+    $this->configFile()->shouldBe( 'notifier_custom.yml' );
+    $this->configFile( null );
+    $this->configFile()->shouldBe( 'notifier.yml' );
   }
 
   function it_returns_itself_after_defining_a_custom_config_file() {
-    $this->file( 'notifier_custom.yml' )->shouldBe( $this );
+    $this->configFile( 'notifier_custom.yml' )->shouldBe( $this );
   }
 
 
@@ -119,7 +119,7 @@ class NotifierSpec extends ObjectBehavior {
   }
 
   function it_logs_an_error_message_with_custom_data_and_theme() {
-    $this->file( 'notifier_full_theme.yml' );
+    $this->configFile( 'notifier_full_theme.yml' );
     $this->data([ 'custom' => [ 'data' => 'in an array' ] ]);
     $this->error( 'Full theme' )->shouldBe( null );
   }

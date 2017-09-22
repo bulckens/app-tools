@@ -31,7 +31,7 @@ class View {
   public function run() {
     // make sure the root is defined
     if ( ! $this->config( 'root' ) && is_null( $this->root ) )
-      throw new ViewRootNotDefinedException( "View root is not defined in {$this->file()} nor is there a custom root" );
+      throw new ViewRootNotDefinedException( "View root is not defined in {$this->configFile()} nor is there a custom root" );
 
     // make sure the root exists
     $root = $this->root ? $this->root : App::root( $this->config( 'root' ) );

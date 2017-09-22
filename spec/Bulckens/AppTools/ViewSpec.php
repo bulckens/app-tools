@@ -14,18 +14,18 @@ class ViewSpec extends ObjectBehavior {
   function letGo() {
     $app = new App( 'dev' );
     $app->run();
-    $this->file( 'view.yml' );
+    $this->configFile( 'view.yml' );
     $this->reset();
   }
 
   // Initialization
   function it_runs_on_initialization() {
-    $this->file( 'non_existent.yml' );
+    $this->configFile( 'non_existent.yml' );
     $this->shouldThrow( 'Bulckens\AppTools\ConfigFileMissingException' )->duringRun();
   }
 
   function it_can_be_initialized_without_calling_run() {
-    $this->file( 'non_existent.yml' );
+    $this->configFile( 'non_existent.yml' );
     $this->shouldNotThrow( 'Bulckens\AppTools\ConfigFileMissingException' )->during__Construct( false );
   }
 
@@ -47,12 +47,12 @@ class ViewSpec extends ObjectBehavior {
 
   // Run method
   function it_fails_when_no_view_root_is_defined() {
-    $this->file( 'view_fail.yml' );
+    $this->configFile( 'view_fail.yml' );
     $this->shouldThrow( 'Bulckens\AppTools\ViewRootNotDefinedException' )->duringRun();
   }
 
   function it_fails_not_with_a_custom_root_but_no_root_defened_in_the_config() {
-    $this->file( 'view_fail.yml' )->root( __DIR__ );
+    $this->configFile( 'view_fail.yml' )->root( __DIR__ );
     $this->shouldNotThrow( 'Bulckens\AppTools\ViewRootNotDefinedException' )->duringRun();
   }
 
@@ -61,7 +61,7 @@ class ViewSpec extends ObjectBehavior {
   }
 
   function it_fails_when_the_given_view_root_does_not_exist() {
-    $this->file( 'view_fail.yml' )->root( '/get/out/of/here' );
+    $this->configFile( 'view_fail.yml' )->root( '/get/out/of/here' );
     $this->shouldThrow( 'Bulckens\AppTools\ViewRootMissingException' )->duringRun();
   }
 
@@ -169,24 +169,24 @@ class ViewSpec extends ObjectBehavior {
 
   // File method
   function it_builds_config_file_name_from_class() {
-    $this->file()->shouldBe( 'view.yml' );
+    $this->configFile()->shouldBe( 'view.yml' );
   }
 
   function it_defines_a_custom_config_file() {
-    $this->file( 'view_custom.yml' );
-    $this->file()->shouldBe( 'view_custom.yml' );
+    $this->configFile( 'view_custom.yml' );
+    $this->configFile()->shouldBe( 'view_custom.yml' );
     $this->config( 'debug' )->shouldBe( false );
   }
 
   function it_unsets_the_custom_config_file_with_null_given() {
-    $this->file( 'view_custom.yml' );
-    $this->file()->shouldBe( 'view_custom.yml' );
-    $this->file( null );
-    $this->file()->shouldBe( 'view.yml' );
+    $this->configFile( 'view_custom.yml' );
+    $this->configFile()->shouldBe( 'view_custom.yml' );
+    $this->configFile( null );
+    $this->configFile()->shouldBe( 'view.yml' );
   }
 
   function it_returns_itself_after_defining_a_custom_config_file() {
-    $this->file( 'view_custom.yml' )->shouldBe( $this );
+    $this->configFile( 'view_custom.yml' )->shouldBe( $this );
   }
 
 

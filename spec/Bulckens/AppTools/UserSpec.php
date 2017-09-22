@@ -35,7 +35,7 @@ class UserSpec extends ObjectBehavior {
   }
 
   function it_initializes_with_the_bare_configuration() {
-    $this->file( 'user_bare.yml' );
+    $this->configFile( 'user_bare.yml' );
     $this->shouldHaveType( User::class );
   }
 
@@ -56,24 +56,24 @@ class UserSpec extends ObjectBehavior {
 
   // File method
   function it_builds_config_file_name_from_class() {
-    $this->file()->shouldBe( 'user.yml' );
+    $this->configFile()->shouldBe( 'user.yml' );
   }
 
   function it_defines_a_custom_config_file() {
-    $this->file( 'user_custom.yml' );
-    $this->file()->shouldBe( 'user_custom.yml' );
+    $this->configFile( 'user_custom.yml' );
+    $this->configFile()->shouldBe( 'user_custom.yml' );
     $this->config( 'custom' )->shouldBe( 'custom' );
   }
 
   function it_unsets_the_custom_config_file_with_null_given() {
-    $this->file( 'user_custom.yml' );
-    $this->file()->shouldBe( 'user_custom.yml' );
-    $this->file( null );
-    $this->file()->shouldBe( 'user.yml' );
+    $this->configFile( 'user_custom.yml' );
+    $this->configFile()->shouldBe( 'user_custom.yml' );
+    $this->configFile( null );
+    $this->configFile()->shouldBe( 'user.yml' );
   }
 
   function it_returns_itself_after_defining_a_custom_config_file() {
-    $this->file( 'user_custom.yml' )->shouldBe( $this );
+    $this->configFile( 'user_custom.yml' )->shouldBe( $this );
   }
 
 

@@ -38,7 +38,9 @@
         "illuminate/events": "^5.4",
         "symfony/http-foundation": "^3.2",
         "desarrolla2/cache": "^2.1",
-        "predis/predis": "^1.1"
+        "predis/predis": "^1.1",
+        "tpyo/amazon-s3-php-class": "^0.5.1",
+        "codeguy/upload": "^1.3"
     },
     "require-dev": {
         "phpspec/phpspec": "^3.2"

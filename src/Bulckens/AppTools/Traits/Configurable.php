@@ -17,7 +17,7 @@ trait Configurable {
     if ( ! $this->config ) {
       $env = method_exists( self::class, 'env' ) ? self::env() : App::env();
       $this->config = new Config( $env );
-      $this->config->load( $this->file() );
+      $this->config->load( $this->configFile() );
     }    
 
     // get the config instance
@@ -30,7 +30,7 @@ trait Configurable {
 
 
   // Get filename
-  public function file( $file = null ) {
+  public function configFile( $file = null ) {
     // act as getter
     if ( is_null( $file ) && func_num_args() == 0 ) {
       if ( isset( $this->file ) )

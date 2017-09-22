@@ -283,7 +283,7 @@ class OutputSpec extends ObjectBehavior {
 
   function it_does_not_remove_keys_that_are_defined_as_pure() {
     $this->beConstructedWith( 'array' );
-    $this->file( 'output.pure_keys.yml' );
+    $this->configFile( 'output.pure_keys.yml' );
     $this->add([
       'error'    => 'bad'
     , 'details'  => [ 'unimportant' => 'right now' ]
@@ -352,28 +352,28 @@ class OutputSpec extends ObjectBehavior {
 
   function it_renders_the_output_as_html() {
     $this->beConstructedWith( 'html' );
-    $this->file( 'output.verbose.yml' );
+    $this->configFile( 'output.verbose.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->render()->shouldStartWith( "<!--\nArray" );
   }
 
   function it_renders_the_output_as_txt() {
     $this->beConstructedWith( 'txt' );
-    $this->file( 'output.verbose.yml' );
+    $this->configFile( 'output.verbose.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->render()->shouldStartWith( "Array\n" );
   }
 
   function it_renders_the_output_as_css() {
     $this->beConstructedWith( 'css' );
-    $this->file( 'output.verbose.yml' );
+    $this->configFile( 'output.verbose.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->render()->shouldStartWith( "/*\nArray" );
   }
 
   function it_renders_the_output_as_js() {
     $this->beConstructedWith( 'js' );
-    $this->file( 'output.verbose.yml' );
+    $this->configFile( 'output.verbose.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->render()->shouldStartWith( "/*\nArray" );
   }
@@ -386,14 +386,14 @@ class OutputSpec extends ObjectBehavior {
 
   function it_uses_the_alternative_render_method() {
     $this->beConstructedWith( 'html' );
-    $this->file( 'output.render.yml' );
+    $this->configFile( 'output.render.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->render()->shouldBe( '<html><head><title></title></head><body>Rendered from the outside!</body></html>' );
   }
 
   function it_fails_if_the_defined_render_method_is_not_callable() {
     $this->beConstructedWith( 'html' );
-    $this->file( 'output.render_fail.yml' );
+    $this->configFile( 'output.render_fail.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->shouldThrow( 'Bulckens\AppTools\OutputRenderMethodNotCallableException' )->duringRender();
   }
