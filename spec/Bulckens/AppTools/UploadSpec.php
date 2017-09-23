@@ -2,6 +2,8 @@
 
 namespace spec\Bulckens\AppTools;
 
+use Exception;
+use Bulckens\Helpers\StringHelper;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Upload;
 use PhpSpec\ObjectBehavior;
@@ -17,7 +19,7 @@ class UploadSpec extends ObjectBehavior {
 
     $_FILES['image'] = [
       'name' => 'w.jpg'
-    , 'tmp_name' => App::root( 'dev/upload/w.jpg' )
+    , 'tmp_name' => self::setupTmpFile()
     , 'error' => UPLOAD_ERR_OK
     ];
 
@@ -25,10 +27,11 @@ class UploadSpec extends ObjectBehavior {
   }
 
   function letGo() {
-    
+    exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/tmp' ) ) ) );
+    exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/test' ) ) ) );
   }
 
-
+  
   // Initialization
   function it_stores_the_key() {
     $this->key()->shouldBe( 'image' );
@@ -38,8 +41,19 @@ class UploadSpec extends ObjectBehavior {
     $this->name()->shouldBe( 'w.jpg' );
   }
 
+  function it_stores_the_sanitizes_the_file_name() {
+    $_FILES['image'] = [
+      'name' => 'før Lasma ni ñogha$ !!!.jpg'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image' );
+    $this->name()->shouldBe( 'for-lasma-ni-nogha.jpg' );
+  }
+
   function it_stores_the_tmp_name() {
-    $this->tmpName()->shouldBe( App::root( 'dev/upload/w.jpg' ) );
+    $root = str_replace( '/', '\/', App::root( 'dev/upload/tmp/[A-Za-z0-9]{32}' ) );
+    $this->tmpName()->shouldMatch( "/$root/" );
   }
 
   function it_stores_the_error() {
@@ -56,7 +70,7 @@ class UploadSpec extends ObjectBehavior {
   }
 
   function it_uses_the_given_storage_destination() {
-    $this->beConstructedWith( 'image', 's3' );
+    $this->beConstructedWith( 'image', [ 'storage' =>  's3' ] );
     $this->storage()->shouldBe( 's3' );
   }
 
@@ -132,10 +146,46 @@ class UploadSpec extends ObjectBehavior {
     $this->name( 'wout' )->shouldBe( $this );
   }
 
+  function it_sanitizes_the_name() {
+    $this->name( ' Some crazy ? 123 value with años to go!!!' );
+    $this->name()->shouldStartWith( 'some-crazy-123-value-with-anos-to-go.jpg' );
+  }
+
+  function it_allows_the_name_to_be_passed_without_an_extension() {
+    $this->name( 'without' );
+    $this->name()->shouldBe( 'without.jpg' );
+  }
+
+  function it_allows_the_name_to_be_passed_with_an_extension() {
+    $this->name( 'with.gif' );
+    $this->name()->shouldBe( 'with.jpg' );
+  }
+
+  function it_returns_a_file_with_lowercase_extension_when_sanitization_is_enabled_by_default() {
+    $_FILES['image'] = [
+      'name' => 'DOGFOOD_CONTAINER.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image' );
+    $this->name()->shouldBe( 'dogfood-container.jpg' );
+  }
+
+  function it_returns_the_file_name_as_given_with_sanitization_disabled() {
+    $_FILES['image'] = [
+      'name' => 'DOG FØØD CONTAINER≈.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image', [ 'config' => 'upload_unsanitized.yml' ] );
+    $this->name()->shouldEndWith( 'DOG FØØD CONTAINER≈.JPG' );
+  }
+
 
   // TmpName method
   function it_returns_the_tmp_name() {
-    $this->tmpName()->shouldBe( App::root( 'dev/upload/w.jpg' ) );
+    $root = str_replace( '/', '\/', App::root( 'dev/upload/tmp/[A-Za-z0-9]{32}' ) );
+    $this->tmpName()->shouldMatch( "/$root/" );
   }
 
 
@@ -165,7 +215,7 @@ class UploadSpec extends ObjectBehavior {
 
   // Storage method
   function it_returns_the_storage() {
-    $this->beConstructedWith( 'image', 's3' );
+    $this->beConstructedWith( 'image', [ 'storage' => 's3' ] );
     $this->storage()->shouldBe( 's3' );
   }
 
@@ -191,11 +241,11 @@ class UploadSpec extends ObjectBehavior {
 
   // Store method
   function it_stores_the_file_locally() {
-
+    $this->store()->shouldBe( true );
   }
 
   function it_stores_the_file_locally_into_a_given_directory() {
-    
+    $this->store( 'mecaniq/arms' )->shouldBe( true );
   }
 
   function it_stores_the_file_on_s3() {
@@ -206,10 +256,61 @@ class UploadSpec extends ObjectBehavior {
     
   }
 
+  function it_fails_if_the_given_storage_type_does_not_exist() {
+    $this->beConstructedWith( 'image', [ 'config' => 'upload_unknown.yml' ]);
+    $this->shouldThrow( 'Bulckens\AppTools\UploadStorageTypeUnknownException' )->duringStore();
+  }
+
+
+  // File method
+  function it_returns_the_full_destination_file_path() {
+    $this
+      ->file()
+      ->shouldStartWith( App::root( 'dev/upload/test/w.jpg' ) );
+  }
+
+  function it_returns_the_full_destination_file_path_with_a_custom_name() {
+    $this->name( 'stored' );
+    $this
+      ->file()
+      ->shouldBe( App::root( 'dev/upload/test/stored.jpg' ) );
+  }
+
+  function it_returns_the_full_destination_file_path_with_an_additional_sub_path() {
+    $this->name( 'substored' );
+    $this
+      ->file( 'picture/nicely' )
+      ->shouldStartWith( App::root( 'dev/upload/test/picture/nicely/substored.jpg' ) );
+  }
+
+  function it_ensures_a_uniqe_file_name() {
+    file_put_contents( App::root( 'dev/upload/test/w.jpg' ), '' );
+    $this->file()->shouldMatch( '/w\.\d{13}\.jpg$/' );
+  }
+
 
   // Multiple static method
   function it_allows_multiple_files_to_be_uploaded() {
 
+  }
+
+
+  // Helpers
+  protected static function setupTmpFile() {
+    if ( ! file_exists( $tmp = App::root( 'dev/upload/tmp' ) ) ) {
+      mkdir( $tmp, 0777, true );
+    }
+    if ( ! file_exists( $dir = App::root( 'dev/upload/test' ) ) ) {
+      mkdir( $dir, 0777, true );
+    }
+
+    $source = App::root( 'dev/upload/w.jpg' );
+    $random = StringHelper::generate( 32 );
+    $tmp_name = "$tmp/$random";
+
+    copy( $source, $tmp_name );
+
+    return $tmp_name;
   }
 
 }
