@@ -1,7 +1,10 @@
 dev:
+  sanitize: true
   storage:
     default:
-      dir: "tmp"
+      type: "local"
+      dir: "dev/upload/test"
     s3:
+      type: "s3"
       access: "123456789"
       secret: "123456789"
