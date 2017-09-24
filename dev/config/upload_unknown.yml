@@ -2,3 +2,9 @@ dev:
   storage:
     default:
       type: "ceph"
+    s3:
+      type: "s3"
+      access: "AKIAIAYTK34RTJ3C7UNQ"
+      secret: "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"
+      bucket: "zow-v5-test-unknown"
+      region: "eu-central-1"

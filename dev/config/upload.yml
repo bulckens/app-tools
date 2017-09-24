@@ -2,9 +2,20 @@ dev:
   sanitize: true
   storage:
     default:
-      type: "local"
+      type: "filesystem"
       dir: "dev/upload/test"
     s3:
       type: "s3"
-      access: "123456789"
-      secret: "123456789"
+      access: "AKIAIAYTK34RTJ3C7UNQ"
+      secret: "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"
+      bucket: "zow-v5-test"
+      region: "eu-central-1"
+    s3_ireland:
+      type: "s3"
+      access: "AKIAIAYTK34RTJ3C7UNQ"
+      secret: "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"
+      bucket: "zow-v5-test-alternative"
+      region: "eu-west-1"
+    external:
+      type: "filesystem"
+      dir: "http://server.local/safe/to/store"

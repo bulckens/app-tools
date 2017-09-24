@@ -3,6 +3,7 @@
 namespace Bulckens\AppTools;
 
 use Exception;
+use Aws\S3\S3Client;
 use Illuminate\Support\Str;
 use Bulckens\Helpers\TimeHelper;
 use Bulckens\Helpers\MemoryHelper;
@@ -13,6 +14,7 @@ class Upload {
   use Configurable;
 
   protected $key;
+  protected $dir;
   protected $ext;
   protected $name;
   protected $tmp_name;
@@ -20,6 +22,8 @@ class Upload {
   protected $size;
   protected $mime;
   protected $stamp;
+  protected $is_upload;
+  protected $stored = false;
   protected $storage = 'default';
 
 
@@ -34,6 +38,13 @@ class Upload {
     // set different storage option
     if ( isset( $options['storage'] ) ) {
       $this->storage = $options['storage'];
+    }
+
+    // if set to true, move_uploaded_file() will be used
+    if ( isset( $options['is_upload'] ) && is_bool( $options['is_upload'] ) ) {
+      $this->is_upload = $options['is_upload'];
+    } else {
+      $this->is_upload = ! App::env( 'dev' );
     }
 
     // store key and create stamp
@@ -151,48 +162,134 @@ class Upload {
 
 
   // Store the file at its configured destination
-  public function store( $path = '' ) {
+  public function store() {
+    // get absolute file path
+    $file = $this->file();
+
+    // do not allow store to be called twice
+    if ( $this->stored ) {
+      throw new UploadAlreadyStoredException( "The file '$file' has already been stored" );
+    }
+
+    // store file according to config
     switch ( $type = $this->config( "storage.$this->storage.type" ) ) {
-      case 'local':
-        // get absolute file path
-        $file = $this->file( $path );
+      case 'filesystem':
+        // detect local file storage (not stream)
+        if ( ! ( $is_stream = strpos( $file, '://' ) > 0 ) ) {
+          // make sure sub dir exists
+          if ( ! file_exists( $dir = dirname( $file ) ) ) {
+            if ( ! mkdir( $dir, 0777, true ) ) {
+              throw new UploadUnableToCreateDirectoryException( "Unable to create dir '$dir'" );
+            }
+          }
 
-        // make sure sub folder exists
-        if ( ! file_exists( dirname( $file ) ) ) {
-          mkdir( dirname( $file ), 0777, true );
+          // make sure target dir is ritable
+          if ( ! is_writable( $dir ) ) {
+            throw new UploadDirectoryNotWritableException( "The target dir '$dir' is not writable" );
+          }
+
+          // detect valid uploaded file
+          if ( $this->is_upload && ! is_uploaded_file( $this->tmp_name ) ) {
+            throw new UploadFileNotValidException( "The given file '$this->tmp_name' is not valid" );
+          }
         }
 
-        // move file
-        if ( App::env( 'dev' ) ) {
-          return rename( $this->tmp_name, $file );
+        // store file
+        if ( $this->is_upload ) {
+          $stored = move_uploaded_file( $this->tmp_name, $file );
+        } elseif ( $is_stream ) {
+          $stored = copy( $this->tmp_name, $file );
         } else {
-          return move_uploaded_file( $this->tmp_name, $file );
+          $stored = rename( $this->tmp_name, $file );
         }
+
+        // fail if not stored
+        if ( ! $stored ) {
+          throw new UploadFileNotMovableException( "The uploaded file '$this->tmp_name' could not be moved to '$file'" );
+        }
+
+        // fail if unable to delete source file
+        if ( $is_stream && ! unlink( $this->tmp_name ) ) {
+          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmp_name' could not be deleted" );
+        }
+
+        // get url
+        $url = str_replace( App::root(), '/', $file );
+
       break;
       case 's3':
+        // get region
+        if ( ! ( $region = $this->config( "storage.$this->storage.region" ) ) ) {
+          throw new UploadS3RegionNotDefinedException( 'No S3 region is defined (e.g. eu-west-1)' );
+        }
+
+        // get credentials
+        $access = $this->config( "storage.$this->storage.access" );
+        $secret = $this->config( "storage.$this->storage.secret" );
+
+        if ( $access && $secret ) {
+          $client = new S3Client([
+            'version' => 'latest'
+          , 'region' => $region
+          , 'credentials' => [
+              'key' => $access
+            , 'secret' => $secret
+            ]
+          ]);
+        } else {
+          throw new UploadS3CredentialsNotDefinedException( 'No S3 access key and/or secret are defined' );
+        }
+
+        // get bucket or fail
+        if ( ! ( $bucket = $this->config( "storage.$this->storage.bucket" ) ) ) {
+          throw new UploadS3BucketNotDefinedException( 'No S3 bucket is defined to store the file' );
+        }
+
+        // upload file
+        $result = $client->putObject([
+          'Bucket' => $bucket
+        , 'Key'    => preg_replace( '/^\//', '', $this->file() )
+        , 'Body'   => fopen( $this->tmp_name, 'r' )
+        , 'ACL'    => 'public-read'
+        ]);
+
+        // fail if unable to delete source file
+        if ( ! unlink( $this->tmp_name ) ) {
+          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmp_name' could not be deleted" );
+        }
 
       break;
       default:
-        throw new UploadStorageTypeUnknownException( "Storage type '$type' is not implemented" );
+        throw new UploadStorageTypeUnknownException( "Storage type '$type' has not been implemented" );
       break;
     }
 
-    return true;
+    // mark as stored
+    return $this->stored = true;
+  }
+
+
+  // Get/set subdirectory
+  public function dir( $dir = null ) {
+    // act as getter
+    if ( is_null( $dir ) ) return $this->dir;
+
+    // continue as setter
+    $this->dir = preg_replace( '/\A\/|\/\z/', '', $dir );
+
+    return $this;
   }
 
 
   // Get full file path
-  public function file( $path = null ) {
-    // build the configured root
-    $root = App::root( $this->config( "storage.$this->storage.dir" ) );
+  public function file() {
+    // get path
+    $file = $this->path();
 
-    // add the given path
-    if ( is_string( $path ) ) {
-      $root = preg_replace( '/\/$/', '', str_replace( '//', '/', "$root/$path" ) );
+    // add root if required
+    if ( $this->config( "storage.$this->storage.type" ) == 'filesystem' && ! strpos( $file, '://' ) ) {
+      $file = App::root( $file );
     }
-
-    // build the absolute file name
-    $file = "$root/" . $this->name();
 
     // add a time stamp if the file already exists
     if ( file_exists( $file ) ) {
@@ -202,12 +299,58 @@ class Upload {
     return $file;
   }
 
+  
+  // Get public path
+  public function path() {
+    // get configured dir
+    $dir = $this->config( "storage.$this->storage.dir", '' );
+
+    // add subdir
+    if ( $this->dir() ) $dir .= ( empty( $dir ) ? '' : '/') . $this->dir();
+
+    // add name
+    $name = '/' . $this->name();
+    
+    // add leading slash i required
+    if ( ! strpos( $dir, '://' ) ) $dir = "/$dir";
+
+    return $dir == '/' ? $name : $dir . $name;
+  }
+
+
+  // Get public url
+  public function url( $protocol = 'https:' ) {
+    switch ( $this->config( "storage.$this->storage.type" ) ) {
+      case 's3':
+        // get region and bucket
+        $region = $this->config( "storage.$this->storage.region" );
+        $bucket = $this->config( "storage.$this->storage.bucket" );
+
+        $host = "$bucket.s3-$region.amazonaws.com";
+      break;
+      case 'filesystem':
+        // get configured host with fallback to current host
+        $host = $this->config( "storage.$this->storage.host", $_SERVER['HTTP_HOST'] );
+      break;
+    }
+
+    return "$protocol//$host" . $this->path();
+  }
+
+
 }
 
 
 // Exceptions
+class UploadUnableToCreateDirectoryException extends Exception {}
+class UploadS3CredentialsNotDefinedException extends Exception {}
 class UploadStorageNotConfiguredException extends Exception {}
 class UploadStorageTypeUnknownException extends Exception {}
+class UploadS3BucketNotDefinedException extends Exception {}
+class UploadS3RegionNotDefinedException extends Exception {}
+class UploadFileNotDeletableException extends Exception {}
 class UploadTmpNameNotFoundException extends Exception {}
+class UploadAlreadyStoredException extends Exception {}
+class UploadFileNotValidException extends Exception {}
 class UploadKeyNotFoundException extends Exception {}
 

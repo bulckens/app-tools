@@ -1,0 +1,7 @@
+dev:
+  sanitize: true
+  storage:
+    default:
+      type: "filesystem"
+      dir: "custom/upload/test"
+      host: "superserver.com"
