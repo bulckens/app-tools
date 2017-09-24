@@ -39,8 +39,7 @@
         "symfony/http-foundation": "^3.2",
         "desarrolla2/cache": "^2.1",
         "predis/predis": "^1.1",
-        "tpyo/amazon-s3-php-class": "^0.5.1",
-        "codeguy/upload": "^1.3"
+        "aws/aws-sdk-php": "^3.36"
     },
     "require-dev": {
         "phpspec/phpspec": "^3.2"

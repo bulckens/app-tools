@@ -1,5 +1,5 @@
 dev:
   storage:
     default:
-      type: "local"
+      type: "filesystem"
       dir: "/tmp/bulckens/app_tools/custom"
