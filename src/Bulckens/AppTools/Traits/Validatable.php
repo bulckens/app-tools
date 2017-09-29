@@ -26,8 +26,6 @@ trait Validatable {
       if ( $validation->fails() ) {
         // set errors and return false
         $this->errors = $validation->errors();
-
-        $valid = false;
       }
 
       // validate associations
@@ -42,8 +40,6 @@ trait Validatable {
             if ( $instance->isInvalid() ) {
               // add association model errors
               $this->errors[$name] = $instance->errors();
-              
-              $valid = false;
             }
 
           } elseif ( NestedAssociationsHelper::hasMany( $type ) ) {
@@ -60,8 +56,6 @@ trait Validatable {
 
                 // add association model errors
                 array_push( $this->errors[$name], $errors );
-                
-                $valid = false;
               }
             }
           }
@@ -70,7 +64,7 @@ trait Validatable {
     }
 
     // validation passes
-    return $valid;
+    return empty( $this->errors );
   }
 
   // Perform negative validation
