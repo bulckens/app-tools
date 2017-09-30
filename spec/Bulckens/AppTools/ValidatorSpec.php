@@ -127,6 +127,43 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
 
+  // Prefix method
+  function it_applies_a_prefix_to_the_reference_keys_for_a_errors() {
+    $this->prefix( 'subset' );
+    $this->passes();
+    $errors = $this->errors();
+    $errors->shouldHaveKey( 'subset.email' );
+  }
+
+  function it_returns_the_prefix() {
+    $this->prefix( 'subset' );
+    $this->prefix()->shouldBe( 'subset' );
+  }
+
+  function it_applies_a_prefix_to_the_reference_keys_for_a_specific_error() {
+    $this->prefix( 'subset' );
+    $this->passes();
+    $this->errors( 'subset.email' )->shouldContain( 'is required' );
+  }
+
+  function it_applies_a_prefix_to_the_reference_keys_for_error_messages() {
+    $this->prefix( 'subset' );
+    $this->passes();
+    $errors = $this->errorMessages();
+    $errors->shouldHaveKey( 'subset.email' );
+  }
+
+  function it_applies_a_prefix_to_the_reference_keys_for_a_specific_error_message() {
+    $this->prefix( 'subset' );
+    $this->passes();
+    $this->errorMessages( 'subset.email' )->shouldContain( 'is required' );
+  }
+
+  function it_returns_itself_after_setting_the_prefix() {
+    $this->prefix( 'egoism' )->shouldBe( $this );
+  }
+
+
   // Value required
   function it_ensures_a_value_is_required() {
     $this->beConstructedWith([ 'email' => [ 'required' => true ] ]);
