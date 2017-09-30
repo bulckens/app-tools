@@ -14,7 +14,6 @@ trait Validatable {
   public function isValid() {
     // get rules
     $rules = $this->rules() ?: $this->rules;
-    $valid = true;
     
     if ( $rules ) {
       // initialize validator

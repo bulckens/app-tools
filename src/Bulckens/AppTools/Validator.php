@@ -9,7 +9,8 @@ class Validator {
   protected $model;
   protected $class;
   protected $exists;
-  protected $errors   = [];
+  protected $prefix = '';
+  protected $errors = [];
   protected $messages = [];
   protected $defaults = [
     // base values to fall back on
@@ -70,8 +71,9 @@ class Validator {
     $this->class = is_string( $model ) ? $model : get_class( $model );
 
     // load record
-    if ( is_string( $model ) && $id && ( $record = $model::find( $id ) ) )
+    if ( is_string( $model ) && $id && ( $record = $model::find( $id ) ) ) {
       $model = $record;
+    }
 
     // store model
     if ( ! is_string( $model ) ) {
@@ -107,8 +109,9 @@ class Validator {
       // run every rule
       foreach ( $value as $rule => $constraint ) {
         // perform test
-        if ( in_array( $rule, $force ) || isset( $this->data[$name] ) )
+        if ( in_array( $rule, $force ) || isset( $this->data[$name] ) ) {
           $this->{$rule}( $name, $constraint );
+        }
       }
     }
 
@@ -124,26 +127,52 @@ class Validator {
 
   // Return errors variable
   public function errors( $key = null ) {
-    if ( is_null( $key ) )
-      return $this->errors;
-    
-    if ( isset( $this->errors[$key] ) )
-      return $this->errors[$key];
+    // return all errors
+    if ( is_null( $key ) ) {
+      $errors = [];
+
+      foreach ( $this->errors as $key => $error ) {
+        $errors["$this->prefix$key"] = $error;
+      }
+
+      return $errors;
+    }
+
+    // returns errors for a specific key
+    $key = str_replace( $this->prefix, '', $key );
+
+    if ( isset( $this->errors[$key] ) ) return $this->errors[$key];
+  }
+
+
+  // Set a prefix for error keys
+  public function prefix( $prefix = null ) {
+    // act as getter
+    if ( is_null( $prefix ) ) return preg_replace( '/\.$/', '', $this->prefix );
+
+    // continue as setter
+    $this->prefix = empty( $prefix ) ? '' : "$prefix.";
+
+    return $this;
   }
 
 
   // Return error messages
   public function errorMessages( $key = null ) {
     if ( ! is_null( $key ) ) {
-      if ( isset( $this->errors[$key] ) )
+      $key = str_replace( $this->prefix, '', $key );
+
+      if ( isset( $this->errors[$key] ) ) {
         return array_values( $this->errors[$key] );
+      }
     }
 
     $messages = [];
 
     // flatten array
-    foreach ( $this->errors as $key => $errors )
-      $messages[$key] = array_values( $errors );
+    foreach ( $this->errors as $key => $errors ) {
+      $messages["$this->prefix$key"] = array_values( $errors );
+    }
     
     return $messages;
   }
@@ -184,12 +213,14 @@ class Validator {
     }
 
     // get message from defaults
-    if ( ! $message )
+    if ( ! $message ) {
       $message = $this->defaults['base'][$key];
+    }
     
     // ensure error array
-    if ( ! isset( $this->errors[$name] ) )
+    if ( ! isset( $this->errors[$name] ) ) {
       $this->errors[$name] = [];
+    }
 
     // add error
     $this->errors[$name][$key] = $this->interpolate( $message, $values );
@@ -284,29 +315,33 @@ class Validator {
     // define confirming field name
     $c = is_string( $confirmation ) ? $confirmation : "{$name}_confirmation";
 
-    if ( ! isset( $this->data[$c] ) || $this->data[$name] != $this->data[$c] )
+    if ( ! isset( $this->data[$c] ) || $this->data[$name] != $this->data[$c] ) {
       $this->error( $name, 'confirmation' );
+    }
   }
 
 
   // Validate against an exact value
   protected function exactly( $name, $expectation ) {
-    if ( $this->data[$name] != $expectation )
+    if ( $this->data[$name] != $expectation ) {
       $this->error( $name, 'exactly', [ 'expectation' => $expectation ] );
+    }
   }
 
 
   // Validate as item in an array
   protected function in( $name, $list ) {
-    if ( ! in_array( $this->data[$name], $list ) )
+    if ( ! in_array( $this->data[$name], $list ) ) {
       $this->error( $name, 'in', [ 'list' => $list ] );
+    }
   }
 
 
   // Validate as item not in an array
   protected function not_in( $name, $list ) {
-    if ( in_array( $this->data[$name], $list ) )
+    if ( in_array( $this->data[$name], $list ) ) {
       $this->error( $name, 'not_in', [ 'list' => $list ] );
+    }
   }
 
 
@@ -314,11 +349,10 @@ class Validator {
   protected function numeric( $name, $expectation ) {
     // define number and key
     $number = $this->data[$name];
-    $key    = 'numeric';
+    $key = 'numeric';
 
     // ensure string value for expectation
-    if ( is_bool( $expectation ) )
-      $expectation = 'default';
+    if ( is_bool( $expectation ) ) $expectation = 'default';
 
     // detect expectation
     switch ( $expectation ) {
@@ -346,8 +380,9 @@ class Validator {
     }
     
     // ensure validity
-    if ( $valid !== true )
+    if ( $valid !== true ) {
       $this->error( $name, $key, [ 'expectation' => $expectation ] );
+    }
   }
 
 
@@ -358,8 +393,9 @@ class Validator {
     $records = $class::where( $name, '=', $this->data[$name] );
 
     // add id to ignore if existant
-    if ( $this->exists && $this->model->id )
+    if ( $this->exists && $this->model->id ) {
       $records = $records->where( 'id', '!=', $this->model->id );
+    }
     
     // add scope if given
     if ( isset( $options['scope'] ) ) {
@@ -372,17 +408,19 @@ class Validator {
         $this->model->$scope : null;
 
       // define scope
-      if ( is_null( $value ) )
+      if ( is_null( $value ) ) {
         $records = $records->whereNull( $scope );
-      else
+      } else {
         $records = $records->where( $scope, '=', $value );
+      }
     }
     
     // count number of found records
     $found = $records->count();
 
-    if ( $found > 0 )
+    if ( $found > 0 ) {
       $this->error( $name, 'unique', [ 'found' => $found ] );
+    }
   }
 
 
@@ -392,8 +430,9 @@ class Validator {
       call_user_func( $closure, $name, $this ) :
       $closure( $name, $this );
 
-    if ( ! $passed )
+    if ( ! $passed ) {
       $this->error( $name, 'custom', [ 'message' => $message ] );
+    }
   }
 
 
@@ -408,8 +447,7 @@ class Validator {
     // insert all given values
     foreach ( $values as $name => $value ) {
       // ensure string value
-      if ( is_array( $value ) )
-        $value = implode( ',', $value );
+      if ( is_array( $value ) ) $value = implode( ',', $value );
 
       // add replacement
       $message = preg_replace( "/{{\s?$name\s?}}/", $value, $message );
