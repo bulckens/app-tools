@@ -32,8 +32,9 @@ class Notifier {
     $level = $this->config( 'level' ) ?: 'DEBUG';
 
     // make sure directory exists
-    if ( ! file_exists( $dir ) )
+    if ( ! file_exists( $dir ) ) {
       mkdir( $dir, 0777, true );
+    }
 
     // initialize handler
     $handler = new StreamHandler( $file, constant( "Monolog\Logger::$level" ) );
