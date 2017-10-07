@@ -37,7 +37,7 @@ class Notification {
     $mailer = Swift_Mailer::newInstance( $transport );
 
     // prepare message
-    $render = new Render( $exception, $config );
+    $render = new Render( $exception, $notifier );
     $html   = $render->html( $subject, $data );
 
     $message = Swift_Message::newInstance( "$subject [$env] $title" )

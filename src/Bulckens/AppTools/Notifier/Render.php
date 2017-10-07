@@ -24,15 +24,17 @@ class Render {
   , 'line'     => '#b8cd3f'
   ];
 
-  public function __construct( $exception, $config ) {
+  public function __construct( $exception, $notifier ) {
     $this->exception = $exception;
 
     // initialize new view
     $this->view = new View( false );
-    $this->view->root( $config->get( 'views' ) ?: ( __DIR__ . '/Views' ) );
+    $dir = $notifier ? $notifier->config()->get( 'views' ) : null;
+    $this->view->root( $dir ?: ( __DIR__ . '/Views' ) );
 
     // store theme
-    $this->theme = $config->get( 'theme' ) ?: [];
+    $theme = $notifier->config()->get( 'theme' );
+    $this->theme = $theme ?: [];
   }
 
 

@@ -277,6 +277,33 @@ class UploadSpec extends ObjectBehavior {
     $this->url()->shouldEndWith( 'https://zow-v5-test-alternative.s3-eu-west-1.amazonaws.com/w.jpg' );
   }
 
+  // NOT SURE IF THIS IS THE RIGHT WAY TO GO...
+  // function it_accepts_a_given_file_and_stores_it_on_s3() {
+  //   $_FILES['page'] = [
+  //     'name' => [ '5' => [ 'nested_associations' => [ 'elements' => [ '2' => [
+  //       'image' => 'w.jpg'
+  //     ]]]]]
+  //   , 'type' => [ '5' => [ 'nested_associations' => [ 'elements' => [ '2' => [
+  //       'image' => 'image/jpeg'
+  //     ]]]]]
+  //   , 'tmp_name' => [ '5' => [ 'nested_associations' => [ 'elements' => [ '2' => [
+  //       'image' => self::setupTmpFile()
+  //     ]]]]]
+  //   , 'error' => [ '5' => [ 'nested_associations' => [ 'elements' => [ '2' => [
+  //       'image' => UPLOAD_ERR_OK
+  //     ]]]]]
+  //   , 'size' => [ '5' => [ 'nested_associations' => [ 'elements' => [ '2' => [
+  //       'image' => 182641
+  //     ]]]]]
+  //   ];
+
+  //   $this->beConstructedWith( 'page.5.nested_associations.elements.2.image', [
+  //     'storage' => 's3_ireland'
+  //   ]);
+  //   $this->store()->shouldBe( true );
+  //   $this->url()->shouldEndWith( 'https://zow-v5-test-alternative.s3-eu-west-1.amazonaws.com/w.jpg' );
+  // }
+
   function it_fails_if_the_given_storage_type_does_not_exist() {
     $this->beConstructedWith( 'image', [ 'config' => 'upload_unknown.yml' ]);
     $this->shouldThrow( 'Bulckens\AppTools\UploadStorageTypeUnknownException' )->duringStore();
