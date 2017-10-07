@@ -33,7 +33,7 @@ class Render {
     $this->view->root( $dir ?: ( __DIR__ . '/Views' ) );
 
     // store theme
-    $theme = $notifier->config()->get( 'theme' );
+    $theme = $notifier ? $notifier->config()->get( 'theme' ) : null;
     $this->theme = $theme ?: [];
   }
 
