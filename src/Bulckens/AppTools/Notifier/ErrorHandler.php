@@ -2,6 +2,7 @@
 
 namespace Bulckens\AppTools\Notifier;
 
+use Exception;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Notifier;
 
@@ -17,12 +18,13 @@ class ErrorHandler {
       $notifier->error( $exception );
 
       // prepare message
-      $render = new Render( $exception, $notifier->config() );
+      $render = new Render( $exception, $notifier );
 
       // render output
-      return $c['response']->withStatus( 500 )
-                           ->withHeader( 'Content-Type', 'text/html' )
-                           ->write( $render->html( $exception->getMessage() ) );
+      return $c['response']
+        ->withStatus( 500 )
+        ->withHeader( 'Content-Type', 'text/html' )
+        ->write( $render->html( $exception->getMessage() ) );
     };
   }
 
@@ -49,13 +51,17 @@ class ErrorHandler {
     $error = new Error( "ERROR $message", $trace );
 
     // prepare message
-    $render = new Render( $error, $notifier->config() );
+    $render = new Render( $error, $notifier );
 
     // render message
     echo App::cli() ? $render->cli( $message ) : $render->html( $message );
 
     // notify error
-    $notifier->error( $error );
+    if ( $notifier ) {
+      $notifier->error( $error );
+    } else {
+      throw new Exception( $message );
+    }
 
     die();
   }

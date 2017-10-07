@@ -14,7 +14,8 @@ class RenderSpec extends ObjectBehavior {
   function let() {
     $app = new App( 'dev' );
     $app->run();
-    $this->beConstructedWith( new Exception( 'Fal che ou' ), new Config( 'dev' ) );
+    $notifier = App::get()->notifier();
+    $this->beConstructedWith( new Exception( 'Fal che ou' ), $notifier );
   }
   
 
@@ -58,7 +59,7 @@ class RenderSpec extends ObjectBehavior {
   function it_renders_with_custom_theme_colors() {
     $notifier = App::get()->notifier();
     $notifier->configFile( 'notifier_full_theme.yml' );
-    $this->beConstructedWith( new Exception( 'Full theme' ), $notifier->config() );
+    $this->beConstructedWith( new Exception( 'Full theme' ), $notifier );
 
     $html = $this->html( 'Full theme' );
     $html->shouldContain( 'background-color:#aaaaaa;" link=' );
@@ -76,7 +77,7 @@ class RenderSpec extends ObjectBehavior {
   function it_returns_the_default_theme_when_no_custom_theme_is_configured() {
     $notifier = App::get()->notifier();
     $notifier->configFile( 'notifier_themeless.yml' );
-    $this->beConstructedWith( new Exception( 'Partial theme' ), $notifier->config() );
+    $this->beConstructedWith( new Exception( 'Partial theme' ), $notifier );
 
     $theme = $this->theme();
     $theme['body']->shouldBe( '#f2f2f2' );
@@ -92,7 +93,7 @@ class RenderSpec extends ObjectBehavior {
   function it_uses_the_default_theme_values_as_fallback() {
     $notifier = App::get()->notifier();
     $notifier->configFile( 'notifier_partial_theme.yml' );
-    $this->beConstructedWith( new Exception( 'Partial theme' ), $notifier->config() );
+    $this->beConstructedWith( new Exception( 'Partial theme' ), $notifier );
 
     $theme = $this->theme();
     $theme['body']->shouldBe( '#123456' );
@@ -108,7 +109,7 @@ class RenderSpec extends ObjectBehavior {
   function it_uses_the_complete_custom_theme() {
     $notifier = App::get()->notifier();
     $notifier->configFile( 'notifier_full_theme.yml' );
-    $this->beConstructedWith( new Exception( 'Full theme' ), $notifier->config() );
+    $this->beConstructedWith( new Exception( 'Full theme' ), $notifier );
 
     $theme = $this->theme();
     $theme['body']->shouldBe( '#aaaaaa' );
