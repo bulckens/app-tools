@@ -127,8 +127,9 @@ class App {
   // Get version tag of project
   public static function version() {
     // check for version file
-    if ( file_exists( $version = self::root( 'config/.version' ) ) )
+    if ( file_exists( $version = self::root( 'config/.version' ) ) ){
       return file_get_contents( $version );
+    }
 
     // build command
     $command = 'git describe --abbrev=0 --tags';
@@ -136,15 +137,17 @@ class App {
     // check for capistrano installation
     $path = dirname( self::root() ) . "/shared/cached-copy";
 
-    if ( file_exists( $path ) )
+    if ( file_exists( $path ) ) {
       $command = "cd $path && $command";
+    }
 
     // get raw version from git
     $version = exec( $command );
 
     // cache version for capistrano installations
-    if ( file_exists( $path ) )
+    if ( file_exists( $path ) ) {
       file_put_contents( self::root( 'config/.version' ), $version );
+    }
 
     return $version;
   }

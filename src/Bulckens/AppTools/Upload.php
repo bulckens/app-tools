@@ -6,6 +6,7 @@ use Exception;
 use Aws\S3\S3Client;
 use Illuminate\Support\Str;
 use Bulckens\Helpers\TimeHelper;
+use Bulckens\Helpers\MimeHelper;
 use Bulckens\Helpers\MemoryHelper;
 use Bulckens\AppTools\Traits\Configurable;
 
@@ -13,12 +14,9 @@ class Upload {
 
   use Configurable;
 
-  protected $key;
+  protected $source;
   protected $dir;
-  protected $ext;
   protected $name;
-  protected $tmp_name;
-  protected $error;
   protected $size;
   protected $mime;
   protected $stamp;
@@ -27,7 +25,7 @@ class Upload {
   protected $storage = 'default';
 
 
-  public function __construct( $key, $options = [] ) {
+  public function __construct( $source, $options = [] ) {
     global $_FILES;
 
     // set different config file
@@ -47,61 +45,92 @@ class Upload {
       $this->is_upload = ! App::env( 'dev' );
     }
 
-    // store key and create stamp
-    $this->key = $key;
-    $this->stamp = TimeHelper::ms();
+    // store upload
+    if ( is_string( $source ) ) {
+      if ( ! isset( $_FILES[$source] ) ) {
+        throw new UploadKeyNotFoundException( "The '{$source}' upload could not be found" );
+      }
 
-    // store aditional data
-    if ( $this->exists() ) {
-      // set given upload values
-      $this->ext = pathinfo( $_FILES[$key]['name'], PATHINFO_EXTENSION );
-      $this->name( $_FILES[$key]['name'] );
-      $this->tmp_name = $_FILES[$key]['tmp_name'];
-      $this->error = $_FILES[$key]['error'];
+      $this->source = $_FILES[$source];
+
+    } elseif ( is_array( $source ) ) {
+      $this->source = $source;
+
+    } else {
+      throw new UploadSourceNotAccptableException( "String or array expected but got " . gettype( $source ) );
     }
+
+    // test completeness of given source
+    if ( ! isset( $this->source['name'] ) || ! isset( $this->source['tmp_name'] ) || ! isset( $this->source['error'] ) ) {
+      throw new UploadSourceIncompleteException( "Expected source to contain a 'name', 'tmp_name' and 'error' keys but it doesn't" );
+
+    // test existance of source file
+    } elseif ( ! file_exists( $this->source['tmp_name'] ) ) {
+      throw new UploadTmpNameNotFoundException( "The file '{$this->source['tmp_name']}' could not be found" );
+    }
+
+    // store and create stamp
+    $this->stamp = TimeHelper::ms();
   }
 
 
-  // Get the key
-  public function key() {
-    return $this->key;
+  // Get the original upload parameters
+  public function upload() {
+    return $this->source;
   }
 
 
   // Get/set the file name
   public function name( $name = null ) {
-    // act as getter
-    if ( is_null( $name ) ) return "$this->name.$this->ext";
+    // act as setter
+    if ( $name ) {
+      $this->name = $name;
 
-    // continue as setter
-    $this->name = preg_replace( '/\.[a-zA-Z0-9]{1,8}$/', '', $name );
+      return $this;
+    }
+
+    // get file name alone
+    $name = preg_replace( '/\.[a-zA-Z0-9]{1,8}$/', '', $this->name ?: $this->source['name'] );
 
     // sanitize if required
     if ( $this->config( 'sanitize', true ) ) {
-      $this->ext = strtolower( $this->ext );
-      $this->name = Str::slug( $this->name );
+      $name = Str::slug( $name );
     }
 
-    return $this;
+    return "$name." . $this->ext();
+  }
+
+
+  // Get (real) extension based on mime type
+  public function ext() {
+    // get extension from mime type
+    $ext = MimeHelper::ext( $this->mime() );
+
+    // fall back on given extension in case the given mime type is unknown
+    if ( is_null( $ext ) ) {
+      $ext = pathinfo( $this->source['name'], PATHINFO_EXTENSION );  
+    }
+
+    return strtolower( $ext );
   }
 
 
   // Get the temporary name
   public function tmpName() {
-    return $this->tmp_name;
+    return $this->source['tmp_name'];
   }
 
 
   // Get the error type
   public function error() {
-    return $this->error;
+    return $this->source['error'];
   }
 
 
   // Get the file size
   public function size() {
     if ( ! isset( $this->size ) ) {
-      $this->size = filesize( $this->tmp_name );
+      $this->size = filesize( $this->tmpName() );
     }
 
     return $this->size;
@@ -117,7 +146,7 @@ class Upload {
   // Get the file mime type
   public function mime() {
     if ( ! isset( $this->mime ) ) {
-      $this->mime = mime_content_type( $this->tmp_name );
+      $this->mime = mime_content_type( $this->tmpName() );
     }
 
     return $this->mime;
@@ -142,22 +171,6 @@ class Upload {
     $storage = $storage ?: $this->storage;
 
     throw new UploadStorageNotConfiguredException( "No '$storage' storage is defined" );
-  }
-
-
-  // Test existace of key in files array
-  public function exists() {
-    global $_FILES;
-
-    if ( ! isset( $_FILES[$this->key] ) ) {
-      throw new UploadKeyNotFoundException( "The '{$this->key}' file could not be found" );
-    }
-
-    if ( ! file_exists( $_FILES[$this->key]['tmp_name'] ) ) {
-      throw new UploadTmpNameNotFoundException( "The file {$this->tmp_name} could not be found" );
-    }
-
-    return true;
   }
 
 
@@ -189,28 +202,28 @@ class Upload {
           }
 
           // detect valid uploaded file
-          if ( $this->is_upload && ! is_uploaded_file( $this->tmp_name ) ) {
-            throw new UploadFileNotValidException( "The given file '$this->tmp_name' is not valid" );
+          if ( $this->is_upload && ! is_uploaded_file( $this->tmpName() ) ) {
+            throw new UploadFileNotValidException( "The given file '$this->tmpName()' is not valid" );
           }
         }
 
         // store file
         if ( $this->is_upload ) {
-          $stored = move_uploaded_file( $this->tmp_name, $file );
+          $stored = move_uploaded_file( $this->tmpName(), $file );
         } elseif ( $is_stream ) {
-          $stored = copy( $this->tmp_name, $file );
+          $stored = copy( $this->tmpName(), $file );
         } else {
-          $stored = rename( $this->tmp_name, $file );
+          $stored = rename( $this->tmpName(), $file );
         }
 
         // fail if not stored
         if ( ! $stored ) {
-          throw new UploadFileNotMovableException( "The uploaded file '$this->tmp_name' could not be moved to '$file'" );
+          throw new UploadFileNotMovableException( "The uploaded file '$this->tmpName()' could not be moved to '$file'" );
         }
 
         // fail if unable to delete source file
-        if ( $is_stream && ! unlink( $this->tmp_name ) ) {
-          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmp_name' could not be deleted" );
+        if ( $is_stream && ! unlink( $this->tmpName() ) ) {
+          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmpName()' could not be deleted" );
         }
 
         // get url
@@ -249,13 +262,13 @@ class Upload {
         $result = $client->putObject([
           'Bucket' => $bucket
         , 'Key'    => preg_replace( '/^\//', '', $this->file() )
-        , 'Body'   => fopen( $this->tmp_name, 'r' )
+        , 'Body'   => fopen( $this->tmpName(), 'r' )
         , 'ACL'    => 'public-read'
         ]);
 
         // fail if unable to delete source file
-        if ( ! unlink( $this->tmp_name ) ) {
-          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmp_name' could not be deleted" );
+        if ( ! unlink( $this->tmpName() ) ) {
+          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmpName()' could not be deleted" );
         }
 
       break;
@@ -337,7 +350,6 @@ class Upload {
     return "$protocol//$host" . $this->path();
   }
 
-
 }
 
 
@@ -345,9 +357,11 @@ class Upload {
 class UploadUnableToCreateDirectoryException extends Exception {}
 class UploadS3CredentialsNotDefinedException extends Exception {}
 class UploadStorageNotConfiguredException extends Exception {}
+class UploadSourceNotAccptableException extends Exception {}
 class UploadStorageTypeUnknownException extends Exception {}
 class UploadS3BucketNotDefinedException extends Exception {}
 class UploadS3RegionNotDefinedException extends Exception {}
+class UploadSourceIncompleteException extends Exception {}
 class UploadFileNotDeletableException extends Exception {}
 class UploadTmpNameNotFoundException extends Exception {}
 class UploadAlreadyStoredException extends Exception {}

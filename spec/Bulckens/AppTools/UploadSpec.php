@@ -36,12 +36,24 @@ class UploadSpec extends ObjectBehavior {
 
 
   // Initialization
-  function it_stores_the_key() {
-    $this->key()->shouldBe( 'image' );
+  function it_stores_the_upload() {
+    $this->upload()->shouldBeArray();
   }
 
   function it_stores_the_file_name() {
     $this->name()->shouldBe( 'w.jpg' );
+  }
+
+  function it_accepts_an_upload_source() {
+    $this->beConstructedWith([
+      'name' => 'w.jpg'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ]);
+    $this->name()->shouldBe( 'w.jpg' );
+    $this->error()->shouldBe( UPLOAD_ERR_OK );
+    $root = str_replace( '/', '\/', App::root( 'dev/upload/tmp/[A-Za-z0-9]{32}' ) );
+    $this->tmpName()->shouldMatch( "/$root/" );
   }
 
   function it_stores_the_sanitizes_the_file_name() {
@@ -91,6 +103,18 @@ class UploadSpec extends ObjectBehavior {
       ->during__construct( 'image' );
   }
 
+  function it_fails_if_the_given_upload_is_not_a_string_or_an_array() {
+    $this
+      ->shouldThrow( 'Bulckens\AppTools\UploadSourceNotAccptableException' )
+      ->during__construct( 123 );
+  }
+
+  function it_fails_if_the_given_source_is_incomplete() {
+    $this
+      ->shouldThrow( 'Bulckens\AppTools\UploadSourceIncompleteException' )
+      ->during__construct([ 'tmp_name' => '/some/tmp/name' ]);
+  }
+
   
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
@@ -129,9 +153,13 @@ class UploadSpec extends ObjectBehavior {
   }
 
 
-  // Key method
-  function it_returns_the_key() {
-    $this->key()->shouldBe( 'image' );
+  // Upload method
+  function it_returns_the_upload() {
+    $upload = $this->upload();
+    $upload->shouldBeArray();
+    $upload->shouldHaveKeyWithValue( 'name', 'w.jpg' );
+    $upload->shouldHaveKeyWithValue( 'name', 'w.jpg' );
+    $upload->shouldHaveKeyWithValue( 'error', UPLOAD_ERR_OK );
   }
 
 
@@ -140,31 +168,34 @@ class UploadSpec extends ObjectBehavior {
     $this->name()->shouldBe( 'w.jpg' );
   }
 
-  function it_sets_the_name() {
-    $this->name( 'wout' );
-    $this->name()->shouldBe( 'wout.jpg' );
-  }
-
-  function it_returns_itself_after_setting_the_name() {
-    $this->name( 'wout' )->shouldBe( $this );
-  }
-
   function it_sanitizes_the_name() {
-    $this->name( ' Some crazy ? 123 value with años to go!!!' );
+    $_FILES['image'] = [
+      'name' => ' Some crazy ? 123 value with años to go!!!'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
     $this->name()->shouldStartWith( 'some-crazy-123-value-with-anos-to-go.jpg' );
   }
 
   function it_allows_the_name_to_be_passed_without_an_extension() {
-    $this->name( 'without' );
+    $_FILES['image'] = [
+      'name' => 'without'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
     $this->name()->shouldBe( 'without.jpg' );
   }
 
-  function it_allows_the_name_to_be_passed_with_an_extension() {
-    $this->name( 'with.gif' );
+  function it_allows_the_name_to_be_passed_with_an_extension_even_if_it_is_not_the_right_one() {
+    $_FILES['image'] = [
+      'name' => 'with.gif'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
     $this->name()->shouldBe( 'with.jpg' );
   }
 
-  function it_returns_a_file_with_lowercase_extension_when_sanitization_is_enabled_by_default() {
+  function it_returns_a_file_with_lowercase_name_when_sanitization_is_enabled_by_default() {
     $_FILES['image'] = [
       'name' => 'DOGFOOD_CONTAINER.JPG'
     , 'tmp_name' => self::setupTmpFile()
@@ -181,7 +212,32 @@ class UploadSpec extends ObjectBehavior {
     , 'error' => UPLOAD_ERR_OK
     ];
     $this->beConstructedWith( 'image', [ 'config' => 'upload_unsanitized.yml' ] );
-    $this->name()->shouldEndWith( 'DOG FØØD CONTAINER≈.JPG' );
+    $this->name()->shouldEndWith( 'DOG FØØD CONTAINER≈.jpg' );
+  }
+
+  function it_sets_a_custom_name() {
+    $this->name( 'beast' );
+    $this->name()->shouldEndWith( 'beast.jpg' );
+  }
+
+  function it_returns_itself_after_setting_the_name() {
+    $this->name( 'coolaid.jpg' )->shouldBe( $this );
+  }
+
+
+  // Ext method
+  function it_returns_the_file_extension() {
+    $this->ext()->shouldBe( 'jpg' );
+  }
+
+  function it_returns_the_real_extension_even_if_none_is_given() {
+    $_FILES['image'] = [
+      'name' => 'DOGFOOD_CONTAINER.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image' );
+    $this->ext()->shouldBe( 'jpg' );
   }
 
 
@@ -233,12 +289,6 @@ class UploadSpec extends ObjectBehavior {
 
   function it_fails_when_the_given_storage_destination_is_not_configured() {
     $this->shouldThrow( 'Bulckens\AppTools\UploadStorageNotConfiguredException' )->duringStorage( 'falumba' );
-  }
-
-
-  // Exists method
-  function it_tests_the_existance_of_the_given_key_in_the_files_array() {
-    $this->exists()->shouldBe( true );
   }
 
 
@@ -356,7 +406,7 @@ class UploadSpec extends ObjectBehavior {
     $this->name( 'stored' );
     $this
       ->file()
-      ->shouldBe( App::root( 'dev/upload/test/stored.jpg' ) );
+      ->shouldStartWith( App::root( 'dev/upload/test/stored.jpg' ) );
   }
 
   function it_returns_the_full_destination_file_path_with_an_additional_sub_path() {
