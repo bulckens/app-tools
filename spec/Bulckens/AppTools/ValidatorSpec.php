@@ -2,7 +2,9 @@
 
 namespace spec\Bulckens\AppTools;
 
+use Bulckens\Helpers\StringHelper;
 use Bulckens\AppTools\App;
+use Bulckens\AppTools\Upload;
 use Bulckens\AppTools\Validator;
 use Bulckens\AppTests\TestModel;
 use PhpSpec\ObjectBehavior;
@@ -18,6 +20,8 @@ class ValidatorSpec extends ObjectBehavior {
 
   function letGo() {
     TestModel::truncate();
+    exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/tmp' ) ) ) );
+    exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/test' ) ) ) );
   }
 
 
@@ -206,6 +210,20 @@ class ValidatorSpec extends ObjectBehavior {
     $this->beConstructedWith([ 'email' => [ 'required' => false ] ]);
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'email' )->shouldHaveCount( 0 );
+  }
+
+  function it_requires_an_upload() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'required' => true ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_fails_when_an_upload_is_required_but_none_is_given() {
+    $this->beConstructedWith([ 'image' => [ 'required' => true ] ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'is required' );
   }
 
 
@@ -670,6 +688,160 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
 
+  // File weight
+  function it_ensures_a_file_is_not_too_heavy() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'weight' => '10 MB' ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_ensures_a_file_is_not_too_light() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'weight' => [ 'min' => '1KB' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_fails_when_a_file_is_too_heavy() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'weight' => [ 'max' => '1 KB' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'should be no bigger than 1 KB' );
+  }
+
+  function it_fails_when_a_file_is_too_light() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'weight' => [ 'min' => '1TB' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'should be at least 1TB' );
+  }
+
+  function it_fails_to_ensure_the_weight_of_a_file_if_the_given_value_is_not_an_upload() {
+    $this->beConstructedWith([ 'image' => [ 'weight' => [ 'min' => '10 PB' ] ] ]);
+    $this->data([ 'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ] ]);
+    $this->shouldThrow( 'Bulckens\AppTools\ValidatorFileDataNotAnUploadInstanceException' )->duringPasses();
+  }
+
+  function it_passes_when_a_file_width_is_required_but_no_file_is_given() {
+    $this->beConstructedWith([ 'image' => [ 'weight' => '1000 TB' ] ]);
+    $this->passes()->shouldBe( true );
+  }
+
+
+  // File dimensions
+  function it_ensures_an_image_is_not_too_large() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => '1204x1024' ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_ensures_an_image_is_not_too_small() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'min' => '128x128' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_fails_when_an_image_is_too_large() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'max' => '32x32' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'should not be wider than 32px' );
+    $this->errorMessages( 'image' )->shouldContain( 'should not be higher than 32px' );
+  }
+
+  function it_fails_when_an_image_is_too_wide() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'max' => '32x' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'should not be wider than 32px' );
+    $this->errorMessages( 'image' )->shouldHaveCount( 1 );
+  }
+
+  function it_fails_when_an_image_is_too_high() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'max' => 'x32' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'should not be higher than 32px' );
+    $this->errorMessages( 'image' )->shouldHaveCount( 1 );
+  }
+
+  function it_fails_when_an_image_is_too_small() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'min' => '5120x5120' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'should be at least 5120px wide' );
+    $this->errorMessages( 'image' )->shouldContain( 'should be at least 5120px high' );
+  }
+
+  function it_fails_to_ensure_the_dimensions_of_an_image_if_the_given_value_is_not_an_upload() {
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'min' => '100x100' ] ] ]);
+    $this->data([ 'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ] ]);
+    $this->shouldThrow( 'Bulckens\AppTools\ValidatorFileDataNotAnUploadInstanceException' )->duringPasses();
+  }
+
+  function it_passes_when_specific_dimensions_are_required_but_no_file_is_given() {
+    $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'min' => '5120x5120' ] ] ]);
+    $this->passes()->shouldBe( true );
+  }
+
+
+  // File mime type
+  function it_ensures_a_file_has_the_allowed_mime_type() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'mime' => 'image/jpeg' ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_ensures_a_file_has_one_of_the_allowed_mime_types() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'mime' => [ 'image/jpeg', 'image/png', 'image/gif' ] ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( true );
+  }
+
+  function it_fails_if_a_file_has_the_wrong_mime_type() {
+    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+
+    $this->beConstructedWith([ 'image' => [ 'mime' => 'image/png' ] ]);
+    $this->data([ 'image' => $upload ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'image' )->shouldContain( 'is not an accepted file type' );
+  }
+
+  function it_fails_to_ensure_the_mime_type_of_a_file_if_the_given_value_is_not_an_upload() {
+    $this->beConstructedWith([ 'image' => [ 'mime' => [ 'image/jpeg' ] ] ]);
+    $this->data([ 'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ] ]);
+    $this->shouldThrow( 'Bulckens\AppTools\ValidatorFileDataNotAnUploadInstanceException' )->duringPasses();
+  }
+
+  function it_passes_when_a_mime_type_is_required_but_no_file_is_given() {
+    $this->beConstructedWith([ 'image' => [ 'mime' => 'image/png' ] ]);
+    $this->passes()->shouldBe( true );
+  }
+
+
   // Custom validation
   function it_fails_when_a_custom_closure_returns_false() {
     $this->beConstructedWith([ 'faduba' => [ 'custom' => function() { return false; } ] ]);
@@ -695,6 +867,24 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'falsy' )->shouldContain( 'is invalid' );
   }
 
+
+  // Helpers
+  protected static function setupTmpFile() {
+    if ( ! file_exists( $tmp = App::root( 'dev/upload/tmp' ) ) ) {
+      mkdir( $tmp, 0777, true );
+    }
+    if ( ! file_exists( $dir = App::root( 'dev/upload/test' ) ) ) {
+      mkdir( $dir, 0777, true );
+    }
+
+    $source = App::root( 'dev/upload/w.jpg' );
+    $random = StringHelper::generate( 32 );
+    $tmp_name = "$tmp/$random";
+
+    copy( $source, $tmp_name );
+
+    return $tmp_name;
+  }
 
 
 }

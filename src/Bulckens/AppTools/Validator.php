@@ -2,6 +2,9 @@
 
 namespace Bulckens\AppTools;
 
+use Exception;
+use Bulckens\Helpers\MemoryHelper;
+
 class Validator {
   
   protected $data = [];
@@ -38,6 +41,13 @@ class Validator {
     , 'numeric_odd'         => 'is not a an odd number'
     , 'numeric_integer'     => 'is not a an integer'
     , 'unique'              => 'is already taken'
+    , 'weight_min'          => 'should be at least {{ weight }}'
+    , 'weight_max'          => 'should be no bigger than {{ weight }}'
+    , 'width_min'           => 'should be at least {{ width }}px wide'
+    , 'width_max'           => 'should not be wider than {{ width }}px'
+    , 'height_min'          => 'should be at least {{ height }}px high'
+    , 'height_max'          => 'should not be higher than {{ height }}px'
+    , 'mime'                => 'is not an accepted file type'
     , 'custom'              => 'is invalid'
     ]
   ];
@@ -239,7 +249,7 @@ class Validator {
     }
 
     // make sure value is restored to original if not present
-    if ( ! isset( $this->data[$name] ) ||  $this->isBlank( $this->data[$name] ) ) {
+    if ( ! isset( $this->data[$name] ) || $this->isBlank( $this->data[$name] ) ) {
       if ( $required ) {
         $this->error( $name, 'required' );
       } else if ( $this->model ) {
@@ -424,6 +434,92 @@ class Validator {
   }
 
 
+  // Weight tester
+  protected function weight( $name, $constraints ) {
+    if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
+      // make sure constraints is an array
+      if ( ! is_array( $constraints ) ) $constraints = [ 'max' => $constraints ];
+      
+      // test minimum file size
+      if ( isset( $constraints['min'] ) ) {
+        $min = MemoryHelper::interpret( $constraints['min'] );
+
+        if ( $upload->size() < $min ) {
+          $this->error( $name, 'weight_min', [ 'weight' => $constraints['min'] ] );
+        }
+      }
+
+      // test maximum file size
+      if ( isset( $constraints['max'] ) ) {
+        $max = MemoryHelper::interpret( $constraints['max'] );
+
+        if ( $upload->size() > $max ) {
+          $this->error( $name, 'weight_max', [ 'weight' => $constraints['max'] ] );
+        }
+      }
+
+    } else {
+      throw new ValidatorFileDataNotAnUploadInstanceException( "The provided '$name' is not an instance of " . Upload::class );
+    }
+  }
+
+
+  // Dimensions tester
+  protected function dimensions( $name, $constraints ) {
+    if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
+      // make sure constraints is an array
+      if ( ! is_array( $constraints ) ) $constraints = [ 'max' => $constraints ];
+
+      if ( $upload->isImage() ) {
+        // test minimum image dimensions
+        if ( isset( $constraints['min'] ) ) {
+          $min = explode( 'x', $constraints['min'] );
+
+          if ( is_numeric( $min[0] ) && $upload->width() < $min[0] ) {
+            $this->error( $name, 'width_min', [ 'width' => $min[0] ] );
+          }
+
+          if ( is_numeric( $min[1] ) && $upload->height() < $min[1] ) {
+            $this->error( $name, 'height_min', [ 'height' => $min[1] ] );
+          }
+        }
+
+        // test maximum image dimensions
+        if ( isset( $constraints['max'] ) ) {
+          $max = explode( 'x', $constraints['max'] );
+
+          if ( is_numeric( $max[0] ) && $upload->width() > $max[0] ) {
+            $this->error( $name, 'width_max', [ 'width' => $max[0] ] );
+          }
+
+          if ( is_numeric( $max[1] ) && $upload->height() > $max[1] ) {
+            $this->error( $name, 'height_max', [ 'height' => $max[1] ] );
+          }
+        }
+      }
+
+    } else {
+      throw new ValidatorFileDataNotAnUploadInstanceException( "The provided '$name' is not an instance of " . Upload::class );
+    }
+  }
+
+
+  // Mime type tester
+  protected function mime( $name, $allowed ) {
+    if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
+      // make sure allowed value is an array
+      if ( ! is_array( $allowed ) ) $allowed = [ $allowed ];
+
+      // test mime type
+      if ( ! in_array( $upload->mime(), $allowed ) ) {
+        $this->error( $name, 'mime' );
+      }
+    } else {
+      throw new ValidatorFileDataNotAnUploadInstanceException( "The provided '$name' is not an instance of " . Upload::class );
+    }
+  }
+
+
   // Custom validation using a closure
   protected function custom( $name, $closure, $message = null ) {
     $passed = is_string( $closure ) ?
@@ -438,9 +534,9 @@ class Validator {
 
   // Test for empty of blank value
   protected function isBlank( $value ) {
-    return preg_match( '/\A(\s+)?\z/', $value );
+    return $value instanceof Upload ? false : preg_match( '/\A(\s+)?\z/', $value );
   }
-
+  
 
   // Interpolate values
   protected function interpolate( $message, $values = [] ) {
@@ -458,3 +554,6 @@ class Validator {
 
 }
 
+
+// Exceptions
+class ValidatorFileDataNotAnUploadInstanceException extends Exception {}

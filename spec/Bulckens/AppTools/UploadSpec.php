@@ -266,6 +266,66 @@ class UploadSpec extends ObjectBehavior {
   }
 
 
+  // Dimensions method
+  function it_returns_the_dimensions_of_an_image() {
+    $_FILES['image'] = [
+      'name' => 'm.jpg'
+    , 'tmp_name' => self::setupTmpFile( 'm.jpg' )
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image' );
+
+    $dimensions = $this->dimensions();
+    $dimensions->shouldBeArray();
+    $dimensions[0]->shouldBe( 746 );
+    $dimensions[1]->shouldBe( 1080 );
+    $dimensions['width']->shouldBe( 746 );
+    $dimensions['height']->shouldBe( 1080 );
+  }
+
+
+  // Width method
+  function it_returns_the_width_of_an_image() {
+    $_FILES['image'] = [
+      'name' => 'm.jpg'
+    , 'tmp_name' => self::setupTmpFile( 'm.jpg' )
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image' );
+    $this->width()->shouldBe( 746 );
+  }
+
+
+
+  // Height method
+  function it_returns_the_height_of_an_image() {
+    $_FILES['image'] = [
+      'name' => 'm.jpg'
+    , 'tmp_name' => self::setupTmpFile( 'm.jpg' )
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image' );
+    $this->height()->shouldBe( 1080 );
+  }
+
+
+  // IsImage method
+  function it_tests_positive_if_a_file_is_an_image() {
+    $this->shouldBeImage();
+  }
+
+  function it_tests_negative_if_a_file_is_not_an_image() {
+    $_FILES['text'] = [
+      'name' => 'not-an-image.txt'
+    , 'tmp_name' => self::setupTmpFile( 'not-an-image.txt' )
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'text' );
+
+    $this->shouldNotBeImage();
+  }
+
+
   // Mime method
   function it_returns_the_mime_type() {
     $this->mime()->shouldBe( 'image/jpeg' );
@@ -477,7 +537,7 @@ class UploadSpec extends ObjectBehavior {
 
 
   // Helpers
-  protected static function setupTmpFile() {
+  protected static function setupTmpFile( $file = 'w.jpg' ) {
     if ( ! file_exists( $tmp = App::root( 'dev/upload/tmp' ) ) ) {
       mkdir( $tmp, 0777, true );
     }
@@ -485,7 +545,7 @@ class UploadSpec extends ObjectBehavior {
       mkdir( $dir, 0777, true );
     }
 
-    $source = App::root( 'dev/upload/w.jpg' );
+    $source = App::root( "dev/upload/$file" );
     $random = StringHelper::generate( 32 );
     $tmp_name = "$tmp/$random";
 
