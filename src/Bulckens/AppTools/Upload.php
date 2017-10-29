@@ -21,13 +21,14 @@ class Upload {
   protected $mime;
   protected $stamp;
   protected $is_upload;
+  protected $image_dimensions;
   protected $stored = false;
   protected $storage = 'default';
 
 
   public function __construct( $source, $options = [] ) {
     global $_FILES;
-
+    
     // set different config file
     if ( isset( $options['config'] ) ) {
       $this->configFile( $options['config'] );
@@ -92,7 +93,7 @@ class Upload {
     // get file name alone
     $name = preg_replace( '/\.[a-zA-Z0-9]{1,8}$/', '', $this->name ?: $this->source['name'] );
 
-    // sanitize if required
+    // sanitize if required (on by default)
     if ( $this->config( 'sanitize', true ) ) {
       $name = Str::slug( $name );
     }
@@ -140,6 +141,42 @@ class Upload {
   // Get the human readable file size
   public function weight() {
     return MemoryHelper::humanize( $this->size() );
+  }
+
+
+  // Get dimensions of source (image)
+  public function dimensions() {
+    if ( $this->isImage() ) {
+      return $this->image_dimensions;
+    }
+  }
+
+
+  // Get width of source (image)
+  public function width() {
+    if ( $this->isImage() ) {
+      return $this->image_dimensions['width'];
+    }
+  }
+
+
+  // Get height of source (image)
+  public function height() {
+    if ( $this->isImage() ) {
+      return $this->image_dimensions['height'];
+    }
+  }
+
+
+  // Test if source is an image
+  public function isImage() {
+    if ( is_null( $this->image_dimensions ) ) {
+      if ( $d = getimagesize( $this->tmpName() ) ) {
+        $this->image_dimensions = [ $d[0], $d[1], 'width' => $d[0], 'height' => $d[1] ];
+      }
+    }
+
+    return !! $this->image_dimensions;
   }
 
 
@@ -223,7 +260,7 @@ class Upload {
 
         // fail if unable to delete source file
         if ( $is_stream && ! unlink( $this->tmpName() ) ) {
-          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmpName()' could not be deleted" );
+          throw new UploadFileNotDeletableException( "The uploaded file '{$this->tmpName()}' could not be deleted" );
         }
 
         // get url
@@ -268,7 +305,7 @@ class Upload {
 
         // fail if unable to delete source file
         if ( ! unlink( $this->tmpName() ) ) {
-          throw new UploadFileNotDeletableException( "The uploaded file '$this->tmpName()' could not be deleted" );
+          throw new UploadFileNotDeletableException( "The uploaded file '{$this->tmpName()}' could not be deleted" );
         }
 
       break;

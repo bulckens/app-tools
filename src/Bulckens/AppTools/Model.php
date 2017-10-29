@@ -3,11 +3,13 @@
 namespace Bulckens\AppTools;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Bulckens\AppTools\Traits\Uploadable;
 use Bulckens\AppTools\Traits\Validatable;
 use Bulckens\AppTools\Traits\NestedAssociations;
 
 abstract class Model extends Eloquent {
 
+  use Uploadable;
   use Validatable;
   use NestedAssociations;
 
