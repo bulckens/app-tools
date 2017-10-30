@@ -21,7 +21,10 @@ class TestModelWithUploadable extends Model {
       ]
     , 'storage' => 's3'
     ]
-  , 'image' => true
+  , 'image' => [
+      'dir' => 'test_models/{{ id_partition }}/image'
+    , 'name' => '{{ basename }}.{{ style }}.{{ ext }}'
+    ]
   , 'pdf' => [
       'storage' => 's3_ireland'
     ]

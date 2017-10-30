@@ -15,8 +15,8 @@ trait Uploadable {
   public function __set( $name, $value ) {
     // test presence of uploadable
     if ( isset( $this->uploadable[$name] ) ) {
-      // prepare upload instance
-      $this->upload_queue[$name] = new Upload( $value );
+      // prepare upload instance with given settings
+      $this->upload_queue[$name] = new Upload( $value, $this->uploadable[$name] );
 
       // prepare property names
       $upload_name = "{$name}_name";
@@ -47,13 +47,14 @@ trait Uploadable {
 
   // Fill attributes
   public function fill( array $attributes ) {
-
+    // original code form Eloquent for correct mass assignment
     $totallyGuarded = $this->totallyGuarded();
 
     foreach ( $this->fillableFromArray( $attributes ) as $name => $value ) {
       $name = $this->removeTableFromKey( $name );
 
       if ( $this->isFillable( $name ) && isset( $this->uploadable[$name] ) ) {
+        // use magic setter
         $this->$name = $value;
 
         // remove upload attribute

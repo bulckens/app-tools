@@ -20,10 +20,12 @@ class Upload {
   protected $size;
   protected $mime;
   protected $stamp;
+  protected $styles;
   protected $is_upload;
   protected $image_dimensions;
   protected $stored = false;
   protected $storage = 'default';
+  protected $name_format = '{{ basename }}.{{ ext }}';
 
 
   public function __construct( $source, $options = [] ) {
@@ -34,16 +36,28 @@ class Upload {
       $this->configFile( $options['config'] );
     }
 
-    // set different storage option
-    if ( isset( $options['storage'] ) ) {
-      $this->storage = $options['storage'];
-    }
-
     // if set to true, move_uploaded_file() will be used
     if ( isset( $options['is_upload'] ) && is_bool( $options['is_upload'] ) ) {
       $this->is_upload = $options['is_upload'];
     } else {
       $this->is_upload = ! App::env( 'dev' );
+    }
+
+    // set different storage option
+    if ( isset( $options['storage'] ) ) {
+      $this->storage = $options['storage'];
+    }
+
+    // define styles
+    if ( isset( $options['styles'] ) ) {
+      $this->styles = $options['styles'];
+    }
+
+    // define name format
+    if ( isset( $options['name'] ) ) {
+      $this->name_format = $options['name'];
+    } elseif ( $name = $this->config( "storage.$this->storage.name" ) ) {
+      $this->name_format = $name;
     }
 
     // store upload
@@ -82,14 +96,36 @@ class Upload {
 
 
   // Get/set the file name
-  public function name( $name = null ) {
+  public function name( $value = null ) {
     // act as setter
-    if ( $name ) {
-      $this->name = $name;
+    if ( is_string( $value ) ) {
+      $this->name = $value;
 
       return $this;
     }
 
+    // build name
+    $name = $this->name_format;
+
+    // insert local method values
+    foreach ( [ 'basename', 'ext', 'width', 'height' ] as $method ) {
+      $name = preg_replace( "/\{\{\s?$method\s?\}\}/", $this->$method(), $name );
+    }
+
+    // insert full name
+    $name = preg_replace( '/\{\{\s?name\s?\}\}/', $this->basename() . '.' . $this->ext(), $name );
+
+    // insert style
+    if ( is_array( $value ) && isset( $value['style'] ) && is_array( $this->styles ) ) {
+      $name = preg_replace( '/\{\{\s?style\s?\}\}/', $value['style'], $name );
+    }
+
+    return $name;
+  }
+
+
+  // Get the base name
+  public function basename() {
     // get file name alone
     $name = preg_replace( '/\.[a-zA-Z0-9]{1,8}$/', '', $this->name ?: $this->source['name'] );
 
@@ -98,7 +134,7 @@ class Upload {
       $name = Str::slug( $name );
     }
 
-    return "$name." . $this->ext();
+    return $name;
   }
 
 
@@ -339,11 +375,11 @@ class Upload {
     // add root if required
     if ( $this->config( "storage.$this->storage.type" ) == 'filesystem' && ! strpos( $file, '://' ) ) {
       $file = App::root( $file );
-    }
 
-    // add a time stamp if the file already exists
-    if ( file_exists( $file ) ) {
-      $file = preg_replace( '/(\.[a-zA-Z0-9]{1,8})$/', ".$this->stamp$1", $file );
+      // add a time stamp if the file already exists
+      if ( file_exists( $file ) ) {
+        $file = preg_replace( '/(\.[a-zA-Z0-9]{1,8})$/', ".$this->stamp$1", $file );
+      }
     }
 
     return $file;
@@ -361,7 +397,7 @@ class Upload {
     // add name
     $name = '/' . $this->name();
     
-    // add leading slash i required
+    // add leading slash if required
     if ( ! strpos( $dir, '://' ) ) $dir = "/$dir";
 
     return $dir == '/' ? $name : $dir . $name;
