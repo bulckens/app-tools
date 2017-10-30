@@ -27,7 +27,7 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
   // Magic __set method
   function it_sets_the_database_attributes_from_a_given_associative_array() {
     $tmp_name = self::setupTmpFile();
-
+    
     $this->image = [ 'name' => 'w.jpg', 'tmp_name' => $tmp_name, 'error' => UPLOAD_ERR_OK ];
     $this->image_name->shouldBe( 'w.jpg' );
     $this->image_size->shouldBe( filesize( $tmp_name ) );

@@ -1,0 +1,7 @@
+dev:
+  sanitize: true
+  storage:
+    default:
+      type: "filesystem"
+      dir: "dev/upload/test"
+      name: "{{ basename }}-{{ style }}.{{ ext }}"

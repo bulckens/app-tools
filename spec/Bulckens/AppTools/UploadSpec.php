@@ -163,6 +163,12 @@ class UploadSpec extends ObjectBehavior {
   }
 
 
+  // Basename
+  function it_returns_the_name_without_extension() {
+    $this->basename()->shouldBe( 'w' );
+  }
+
+
   // Name method
   function it_returns_the_name() {
     $this->name()->shouldBe( 'w.jpg' );
@@ -222,6 +228,47 @@ class UploadSpec extends ObjectBehavior {
 
   function it_returns_itself_after_setting_the_name() {
     $this->name( 'coolaid.jpg' )->shouldBe( $this );
+  }
+
+  function it_returns_the_file_name_formatted_as_configured_globally() {
+    $_FILES['image'] = [
+      'name' => 'DOG FØØD CONTAINER≈.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image', [
+      'config' => 'upload_formatted.yml'
+    , 'styles' => [ 'large' => '2560x2560#' ]
+    ]);
+    $this->name([ 'style' => 'large' ])->shouldEndWith( 'dog-food-container-large.jpg' );
+  }
+
+  function it_returns_the_file_name_formatted_as_configured_locally() {
+    $_FILES['image'] = [
+      'name' => 'DOG FØØD CONTAINER≈.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image', [
+      'config' => 'upload_formatted.yml'
+    , 'name' => '{{ style }}.{{ name }}'
+    , 'styles' => [ 'medium' => '1280x1280#' ]
+    ]);
+    $this->name([ 'style' => 'medium' ])->shouldEndWith( 'medium.dog-food-container.jpg' );
+  }
+
+  function it_returns_the_file_name_formatted_as_configured_locally_with_width_and_height() {
+    $_FILES['image'] = [
+      'name' => 'DOG FØØD CONTAINER≈.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image', [
+      'config' => 'upload_formatted.yml'
+    , 'name' => '{{ style }}-{{ width }}x{{ height }}.{{ name }}'
+    , 'styles' => [ 'medium' => '1280x1280#' ]
+    ]);
+    $this->name([ 'style' => 'medium' ])->shouldEndWith( 'medium-320x320.dog-food-container.jpg' );
   }
 
 
@@ -321,7 +368,6 @@ class UploadSpec extends ObjectBehavior {
     , 'error' => UPLOAD_ERR_OK
     ];
     $this->beConstructedWith( 'text' );
-
     $this->shouldNotBeImage();
   }
 
