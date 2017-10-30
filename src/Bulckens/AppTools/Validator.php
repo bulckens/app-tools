@@ -443,7 +443,7 @@ class Validator {
       // test minimum file size
       if ( isset( $constraints['min'] ) ) {
         $min = MemoryHelper::interpret( $constraints['min'] );
-
+        
         if ( $upload->size() < $min ) {
           $this->error( $name, 'weight_min', [ 'weight' => $constraints['min'] ] );
         }

@@ -16,9 +16,16 @@ trait Validatable {
     $rules = $this->rules() ?: $this->rules;
     
     if ( $rules ) {
+      // get attributes
+      $attributes = $this->getAttributes();
+
+      if ( isset( $this->upload_queue ) && is_array( $this->upload_queue ) ) {
+        $attributes = array_replace( $attributes, $this->upload_queue );
+      }
+
       // initialize validator
       $validation = new Validator( $rules );
-      $validation->data( $this->getAttributes() );
+      $validation->data( $attributes );
       $validation->model( $this );
       
       // check for failure
