@@ -19,9 +19,12 @@ class TestModelWithUploadable extends Model {
       , 'large' => '1024x1024#'
       , 'original' => '2560x2560'
       ]
+    , 'storage' => 's3'
     ]
   , 'image' => true
-  , 'pdf' => true
+  , 'pdf' => [
+      'storage' => 's3_ireland'
+    ]
   ];
 
 
@@ -29,12 +32,12 @@ class TestModelWithUploadable extends Model {
   public function rules() {
     return [
       'thumb' => [
-        'weight' => [ 'min' => '100 KB', 'max' => '2 MB' ]
-      , 'dimensions' => [ 'min' => '128x128', 'max' => '2560x2560' ]
+        'weight' => [ 'min' => '10 KB', 'max' => '512 KB' ]
+      , 'dimensions' => [ 'min' => '128x128', 'max' => '1024x1024' ]
       , 'mime' => [ 'image/jpeg', 'image/png', 'image/gif' ]
       ]
     , 'image' => [
-        'weight' => '5MB'
+        'weight' => '512 KB'
       , 'required' => true
       ]
     , 'pdf' => [
