@@ -1,0 +1,7 @@
+dev:
+  sanitize: true
+  convert: "/opt/magique/bin/convert"
+  storage:
+    default:
+      type: "filesystem"
+      dir: "dev/upload/test"
