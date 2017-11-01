@@ -29,7 +29,7 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
     $tmp_name = self::setupTmpFile();
     
     $this->image = [ 'name' => 'w.jpg', 'tmp_name' => $tmp_name, 'error' => UPLOAD_ERR_OK ];
-    $this->image_name->shouldBe( 'w.jpg' );
+    $this->image_name->shouldBe( 'w.original.jpg' );
     $this->image_size->shouldBe( filesize( $tmp_name ) );
     $this->image_mime->shouldBe( 'image/jpeg' );
   }
@@ -55,7 +55,7 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
 
     $this->image = [ 'name' => 'w.jpg', 'tmp_name' => $tmp_name, 'error' => UPLOAD_ERR_OK ];
     $this->image->shouldHaveType( 'Bulckens\AppTools\Upload' );
-    $this->image->name()->shouldBe( 'w.jpg' );
+    $this->image->name()->shouldBe( 'w.original.jpg' );
     $this->image->tmpName()->shouldBe( $tmp_name );
     $this->image->error()->shouldBe( UPLOAD_ERR_OK );
   }
@@ -183,6 +183,16 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
     ]);
     $this->isValid()->shouldBe( false );
     $this->errorsOn( 'pdf' )->shouldHaveKeyWithValue( 'mime', 'is not an accepted file type' );
+  }
+
+
+  // Fill method
+  function it_returns_itself_after_filling() {
+    $this->beConstructedWith();
+    $this->fill([
+      'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    , 'pdf' => [ 'name' => 'not-an-image.txt', 'tmp_name' => self::setupTmpFile( 'not-an-image.txt' ), 'error' => UPLOAD_ERR_OK ]
+    ])->shouldBe( $this );
   }
 
 

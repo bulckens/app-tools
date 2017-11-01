@@ -1,5 +1,6 @@
 dev:
   sanitize: true
+  convert: "/opt/ImageMagick/bin/convert"
   storage:
     default:
       type: "filesystem"

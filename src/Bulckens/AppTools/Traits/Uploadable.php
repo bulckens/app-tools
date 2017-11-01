@@ -47,7 +47,7 @@ trait Uploadable {
 
   // Fill attributes
   public function fill( array $attributes ) {
-    // original code form Eloquent for correct mass assignment
+    // NOTE: duplicated code form Eloquent for correct mass assignment
     $totallyGuarded = $this->totallyGuarded();
 
     foreach ( $this->fillableFromArray( $attributes ) as $name => $value ) {
@@ -65,7 +65,7 @@ trait Uploadable {
       }
     }
 
-    parent::fill( $attributes );
+    return parent::fill( $attributes );
   }
 
 }

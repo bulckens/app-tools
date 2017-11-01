@@ -21,9 +21,11 @@ class Upload {
   protected $mime;
   protected $stamp;
   protected $styles;
+  protected $convert;
   protected $is_upload;
   protected $image_dimensions;
   protected $stored = false;
+  protected $command = null;
   protected $storage = 'default';
   protected $name_format = '{{ basename }}.{{ ext }}';
 
@@ -53,12 +55,22 @@ class Upload {
       $this->styles = $options['styles'];
     }
 
+    // define additional image magick command
+    if ( isset( $options['convert'] ) ) {
+      $this->command = $options['convert'];
+    }
+
     // define name format
     if ( isset( $options['name'] ) ) {
       $this->name_format = $options['name'];
     } elseif ( $name = $this->config( "storage.$this->storage.name" ) ) {
       $this->name_format = $name;
+    } elseif ( is_array( $this->styles ) ) {
+      $this->name_format = '{{ basename }}-{{ style }}.{{ ext }}';
     }
+
+    // define convert command
+    $this->convert = $this->config( 'convert', '/usr/bin/convert' );
 
     // store upload
     if ( is_string( $source ) ) {
@@ -72,7 +84,7 @@ class Upload {
       $this->source = $source;
 
     } else {
-      throw new UploadSourceNotAccptableException( "String or array expected but got " . gettype( $source ) );
+      throw new UploadSourceNotAcceptableException( "String or array expected but got " . gettype( $source ) );
     }
 
     // test completeness of given source
@@ -95,16 +107,9 @@ class Upload {
   }
 
 
-  // Get/set the file name
-  public function name( $value = null ) {
-    // act as setter
-    if ( is_string( $value ) ) {
-      $this->name = $value;
-
-      return $this;
-    }
-
-    // build name
+  // Get the file name
+  public function name( $style = null ) {
+    // get name format
     $name = $this->name_format;
 
     // insert local method values
@@ -116,11 +121,17 @@ class Upload {
     $name = preg_replace( '/\{\{\s?name\s?\}\}/', $this->basename() . '.' . $this->ext(), $name );
 
     // insert style
-    if ( is_array( $value ) && isset( $value['style'] ) && is_array( $this->styles ) ) {
-      $name = preg_replace( '/\{\{\s?style\s?\}\}/', $value['style'], $name );
-    }
+    $name = preg_replace( '/\{\{\s?style\s?\}\}/', $style ?: 'original', $name );
 
     return $name;
+  }
+
+
+  // Set a new file name
+  public function rename( $name ) {
+    $this->name = $name;
+
+    return $this;
   }
 
 
@@ -152,9 +163,25 @@ class Upload {
   }
 
 
-  // Get the temporary name
-  public function tmpName() {
-    return $this->source['tmp_name'];
+  // Get the temporary name and create the file if non-existant
+  public function tmpName( $style = null ) {
+    $tmp_name = $this->source['tmp_name'];
+
+    // add style reference to tmp name
+    if ( is_string( $style ) && isset( $this->styles[$style] ) && $style != 'original' ) {
+      $tmp_name .= ".style-$style" ;
+
+      // create file if non-existant
+      if ( ! file_exists( $tmp_name ) ) {
+        $this->createTmpStyle(
+          $tmp_name
+        , $this->styles[$style]
+        , isset( $this->command[$style] ) ? $this->command[$style] : $this->command
+        );
+      }
+    }
+
+    return $tmp_name;
   }
 
 
@@ -257,6 +284,107 @@ class Upload {
       throw new UploadAlreadyStoredException( "The file '$file' has already been stored" );
     }
 
+    // store file in every style
+    if ( is_array( $this->styles ) ) {
+      foreach ( $this->styles as $style => $resize ) {
+        $this->storeStyle( $style );
+      }
+    } else {
+      $this->storeStyle();
+    }
+
+    // mark as stored
+    return $this->stored = true;
+  }
+
+
+  // Get/set subdirectory
+  public function dir( $dir = null ) {
+    // act as getter
+    if ( is_null( $dir ) ) return $this->dir;
+
+    // continue as setter
+    $this->dir = preg_replace( '/\A\/|\/\z/', '', $dir );
+
+    return $this;
+  }
+
+
+  // Get full file path
+  public function file( $style = null ) {
+    // get path
+    $file = $this->path( $style );
+
+    // add root if required
+    if ( $this->config( "storage.$this->storage.type" ) == 'filesystem' && ! strpos( $file, '://' ) ) {
+      $file = App::root( $file );
+
+      // add a time stamp if the file already exists
+      if ( file_exists( $file ) ) {
+        $file = preg_replace( '/(\.[a-zA-Z0-9]{1,8})$/', ".$this->stamp$1", $file );
+      }
+    }
+
+    return $file;
+  }
+
+  
+  // Get public path
+  public function path( $style = null ) {
+    // get configured dir
+    $dir = $this->config( "storage.$this->storage.dir", '' );
+
+    // add subdir
+    if ( $this->dir() ) $dir .= ( empty( $dir ) ? '' : '/') . $this->dir();
+
+    // add name
+    $name = '/' . $this->name( $style );
+    
+    // add leading slash if required
+    if ( ! strpos( $dir, '://' ) ) $dir = "/$dir";
+
+    return $dir == '/' ? $name : $dir . $name;
+  }
+
+
+  // Get public url
+  public function url( $style = null, $options = [] ) {
+    // ensure default options
+    $options = array_replace([
+      'protocol' => 'https:'
+    ], $options );
+
+    switch ( $this->config( "storage.$this->storage.type" ) ) {
+      case 's3':
+        // get region and bucket
+        $region = $this->config( "storage.$this->storage.region" );
+        $bucket = $this->config( "storage.$this->storage.bucket" );
+
+        $host = "$bucket.s3-$region.amazonaws.com";
+      break;
+      case 'filesystem':
+        // get configured host with fallback to current host
+        $host = $this->config( "storage.$this->storage.host", $_SERVER['HTTP_HOST'] );
+      break;
+    }
+
+    return $options['protocol'] . "//$host" . $this->path( $style );
+  }
+
+
+  // Store a file in a given style
+  protected function storeStyle( $style = null ) {
+    // detect valid uploaded file
+    if ( $this->is_upload && ! is_uploaded_file( $this->tmpName() ) ) {
+      throw new UploadFileNotValidException( "The given file '$this->tmpName()' is not valid" );
+    }
+
+    // get file paths in the given style
+    $file = $this->file( $style );
+
+    // get tmp file for style
+    $tmp_name = $this->tmpName( $style );
+
     // store file according to config
     switch ( $type = $this->config( "storage.$this->storage.type" ) ) {
       case 'filesystem':
@@ -269,34 +397,29 @@ class Upload {
             }
           }
 
-          // make sure target dir is ritable
+          // make sure target dir is writable
           if ( ! is_writable( $dir ) ) {
             throw new UploadDirectoryNotWritableException( "The target dir '$dir' is not writable" );
-          }
-
-          // detect valid uploaded file
-          if ( $this->is_upload && ! is_uploaded_file( $this->tmpName() ) ) {
-            throw new UploadFileNotValidException( "The given file '$this->tmpName()' is not valid" );
           }
         }
 
         // store file
-        if ( $this->is_upload ) {
-          $stored = move_uploaded_file( $this->tmpName(), $file );
+        if ( $this->is_upload && $tmp_name == $this->tmpName() ) {
+          $stored = move_uploaded_file( $tmp_name, $file );
         } elseif ( $is_stream ) {
-          $stored = copy( $this->tmpName(), $file );
+          $stored = copy( $tmp_name, $file );
         } else {
-          $stored = rename( $this->tmpName(), $file );
+          $stored = rename( $tmp_name, $file );
         }
 
         // fail if not stored
         if ( ! $stored ) {
-          throw new UploadFileNotMovableException( "The uploaded file '$this->tmpName()' could not be moved to '$file'" );
+          throw new UploadFileNotMovableException( "The uploaded file '$tmp_name' could not be moved to '$file'" );
         }
 
         // fail if unable to delete source file
-        if ( $is_stream && ! unlink( $this->tmpName() ) ) {
-          throw new UploadFileNotDeletableException( "The uploaded file '{$this->tmpName()}' could not be deleted" );
+        if ( $is_stream && ! unlink( $tmp_name ) ) {
+          throw new UploadFileNotDeletableException( "The uploaded file '$tmp_name' could not be deleted" );
         }
 
         // get url
@@ -334,14 +457,14 @@ class Upload {
         // upload file
         $result = $client->putObject([
           'Bucket' => $bucket
-        , 'Key'    => preg_replace( '/^\//', '', $this->file() )
-        , 'Body'   => fopen( $this->tmpName(), 'r' )
-        , 'ACL'    => 'public-read'
+        , 'Key' => preg_replace( '/^\//', '', $file )
+        , 'Body' => fopen( $tmp_name, 'r' )
+        , 'ACL' => 'public-read'
         ]);
 
         // fail if unable to delete source file
-        if ( ! unlink( $this->tmpName() ) ) {
-          throw new UploadFileNotDeletableException( "The uploaded file '{$this->tmpName()}' could not be deleted" );
+        if ( ! unlink( $tmp_name ) ) {
+          throw new UploadFileNotDeletableException( "The uploaded file '$tmp_name' could not be deleted" );
         }
 
       break;
@@ -349,78 +472,47 @@ class Upload {
         throw new UploadStorageTypeUnknownException( "Storage type '$type' has not been implemented" );
       break;
     }
-
-    // mark as stored
-    return $this->stored = true;
   }
 
 
-  // Get/set subdirectory
-  public function dir( $dir = null ) {
-    // act as getter
-    if ( is_null( $dir ) ) return $this->dir;
+  // Create temporary style file
+  protected function createTmpStyle( $tmp_name, $resize, $convert = null ) {
+    // parse resize command
+    preg_match( '/^(\d+)x(\d+)([#^>!]?)$/', $resize, $m );
 
-    // continue as setter
-    $this->dir = preg_replace( '/\A\/|\/\z/', '', $dir );
+    if ( isset( $m[1] ) && is_numeric( $m[1] ) && is_numeric( $m[2] ) ) {
+      // output destination
+      $devnull = '2>/dev/null';
 
-    return $this;
-  }
-
-
-  // Get full file path
-  public function file() {
-    // get path
-    $file = $this->path();
-
-    // add root if required
-    if ( $this->config( "storage.$this->storage.type" ) == 'filesystem' && ! strpos( $file, '://' ) ) {
-      $file = App::root( $file );
-
-      // add a time stamp if the file already exists
-      if ( file_exists( $file ) ) {
-        $file = preg_replace( '/(\.[a-zA-Z0-9]{1,8})$/', ".$this->stamp$1", $file );
+      // test imagemagick path
+      if ( empty( exec( "$this->convert $devnull" ) ) ) {
+        throw new UploadImageMagickNotFoundException( "Expected to find ImageMagick at '$this->convert' but it's not there" );
       }
+
+      // gather parameters
+      list( $c, $w, $h, $f ) = $m;
+
+      // interpret flags
+      $f = in_array( $f, [ '>', '!', '^', '#', '' ] ) ? $f : '>';
+      $f = in_array( $f, [ '>', '!', ] ) ? "\\$f" : $f;
+
+      // build resize command
+      $command = "$this->convert {$this->source['tmp_name']} -resize {$w}x{$h}";
+
+      // crop or flag
+      $command .= $f == '#' ? "^ -gravity center -crop {$w}x{$h}+0+0" : $f;
+
+      // execute resize command
+      exec( "$command $tmp_name $devnull" );
+
+      // additional command
+      if ( is_string( $convert ) ) {
+        exec( "$this->convert $tmp_name $convert $tmp_name $devnull" );
+      }
+
+    } else {
+      throw new UploadStyleNotValidException( "Unable to parse the style '$resize'" );
     }
-
-    return $file;
-  }
-
-  
-  // Get public path
-  public function path() {
-    // get configured dir
-    $dir = $this->config( "storage.$this->storage.dir", '' );
-
-    // add subdir
-    if ( $this->dir() ) $dir .= ( empty( $dir ) ? '' : '/') . $this->dir();
-
-    // add name
-    $name = '/' . $this->name();
-    
-    // add leading slash if required
-    if ( ! strpos( $dir, '://' ) ) $dir = "/$dir";
-
-    return $dir == '/' ? $name : $dir . $name;
-  }
-
-
-  // Get public url
-  public function url( $protocol = 'https:' ) {
-    switch ( $this->config( "storage.$this->storage.type" ) ) {
-      case 's3':
-        // get region and bucket
-        $region = $this->config( "storage.$this->storage.region" );
-        $bucket = $this->config( "storage.$this->storage.bucket" );
-
-        $host = "$bucket.s3-$region.amazonaws.com";
-      break;
-      case 'filesystem':
-        // get configured host with fallback to current host
-        $host = $this->config( "storage.$this->storage.host", $_SERVER['HTTP_HOST'] );
-      break;
-    }
-
-    return "$protocol//$host" . $this->path();
   }
 
 }
@@ -430,13 +522,15 @@ class Upload {
 class UploadUnableToCreateDirectoryException extends Exception {}
 class UploadS3CredentialsNotDefinedException extends Exception {}
 class UploadStorageNotConfiguredException extends Exception {}
-class UploadSourceNotAccptableException extends Exception {}
+class UploadImageMagickNotFoundException extends Exception {}
+class UploadSourceNotAcceptableException extends Exception {}
 class UploadStorageTypeUnknownException extends Exception {}
 class UploadS3BucketNotDefinedException extends Exception {}
 class UploadS3RegionNotDefinedException extends Exception {}
 class UploadSourceIncompleteException extends Exception {}
 class UploadFileNotDeletableException extends Exception {}
 class UploadTmpNameNotFoundException extends Exception {}
+class UploadStyleNotValidException extends Exception {}
 class UploadAlreadyStoredException extends Exception {}
 class UploadFileNotValidException extends Exception {}
 class UploadKeyNotFoundException extends Exception {}
