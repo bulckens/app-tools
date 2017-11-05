@@ -32,16 +32,17 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
     $this->image_name->shouldBe( 'w.original.jpg' );
     $this->image_size->shouldBe( filesize( $tmp_name ) );
     $this->image_mime->shouldBe( 'image/jpeg' );
+    $this->image_meta->shouldBe( '{"width":320,"height":320}' );
   }
 
   function it_fails_if_the_given_associative_array_is_incomplete() {
-    $this->shouldThrow( 'Bulckens\AppTools\UploadSourceIncompleteException' )->during__set( 'image', [
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpSourceIncompleteException' )->during__set( 'image', [
       'name' => 'w.jpg'
     ]);
   }
 
   function it_fails_if_the_given_associative_array_contains_a_reference_to_a_non_existant_file() {
-    $this->shouldThrow( 'Bulckens\AppTools\UploadTmpNameNotFoundException' )->during__set( 'image', [
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpNameNotFoundException' )->during__set( 'image', [
       'name' => 'w.jpg'
     , 'tmp_name' => '/I/am/lost/or/so/I/think.jpg'
     , 'error' => UPLOAD_ERR_OK
@@ -50,17 +51,54 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
 
 
   // Magic __get method
-  function it_gets_an_upload_object() {
-    $tmp_name = self::setupTmpFile();
+  function it_gets_an_uploaded_image() {
+    $this->beConstructedWith([
+      'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    ]);
+    $this->storeUploads();
 
-    $this->image = [ 'name' => 'w.jpg', 'tmp_name' => $tmp_name, 'error' => UPLOAD_ERR_OK ];
-    $this->image->shouldHaveType( 'Bulckens\AppTools\Upload' );
+    $this->image->shouldHaveType( 'Bulckens\AppTools\Upload\File' );
     $this->image->name()->shouldBe( 'w.original.jpg' );
-    $this->image->tmpName()->shouldBe( $tmp_name );
-    $this->image->error()->shouldBe( UPLOAD_ERR_OK );
+    $this->image->path()->shouldEndWith( '/dev/upload/test/w.original.jpg' );
+    $this->image->dir()->shouldEndWith( '/ma/sta/ba' );
+    $this->image->host()->shouldEndWith( 'https://rombla.es' );
+    $this->image->url()->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.original.jpg' );
+    $this->image->mime()->shouldBe( 'image/jpeg' );
+    $this->image->size()->shouldBe( 123 );
+    $this->image->weight()->shouldBe( '1 KB' );
+    $this->image->tiny_name->shouldBe( 'w.tiny.jpg' );
+    $this->image->tiny_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.tiny.jpg' );
+    $this->image->small_name->shouldBe( 'w.small.jpg' );
+    $this->image->small_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.small.jpg' );
+    $this->image->medium_name->shouldBe( 'w.medium.jpg' );
+    $this->image->medium_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.medium.jpg' );
+    $this->image->large_name->shouldBe( 'w.large.jpg' );
+    $this->image->large_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.large.jpg' );
+    $this->image->original_name->shouldBe( $this->image->name );
+    $this->image->original_url->shouldEndWith( $this->image->url );
   }
 
-  function it_returns_nothing_if_the_attribute_has_not_been_set() {
+  function it_gets_an_uploaded_pdf() {
+    $this->beConstructedWith([
+      'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    , 'pdf' => [ 'name' => 'not-an-image.pdf', 'tmp_name' => self::setupTmpFile( 'not-an-image.pdf' ), 'error' => UPLOAD_ERR_OK ]
+    ]);
+    $this->storeUploads();
+
+    $this->pdf->shouldHaveType( 'Bulckens\AppTools\Upload\File' );
+    $this->pdf->name()->shouldBe( 'not-an-image.pdf' );
+    $this->pdf->path()->shouldEndWith( '/fa/lum/ba' );
+    $this->pdf->dir()->shouldEndWith( '/ma/sta/ba' );
+    $this->pdf->host()->shouldEndWith( 'https://rombla.es' );
+    $this->pdf->url()->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.original.jpg' );
+    $this->pdf->mime()->shouldBe( 'application/pdf' );
+    $this->pdf->size()->shouldBe( 123 );
+    $this->pdf->weight()->shouldBe( '1 KB' );
+    $this->pdf->original_name->shouldBe( null );
+    $this->pdf->original_url->shouldEndWith( null );
+  }
+
+  function it_returns_nothing_if_the_file_has_not_yet_been_uploaded() {
     $this->image->shouldBe( null );
   }
 
@@ -193,6 +231,26 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
       'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
     , 'pdf' => [ 'name' => 'not-an-image.txt', 'tmp_name' => self::setupTmpFile( 'not-an-image.txt' ), 'error' => UPLOAD_ERR_OK ]
     ])->shouldBe( $this );
+  }
+
+
+  // StoreUploads method
+  function it_stores_the_uploads() {
+    $this->beConstructedWith([
+      'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    ]);
+
+    $this->storeUploads();
+
+
+  }
+
+  function it_returns_itself_after_storing_the_uploads() {
+    $this->beConstructedWith([
+      'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    ]);
+
+    $this->storeUploads()->shouldBe( $this );
   }
 
 

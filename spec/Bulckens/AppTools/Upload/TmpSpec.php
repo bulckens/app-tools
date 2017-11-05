@@ -1,15 +1,15 @@
 <?php
 
-namespace spec\Bulckens\AppTools;
+namespace spec\Bulckens\AppTools\Upload;
 
 use Exception;
 use Bulckens\Helpers\StringHelper;
 use Bulckens\AppTools\App;
-use Bulckens\AppTools\Upload;
+use Bulckens\AppTools\Upload\Tmp;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
-class UploadSpec extends ObjectBehavior {
+class TmpSpec extends ObjectBehavior {
   
   function let() {
     global $_FILES;
@@ -37,7 +37,7 @@ class UploadSpec extends ObjectBehavior {
 
   // Initialization
   function it_stores_the_upload() {
-    $this->upload()->shouldBeArray();
+    $this->source()->shouldBeArray();
   }
 
   function it_stores_the_file_name() {
@@ -91,7 +91,7 @@ class UploadSpec extends ObjectBehavior {
 
   function it_fails_if_the_given_key_is_not_present_in_the_files_array() {
     $this
-      ->shouldThrow( 'Bulckens\AppTools\UploadKeyNotFoundException' )
+      ->shouldThrow( 'Bulckens\AppTools\Upload\TmpKeyNotFoundException' )
       ->during__construct( 'void' );
   }
 
@@ -99,19 +99,19 @@ class UploadSpec extends ObjectBehavior {
     $_FILES['image']['tmp_name'] = App::root( 'undefined/unrelated/w.jpg' );
 
     $this
-      ->shouldThrow( 'Bulckens\AppTools\UploadTmpNameNotFoundException' )
+      ->shouldThrow( 'Bulckens\AppTools\Upload\TmpNameNotFoundException' )
       ->during__construct( 'image' );
   }
 
   function it_fails_if_the_given_upload_is_not_a_string_or_an_array() {
     $this
-      ->shouldThrow( 'Bulckens\AppTools\UploadSourceNotAcceptableException' )
+      ->shouldThrow( 'Bulckens\AppTools\Upload\TmpSourceNotAcceptableException' )
       ->during__construct( 123 );
   }
 
   function it_fails_if_the_given_source_is_incomplete() {
     $this
-      ->shouldThrow( 'Bulckens\AppTools\UploadSourceIncompleteException' )
+      ->shouldThrow( 'Bulckens\AppTools\Upload\TmpSourceIncompleteException' )
       ->during__construct([ 'tmp_name' => '/some/tmp/name' ]);
   }
 
@@ -153,9 +153,9 @@ class UploadSpec extends ObjectBehavior {
   }
 
 
-  // Upload method
+  // Source method
   function it_returns_the_upload() {
-    $upload = $this->upload();
+    $upload = $this->source();
     $upload->shouldBeArray();
     $upload->shouldHaveKeyWithValue( 'name', 'w.jpg' );
     $upload->shouldHaveKeyWithValue( 'name', 'w.jpg' );
@@ -473,7 +473,7 @@ class UploadSpec extends ObjectBehavior {
         'mini' => '128x 128#'
       ]
     ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadStyleNotValidException' )->duringTmpName( 'mini' );
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpStyleNotValidException' )->duringTmpName( 'mini' );
   }
 
   function it_fails_if_the_resize_command_for_the_style_is_defines_no_value_at_all() {
@@ -482,7 +482,7 @@ class UploadSpec extends ObjectBehavior {
         'mini' => 'x>'
       ]
     ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadStyleNotValidException' )->duringTmpName( 'mini' );
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpStyleNotValidException' )->duringTmpName( 'mini' );
   }
 
   function it_fails_when_the_image_magick_command_could_not_be_found() {
@@ -492,7 +492,7 @@ class UploadSpec extends ObjectBehavior {
       ]
     , 'config' => 'upload_bad_magick.yml'
     ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadImageMagickNotFoundException' )->duringTmpName( 'massive' );
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpImageMagickNotFoundException' )->duringTmpName( 'massive' );
   }
 
 
@@ -580,6 +580,28 @@ class UploadSpec extends ObjectBehavior {
   }
 
 
+  // Meta method
+  function it_returns_a_json_string() {
+    $this->meta()->shouldBeJson();
+  }
+
+  function it_returns_a_json_string_with_image_dimensions() {
+    $this->meta()->shouldHaveJsonKeyWithValue( 'width', 320 );
+    $this->meta()->shouldHaveJsonKeyWithValue( 'height', 320 );
+  }
+
+  function it_returns_a_json_string_without_image_dimensions_for_non_image_formats() {
+    $_FILES['text'] = [
+      'name' => 'not-an-image.txt'
+    , 'tmp_name' => self::setupTmpFile( 'not-an-image.txt' )
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'text' );
+    $this->meta()->shouldNotHaveJsonKey( 'width' );
+    $this->meta()->shouldNotHaveJsonKey( 'height' );
+  }
+
+
   // Storage method
   function it_returns_the_storage() {
     $this->beConstructedWith( 'image', [ 'storage' => 's3' ] );
@@ -596,7 +618,7 @@ class UploadSpec extends ObjectBehavior {
   }
 
   function it_fails_when_the_given_storage_destination_is_not_configured() {
-    $this->shouldThrow( 'Bulckens\AppTools\UploadStorageNotConfiguredException' )->duringStorage( 'falumba' );
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpStorageNotConfiguredException' )->duringStorage( 'falumba' );
   }
 
 
@@ -650,33 +672,33 @@ class UploadSpec extends ObjectBehavior {
 
   function it_fails_if_the_given_storage_type_does_not_exist() {
     $this->beConstructedWith( 'image', [ 'config' => 'upload_unknown.yml' ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadStorageTypeUnknownException' )->duringStore();
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpStorageTypeUnknownException' )->duringStore();
   }
 
   function it_fails_when_store_is_called_twice() {
     $this->store()->shouldBe( true );
-    $this->shouldThrow( 'Bulckens\AppTools\UploadAlreadyStoredException' )->duringStore();
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpAlreadyStoredException' )->duringStore();
   }
 
   function it_fails_when_no_access_key_and_or_secret_are_configured() {
     $this->beConstructedWith( 'image', [
       'config' => 'upload_credentialless.yml'
     ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadS3CredentialsNotDefinedException' )->duringStore();
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpS3CredentialsNotDefinedException' )->duringStore();
   }
   
   function it_fails_when_no_region_is_defined() {
     $this->beConstructedWith( 'image', [
       'config' => 'upload_regionless.yml'
     ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadS3RegionNotDefinedException' )->duringStore();
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpS3RegionNotDefinedException' )->duringStore();
   }
 
   function it_fails_when_no_bucket_is_defined() {
     $this->beConstructedWith( 'image', [
       'config' => 'upload_bucketless.yml'
     ]);
-    $this->shouldThrow( 'Bulckens\AppTools\UploadS3BucketNotDefinedException' )->duringStore();
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpS3BucketNotDefinedException' )->duringStore();
   }
 
   function it_fails_when_the_bucket_does_not_exist() {
@@ -845,6 +867,63 @@ class UploadSpec extends ObjectBehavior {
       'storage' => 's3'
     ]);
     $this->url()->shouldBe( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/w.jpg' ); 
+  }
+
+
+
+  // NameFormat method
+  function it_returns_the_default_name_format() {
+    $this->nameFormat()->shouldStartWith( '{{ basename }}.{{ ext }}' );
+  }
+
+  function it_returns_the_default_name_format_if_styles_are_defined() {
+    $this->beConstructedWith( 'image', [
+      'styles' => [
+        'frop' => '21x21#'
+      , 'original' => '300x300'
+      ]
+    ]);
+    $this->nameFormat()->shouldStartWith( '{{ basename }}-{{ style }}.{{ ext }}' );
+  }
+
+  function it_returns_the_name_format_defined_in_the_config_file() {
+    $this->beConstructedWith( 'image', [
+      'config' => 'upload_formatted.yml'
+    ]);
+    $this->nameFormat()->shouldStartWith( '{{ basename }}-{{ style }}.{{ ext }}' );
+  }
+
+  function it_returns_the_name_format_provided_in_the_uploadable_configuration() {
+    $this->beConstructedWith( 'image', [
+      'styles' => [
+        'frop' => '21x21#'
+      , 'original' => '300x300'
+      ]
+    , 'name' => '{{ basename }}-{{ style }}-image.{{ ext }}'
+    ]);
+    $this->name( 'frop' )->shouldStartWith( 'w-frop-image.jpg' );
+  }
+
+
+  // DirFormat method
+  function it_returns_the_default_dir_format() {
+    $this->beConstructedWith( 'image', [
+      'config' => 'upload_dirless.yml'
+    ]);
+    $this->dirFormat()->shouldStartWith( '{{ model }}/{{ id }}/{{ name }}' );
+  }
+
+  function it_returns_the_dir_format_defined_in_the_config_file() {
+    $this->beConstructedWith( 'image', [
+      'config' => 'upload_formatted.yml'
+    ]);
+    $this->dirFormat()->shouldStartWith( 'model/{{ model }}/id/{{ id }}/name/{{ name }}' );
+  }
+
+  function it_returns_the_dir_format_provided_in_the_uploadable_configuration() {
+    $this->dirFormat([
+      'dir' => 'uploads/{{ name }}/{{ model }}/{{ id }}'
+    ])->shouldStartWith( 'uploads/{{ name }}/{{ model }}/{{ id }}' );
   }
 
 
