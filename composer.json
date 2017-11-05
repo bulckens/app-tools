@@ -42,7 +42,8 @@
         "aws/aws-sdk-php": "^3.36"
     },
     "require-dev": {
-        "phpspec/phpspec": "^3.2"
+        "phpspec/phpspec": "^3.2",
+        "karriere/phpspec-matchers": "^1.1"
     },
     "autoload": {
         "psr-0": {

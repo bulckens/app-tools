@@ -3,5 +3,5 @@ dev:
   storage:
     default:
       type: "filesystem"
-      dir: "dev/upload/test"
+      dir: "model/{{ model }}/id/{{ id }}/name/{{ name }}"
       name: "{{ basename }}-{{ style }}.{{ ext }}"

@@ -29,7 +29,7 @@ class TestModelWithUploadable extends Model {
       'storage' => 's3_ireland'
     ]
   ];
-
+  
 
   // Rules related to upload
   public function rules() {

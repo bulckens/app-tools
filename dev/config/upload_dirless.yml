@@ -1,7 +1,6 @@
 dev:
   sanitize: true
-  magick: "/opt/magique/bin/convert"
   storage:
     default:
       type: "filesystem"
-      dir: "dev/upload/test"
+      name: "{{ basename }}-{{ style }}.{{ ext }}"
