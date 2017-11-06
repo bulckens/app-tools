@@ -30,19 +30,19 @@ class TestModelWithUploadableMethodSpec extends ObjectBehavior {
     $tmp_name = self::setupTmpFile();
     
     $this->image = [ 'name' => 'w.jpg', 'tmp_name' => $tmp_name, 'error' => UPLOAD_ERR_OK ];
-    $this->image_name->shouldBe( 'w.original.jpg' );
+    $this->image_name->shouldBe( 'w.jpg' );
     $this->image_size->shouldBe( filesize( $tmp_name ) );
     $this->image_mime->shouldBe( 'image/jpeg' );
   }
 
   function it_fails_if_the_given_associative_array_is_incomplete() {
-    $this->shouldThrow( 'Bulckens\AppTools\UploadSourceIncompleteException' )->during__set( 'image', [
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpSourceIncompleteException' )->during__set( 'image', [
       'name' => 'w.jpg'
     ]);
   }
 
   function it_fails_if_the_given_associative_array_contains_a_reference_to_a_non_existant_file() {
-    $this->shouldThrow( 'Bulckens\AppTools\UploadTmpNameNotFoundException' )->during__set( 'image', [
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpNameNotFoundException' )->during__set( 'image', [
       'name' => 'w.jpg'
     , 'tmp_name' => '/I/am/lost/or/so/I/think.jpg'
     , 'error' => UPLOAD_ERR_OK

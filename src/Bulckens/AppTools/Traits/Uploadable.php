@@ -5,7 +5,6 @@ namespace Bulckens\AppTools\Traits;
 use Illuminate\Database\Eloquent\MassAssignmentException;
 use Bulckens\AppTools\Upload\Tmp;
 use Bulckens\AppTools\Upload\File;
-use Bulckens\AppTools\Helpers\UploadableHelper;
 
 trait Uploadable {
 
@@ -22,11 +21,6 @@ trait Uploadable {
     if ( isset( $uploadable[$name] ) ) {
       // prepare upload tmp instance with given settings
       $tmp = new Tmp( $value, $uploadable[$name] );
-
-      // add dir
-      $tmp->dir( UploadableHelper::dir( $this, $name, $tmp->dirFormat( $uploadable[$name] ) ) );
-
-      // store tmp file in upload queue
       $this->upload_queue[$name] = $tmp;
 
       // prepare property names
@@ -43,10 +37,13 @@ trait Uploadable {
       if ( ! empty( $tmp->meta() ) ) {
         $this->$upload_meta = $tmp->meta();
       }
-    }
 
-    // contiute with parent setter
-    return parent::__set( $name, $value );
+      return $this;
+
+    } else {
+      // with default setter
+      return parent::__set( $name, $value );
+    }
   }
 
 
@@ -57,24 +54,27 @@ trait Uploadable {
 
     if ( isset( $uploadable[$name] ) ) {
       // prepare property names
-      $upload_name = "{$name}_name";
-      $upload_size = "{$name}_size";
-      $upload_mime = "{$name}_mime";
-      $upload_meta = "{$name}_meta";
+      $name_field = "{$name}_name";
+      $size_field = "{$name}_size";
+      $mime_field = "{$name}_mime";
+      $meta_field = "{$name}_meta";
 
-      // retrieve 
-      $stored = [
-        'name' => $this->$upload_name
-      , 'size' => $this->$upload_size
-      , 'mime' => $this->$upload_mime
-      , 'meta' => $this->$upload_meta
-      ];
+      if ( count( array_filter([ $this->$name_field, $this->$size_field, $this->$mime_field ]) ) == 3 ) {
+        // retrieve 
+        $source = [
+          'name' => $this->$name_field
+        , 'size' => $this->$size_field
+        , 'mime' => $this->$mime_field
+        , 'meta' => $this->$meta_field
+        , 'interpolations' => [
+            'object' => $this
+          , 'name' => $name
+          ]
+        ];
 
-      // build file
-      $file = new File( $stored, $uploadable[$name] );
-
-      // add dir
-      return $file->dir( UploadableHelper::dir( $this, $name, $file->dirFormat( $uploadable[$name] ) ) );
+        // build file
+        return new File( $source, $uploadable[$name] );
+      }
     }
 
     // contiute with parent getter
@@ -110,9 +110,13 @@ trait Uploadable {
 
 
   // Store uploads
-  public function storeUploads() {
-    foreach ( $this->upload_queue as $upload ) {
-      $upload->store();
+  protected function storeUploads() {
+    foreach ( $this->upload_queue as $name => $upload ) {
+      // store with dir path interpolations
+      $upload->store([
+        'object' => $this
+      , 'name' => $name
+      ]);
     }
 
     return $this;

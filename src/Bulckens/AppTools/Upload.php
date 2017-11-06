@@ -13,6 +13,7 @@ abstract class Upload {
   use Configurable;
 
   protected $dir;
+  protected $root;
   protected $name;
   protected $size;
   protected $mime;
@@ -40,8 +41,26 @@ abstract class Upload {
       $this->styles = $options['styles'];
     }
 
+    // store dir
+    $this->dir = $this->dirFormat( $options );
+
     // define name format
     $this->name_format = $this->nameFormat( $options );
+  }
+
+
+  // Get style file data
+  public function __get( $name ) {
+    if ( is_array( $this->styles ) ) {
+      if ( preg_match( '/(.*)_(name|file|url)$/', $name, $matches ) ) {
+        $style = $matches[1];
+        $field = $matches[2];
+        
+        if ( isset( $this->styles[$style] ) ) {
+          return $this->$field( $style );
+        }
+      }
+    }
   }
 
 
@@ -129,52 +148,63 @@ abstract class Upload {
   }
 
 
+  // Get/set root directory
+  public function root( $root = null ) {
+    if ( empty( func_get_args() ) ) {
+      if ( empty( $this->root ) ) {
+        if ( $this->config( "storage.$this->storage.type" ) == 'filesystem' ) {
+          // get root from config
+          $root = $this->config( "storage.$this->storage.root" );
+
+          // default to app root
+          if ( empty( $root ) ) $root = App::root();
+        }
+      } else {
+        $root = $this->root;
+      }
+
+      // make sure there is a trailing slash
+      return preg_replace( '/\/\z/', '', $root );
+    }
+
+    // continue as setter
+    $this->root = $root;
+
+    return $this;
+  }
+
+
   // Get/set subdirectory
   public function dir( $dir = null ) {
     // act as getter
-    if ( is_null( $dir ) ) return $this->dir;
+    if ( is_null( $dir ) ) {
+      return preg_replace( '/\/\z/', '', str_replace( '//', '/', "/$this->dir" ) );
+    }
 
     // continue as setter
-    $this->dir = preg_replace( '/\A\/|\/\z/', '', $dir );
+    $this->dir = $dir;
 
     return $this;
+  }
+
+
+  // Get public path
+  public function path( $style = null ) {
+    return str_replace( '//', '/', $this->dir() . '/' . $this->name( $style ) );
   }
 
 
   // Get full file path
   public function file( $style = null ) {
     // get path
-    $file = $this->path( $style );
+    $file = $this->root() . $this->path( $style );
 
-    // add root if required
-    if ( $this->config( "storage.$this->storage.type" ) == 'filesystem' && ! strpos( $file, '://' ) ) {
-      $file = App::root( $file );
-
-      // add a time stamp if the file already exists
-      if ( file_exists( $file ) ) {
-        $file = preg_replace( '/(\.[a-zA-Z0-9]{1,8})$/', ".$this->stamp$1", $file );
-      }
-    }
+    // // add a time stamp if the file already exists
+    // if ( file_exists( $file ) ) {
+    //   $file = preg_replace( '/(\.[a-zA-Z0-9]{1,8})$/', ".$this->stamp$1", $file );
+    // }
 
     return $file;
-  }
-
-  
-  // Get public path
-  public function path( $style = null ) {
-    // get configured dir
-    $dir = $this->config( "storage.$this->storage.dir", '' );
-
-    // add subdir
-    if ( $this->dir() ) $dir .= ( empty( $dir ) ? '' : '/') . $this->dir();
-
-    // add name
-    $name = '/' . $this->name( $style );
-    
-    // add leading slash if required
-    if ( ! strpos( $dir, '://' ) ) $dir = "/$dir";
-
-    return $dir == '/' ? $name : $dir . $name;
   }
 
 
@@ -197,8 +227,11 @@ abstract class Upload {
         // get configured host with fallback to current host
         $host = $this->config( "storage.$this->storage.host", $_SERVER['HTTP_HOST'] );
       break;
-    }
+    } 
 
+    // make sure host has no trailing slash
+    $host = preg_replace( '/\/\z/', '', $host );
+    
     return $options['protocol'] . "//$host" . $this->path( $style );
   }
 

@@ -4,6 +4,7 @@ namespace spec\Bulckens\AppTools\Upload;
 
 use Exception;
 use Bulckens\Helpers\StringHelper;
+use Bulckens\AppTests\TestModel;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Upload\File;
 use PhpSpec\ObjectBehavior;
@@ -11,12 +12,8 @@ use Prophecy\Argument;
 
 class FileSpec extends ObjectBehavior {
 
-  protected static $test_file = [
-    'name' => 'w.js'
-  , 'mime' => 'image/jpeg'
-  , 'size' => 18338
-  , 'meta' => '{"width":320,"height":320}'
-  ];
+  protected static $model;
+  protected static $test_file;
   
   function let() {
     global $_SERVER;
@@ -32,11 +29,23 @@ class FileSpec extends ObjectBehavior {
     , 'size' => 18338
     , 'meta' => '{"width":320,"height":320}'
     ]);
+
+    self::$test_file = [
+      'name' => 'w.js'
+    , 'mime' => 'image/jpeg'
+    , 'size' => 18338
+    , 'meta' => '{"width":320,"height":320}'
+    , 'interpolations' => [
+        'object' => TestModel::create()
+      , 'name' => 'image'
+      ]
+    ];
   }
 
   function letGo() {
     exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/tmp' ) ) ) );
     exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/test' ) ) ) );
+    TestModel::truncate();
   }
 
 
@@ -274,7 +283,7 @@ class FileSpec extends ObjectBehavior {
   }
 
   function it_returns_the_absolute_path_for_filesystem_storage() {
-    $this->dir( 'will/power' )->file()->shouldBe( App::root( 'dev/upload/test/will/power/w.jpg' ) );
+    $this->dir( 'will/power' )->file()->shouldBe( App::root( 'will/power/w.jpg' ) );
   }
 
   function it_returns_the_absolute_path_for_filesystem_streamed_storage() {
@@ -305,18 +314,18 @@ class FileSpec extends ObjectBehavior {
   // Dir method
   function it_returns_the_dir() {
     $this->dir( 'halla/23/malla' );
-    $this->dir()->shouldBe( 'halla/23/malla' );
+    $this->dir()->shouldBe( '/halla/23/malla' );
   }
 
   function it_sets_the_dir_of_the_file() {
-    $this->dir()->shouldBe( null );
+    $this->dir()->shouldBe( '/dev/upload/test' );
     $this->dir( 'some/sub/directory' );
-    $this->dir()->shouldBe( 'some/sub/directory' );
+    $this->dir()->shouldBe( '/some/sub/directory' );
   }
 
-  function it_strips_any_leading_and_trailing_slashes() {
+  function it_strips_any_trailing_slashes() {
     $this->dir( '/some/sub/directory/' );
-    $this->dir()->shouldBe( 'some/sub/directory' );
+    $this->dir()->shouldBe( '/some/sub/directory' );
   }
 
   function it_returns_itself_after_setting_the_path_of_the_file() {
@@ -326,23 +335,18 @@ class FileSpec extends ObjectBehavior {
 
   // Path method
   function it_returns_the_public_path_to_the_file() {
-    $this->path()->shouldBe( '/dev/upload/test/w.jpg' );
+    $this->beConstructedWith( self::$test_file, [ 'storage' => 's3' ]);
+    $this->path()->shouldBe( '/test_models/1/images/w.jpg' );
   }
 
   function it_returns_the_public_path_to_the_file_for_a_given_style() {
-    $this->beConstructedWith( self::$test_file,
-    [ 'styles' => [
-        'mini' => '256x256#'
-      ]
-    ]);
+    $this->beConstructedWith( self::$test_file, [ 'styles' => [ 'mini' => '256x256#' ] ]);
     $this->path( 'mini' )->shouldEndWith( '/dev/upload/test/w-mini.jpg' );
   }
 
   function it_returns_the_public_s3_path_to_the_file() {
-    $this->beConstructedWith( self::$test_file,
-    [ 'storage' => 's3' ]);
-
-    $this->path()->shouldBe( '/w.jpg' );
+    $this->beConstructedWith( self::$test_file, [ 'storage' => 's3' ]);
+    $this->path()->shouldBe( '/test_models/1/images/w.jpg' );
   }
 
   function it_returns_the_public_s3_path_to_the_file_for_a_given_style() {
@@ -352,7 +356,7 @@ class FileSpec extends ObjectBehavior {
         'tiny' => '128x128#'
       ]
     ]);
-    $this->path( 'tiny' )->shouldBe( '/w-tiny.jpg' );
+    $this->path( 'tiny' )->shouldBe( '/test_models/1/images/w-tiny.jpg' );
   }
 
 
@@ -396,8 +400,7 @@ class FileSpec extends ObjectBehavior {
 
   function it_returns_the_s3_url_of_the_file() {
     $this->beConstructedWith( self::$test_file, [ 'storage' => 's3' ]);
-
-    $this->url()->shouldBe( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/w.jpg' ); 
+    $this->url()->shouldBe( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_models/1/images/w.jpg' ); 
   }
 
 
@@ -432,6 +435,24 @@ class FileSpec extends ObjectBehavior {
     , 'name' => '{{ basename }}-{{ style }}-image.{{ ext }}'
     ]);
     $this->name( 'frop' )->shouldStartWith( 'w-frop-image.jpg' );
+  }
+
+
+  // Magic __get method
+  function it_gets_the_name_file_and_url_of_a_style() {
+    $this->beConstructedWith( self::$test_file, [
+      'styles' => [
+        'mini' => '10x10!'
+      , 'original' => '1024x1024>'
+      ]
+    ]);
+
+    $this->original_name->shouldStartWith( 'w-original.jpg' );
+    $this->original_file->shouldStartWith( App::root( 'dev/upload/test/w-original.jpg' ) );
+    $this->original_url->shouldStartWith( 'https://localhost/dev/upload/test/w-original.jpg' );
+    $this->mini_name->shouldStartWith( 'w-mini.jpg' );
+    $this->mini_file->shouldStartWith( App::root( 'dev/upload/test/w-mini.jpg' ) );
+    $this->mini_url->shouldStartWith( 'https://localhost/dev/upload/test/w-mini.jpg' );
   }
 
 

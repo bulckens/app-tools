@@ -4,6 +4,7 @@ namespace spec\Bulckens\AppTools\Upload;
 
 use Exception;
 use Bulckens\Helpers\StringHelper;
+use Bulckens\AppTests\TestModel;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Upload\Tmp;
 use PhpSpec\ObjectBehavior;
@@ -32,6 +33,7 @@ class TmpSpec extends ObjectBehavior {
   function letGo() {
     exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/tmp' ) ) ) );
     exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/test' ) ) ) );
+    TestModel::truncate();
   }
 
 
@@ -130,7 +132,7 @@ class TmpSpec extends ObjectBehavior {
   }
 
 
-  // File method
+  // ConfigFile method
   function it_builds_config_file_name_from_class() {
     $this->configFile()->shouldBe( 'upload.yml' );
   }
@@ -625,20 +627,39 @@ class TmpSpec extends ObjectBehavior {
   // Store method
   function it_stores_the_file_on_the_file_system() {
     $this->store()->shouldBe( true );
-    $this->url()->shouldBe( 'https://localhost/dev/upload/test/w.jpg' );
+    $this->url()->shouldStartWith( 'https://localhost/dev/upload/test/w.jpg' );
   }
 
   function it_stores_the_file_on_the_file_system_into_a_given_directory() {
     $this->dir( 'mecaniq/arms' )->store()->shouldBe( true );
-    $this->path()->shouldBe( '/dev/upload/test/mecaniq/arms/w.jpg' );
+    $this->path()->shouldBe( '/mecaniq/arms/w.jpg' );
+  }
+
+  function it_stores_the_file_on_the_file_system_into_a_given_directory_including_the_parent_id() {
+    $object = new TestModel();
+    $object->save();
+
+    $this->dir( 'mecaniq/{{ id }}/arms' )->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
+    $this->path()->shouldStartWith( '/mecaniq/1/arms/w.jpg' );
+  }
+
+  function it_stores_the_file_on_the_file_system_into_a_given_directory_including_a_partitioned_parent_id() {
+    $object = new TestModel();
+    $object->save();
+
+    $this->dir( 'mecaniq/{{ id_partition }}/arms' )->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
+    $this->path()->shouldStartWith( '/mecaniq/000/000/001/arms/w.jpg' );
   }
 
   function it_stores_the_file_on_s3() {
+    $object = new TestModel();
+    $object->save();
+
     $this->beConstructedWith( 'image', [
       'storage' => 's3'
     ]);
-    $this->store()->shouldBe( true );
-    $this->url()->shouldBe( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/w.jpg' );
+    $this->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
+    $this->url()->shouldStartWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_models/1/images/w.jpg' );
   }
 
   function it_stores_all_the_styles_on_s3() {
@@ -663,16 +684,22 @@ class TmpSpec extends ObjectBehavior {
   }
 
   function it_stores_the_file_on_s3_into_a_given_bucket() {
+    $object = new TestModel();
+    $object->save();
+
     $this->beConstructedWith( 'image', [
       'storage' => 's3_ireland'
     ]);
-    $this->store()->shouldBe( true );
-    $this->url()->shouldEndWith( 'https://zow-v5-test-alternative.s3-eu-west-1.amazonaws.com/w.jpg' );
+    $this->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
+    $this->url()->shouldEndWith( 'https://zow-v5-test-alternative.s3-eu-west-1.amazonaws.com/test_models/1/images/w.jpg' );
   }
 
   function it_fails_if_the_given_storage_type_does_not_exist() {
+    $object = new TestModel();
+    $object->save();
+
     $this->beConstructedWith( 'image', [ 'config' => 'upload_unknown.yml' ]);
-    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpStorageTypeUnknownException' )->duringStore();
+    $this->shouldThrow( 'Bulckens\AppTools\Upload\TmpStorageTypeUnknownException' )->duringStore([ 'object' => $object, 'name' => 'image' ]);
   }
 
   function it_fails_when_store_is_called_twice() {
@@ -743,23 +770,26 @@ class TmpSpec extends ObjectBehavior {
     $this
       ->dir( 'picture/nicely' )
       ->file()
-      ->shouldStartWith( App::root( 'dev/upload/test/picture/nicely/substored.jpg' ) );
+      ->shouldStartWith( App::root( 'picture/nicely/substored.jpg' ) );
   }
 
-  function it_ensures_a_uniqe_file_name() {
-    file_put_contents( App::root( 'dev/upload/test/w.jpg' ), '' );
-    $this->file()->shouldMatch( '/w\.\d{13}\.jpg$/' );
-  }
+  // function it_ensures_a_uniqe_file_name() {
+  //   file_put_contents( App::root( 'dev/upload/test/w.jpg' ), '' );
+  //   $this->file()->shouldMatch( '/w\.\d{13}\.jpg$/' );
+  // }
 
   function it_returns_the_absolute_path_for_filesystem_storage() {
-    $this->dir( 'will/power' )->file()->shouldBe( App::root( 'dev/upload/test/will/power/w.jpg' ) );
+    $this->dir( 'will/power' )->file()->shouldStartWith( App::root( 'will/power/w.jpg' ) );
   }
 
-  function it_returns_the_absolute_path_for_filesystem_streamed_storage() {
+  function it_returns_the_absolute_path_for_filesystem_streamed_storage_before_interpolation() {
     $this->beConstructedWith( 'image', [
       'storage' => 'external'
     ]);
-    $this->dir( 'will/power' )->file()->shouldBe( "http://server.local/safe/to/store/will/power/w.jpg" );
+    $this
+      ->dir( '{{ model }}/will/power' )
+      ->file()
+      ->shouldStartWith( "http://server.local/safe/to/store/{{ model }}/will/power/w.jpg" );
   }
 
   function it_returns_the_relative_path_for_s3_storage() {
@@ -770,21 +800,56 @@ class TmpSpec extends ObjectBehavior {
   }
 
 
+  // Root method
+  function it_returns_the_root() {
+    $root = preg_replace( '/\/\z/', '', App::root() );
+    $this->root()->shouldStartWith( $root );
+  }
+
+  function it_returns_the_root_as_set_in_the_config_file() {
+    $this->beConstructedWith( 'image', [
+      'storage' => 'external'
+    ]);
+    $this->root()->shouldEndWith( 'http://server.local/safe/to/store' );
+  }
+
+  function it_returns_an_empty_root_for_s3_configs() {
+    $this->beConstructedWith( 'image', [
+      'storage' => 's3'
+    ]);
+    $this->root()->shouldBe( '' );
+  }
+
+  function it_sets_the_root() {
+    $this->root( '/some/other/location' );
+    $this->root()->shouldEndWith( '/some/other/location' );
+  }
+
+  function it_returns_itself_after_setting_the_root() {
+    $this->root( '/var/local/area51' )->shouldBe( $this );
+  }
+
+  function it_returns_the_root_always_without_trailing_slash() {
+    $this->root( '/some/other/location/with/trail/' );
+    $this->root()->shouldEndWith( '/some/other/location/with/trail' );
+  }
+
+
   // Dir method
-  function it_returns_the_dir() {
-    $this->dir( 'halla/23/malla' );
-    $this->dir()->shouldBe( 'halla/23/malla' );
+  function it_returns_the_dir_before_interpolation() {
+    $this->dir( 'halla/{{ id }}/malla' );
+    $this->dir()->shouldBe( '/halla/{{ id }}/malla' );
   }
 
   function it_sets_the_dir_of_the_file() {
-    $this->dir()->shouldBe( null );
-    $this->dir( 'some/sub/directory' );
-    $this->dir()->shouldBe( 'some/sub/directory' );
+    $this->dir()->shouldBe( '/dev/upload/test' );
+    $this->dir( 'some/{{ model }}/directory' );
+    $this->dir()->shouldBe( '/some/{{ model }}/directory' );
   }
 
   function it_strips_any_leading_and_trailing_slashes() {
     $this->dir( '/some/sub/directory/' );
-    $this->dir()->shouldBe( 'some/sub/directory' );
+    $this->dir()->shouldBe( '/some/sub/directory' );
   }
 
   function it_returns_itself_after_setting_the_path_of_the_file() {
@@ -806,21 +871,21 @@ class TmpSpec extends ObjectBehavior {
     $this->path( 'mini' )->shouldEndWith( '/dev/upload/test/w-mini.jpg' );
   }
 
-  function it_returns_the_public_s3_path_to_the_file() {
+  function it_returns_the_public_s3_path_to_the_file_before_interpolation() {
     $this->beConstructedWith( 'image', [
       'storage' => 's3'
     ]);
-    $this->path()->shouldBe( '/w.jpg' );
+    $this->path()->shouldBe( '/{{ model }}/{{ id }}/{{ name }}/w.jpg' );
   }
 
-  function it_returns_the_public_s3_path_to_the_file_for_a_given_style() {
+  function it_returns_the_public_s3_path_to_the_file_for_a_given_style_before_interpolation() {
     $this->beConstructedWith( 'image', [
       'storage' => 's3'
     , 'styles' => [
         'tiny' => '128x128#'
       ]
     ]);
-    $this->path( 'tiny' )->shouldBe( '/w-tiny.jpg' );
+    $this->path( 'tiny' )->shouldStartWith( '/{{ model }}/{{ id }}/{{ name }}/w-tiny.jpg' );
   }
 
 
@@ -862,11 +927,11 @@ class TmpSpec extends ObjectBehavior {
     $this->url( 'original', [ 'protocol' => 'http:' ] )->shouldBe( 'http://superserver.com/custom/upload/test/w.jpg' );
   }
 
-  function it_returns_the_s3_url_of_the_file() {
+  function it_returns_the_s3_url_of_the_file_before_interpolation() {
     $this->beConstructedWith( 'image', [
       'storage' => 's3'
     ]);
-    $this->url()->shouldBe( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/w.jpg' ); 
+    $this->url()->shouldStartWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/{{ model }}/{{ id }}/{{ name }}/w.jpg' ); 
   }
 
 
@@ -924,6 +989,29 @@ class TmpSpec extends ObjectBehavior {
     $this->dirFormat([
       'dir' => 'uploads/{{ name }}/{{ model }}/{{ id }}'
     ])->shouldStartWith( 'uploads/{{ name }}/{{ model }}/{{ id }}' );
+  }
+
+
+  // Magic __get method
+  function it_gets_the_name_file_and_url_of_a_style() {
+    $_FILES['image'] = [
+      'name' => 'DOG FØØD CONTAINER≈.JPG'
+    , 'tmp_name' => self::setupTmpFile()
+    , 'error' => UPLOAD_ERR_OK
+    ];
+    $this->beConstructedWith( 'image', [
+      'styles' => [
+        'mini' => '10x10!'
+      , 'original' => '1024x1024>'
+      ]
+    ]);
+
+    $this->original_name->shouldStartWith( 'dog-food-container-original.jpg' );
+    $this->original_file->shouldStartWith( App::root( 'dev/upload/test/dog-food-container-original.jpg' ) );
+    $this->original_url->shouldStartWith( 'https://localhost/dev/upload/test/dog-food-container-original.jpg' );
+    $this->mini_name->shouldStartWith( 'dog-food-container-mini.jpg' );
+    $this->mini_file->shouldStartWith( App::root( 'dev/upload/test/dog-food-container-mini.jpg' ) );
+    $this->mini_url->shouldStartWith( 'https://localhost/dev/upload/test/dog-food-container-mini.jpg' );
   }
 
 
