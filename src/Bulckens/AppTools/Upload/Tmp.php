@@ -8,6 +8,7 @@ use Bulckens\Helpers\TimeHelper;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Upload;
 use Bulckens\AppTools\Interfaces\UploadInterface;
+use Bulckens\AppTools\Helpers\UploadableHelper;
 
 class Tmp extends Upload implements UploadInterface {
 
@@ -169,7 +170,10 @@ class Tmp extends Upload implements UploadInterface {
 
 
   // Store the file at its configured destination
-  public function store() {
+  public function store( $interpolations = [] ) {
+    // convert dir to contain possible post-save an other parameters
+    $this->dir = UploadableHelper::dir( $this->dir, $interpolations );
+
     // get absolute file path
     $file = $this->file();
 

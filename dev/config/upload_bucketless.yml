@@ -5,3 +5,4 @@ dev:
       region: "eu-central-1"
       access: "AKIAIAYTK34RTJ3C7UNQ"
       secret: "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"
+      dir: "less"

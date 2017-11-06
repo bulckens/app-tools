@@ -14,6 +14,9 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
   // TIP: you'll need this: getWrappedObject
 
   function let() {
+    global $_SERVER;
+    $_SERVER['HTTP_HOST'] = 'localhost';
+
     $app = new App( 'dev' );
     $app->run();
   }
@@ -21,6 +24,7 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
   function letGo() {
     exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/tmp' ) ) ) );
     exec( sprintf( 'rm -rf %s', escapeshellarg( App::root( 'dev/upload/test' ) ) ) );
+    TestModelWithUploadable::truncate();
   }
 
 
@@ -29,10 +33,12 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
     $tmp_name = self::setupTmpFile();
     
     $this->image = [ 'name' => 'w.jpg', 'tmp_name' => $tmp_name, 'error' => UPLOAD_ERR_OK ];
-    $this->image_name->shouldBe( 'w.original.jpg' );
-    $this->image_size->shouldBe( filesize( $tmp_name ) );
-    $this->image_mime->shouldBe( 'image/jpeg' );
-    $this->image_meta->shouldBe( '{"width":320,"height":320}' );
+    $this->image->name()->shouldBe( 'w.original.jpg' );
+    $this->image->size()->shouldBe( filesize( $tmp_name ) );
+    $this->image->mime()->shouldBe( 'image/jpeg' );
+    $this->image->meta()->shouldBeArray();
+    $this->image->meta()->shouldHaveKeyWithValue( 'width', 320 );
+    $this->image->meta()->shouldHaveKeyWithValue( 'height', 320 );
   }
 
   function it_fails_if_the_given_associative_array_is_incomplete() {
@@ -51,31 +57,52 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
 
 
   // Magic __get method
+  function it_gets_an_uploaded_thumb() {
+    $this->beConstructedWith([
+      'thumb' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    , 'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
+    ]);
+    $this->save();
+
+    $this->thumb->shouldHaveType( 'Bulckens\AppTools\Upload\File' );
+    $this->thumb->name()->shouldBe( 'w-original.jpg' );
+    $this->thumb->path()->shouldEndWith( '/test_model_with_uploadables/1/thumbs/w-original.jpg' );
+    $this->thumb->dir()->shouldEndWith( '/test_model_with_uploadables/1/thumbs' );
+    $this->thumb->url()->shouldEndWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_model_with_uploadables/1/thumbs/w-original.jpg' );
+    $this->thumb->mime()->shouldBe( 'image/jpeg' );
+    $this->thumb->size()->shouldBe( 18338 );
+    $this->thumb->weight()->shouldBe( '17.91 KB' );
+    $this->thumb->tiny_name->shouldBe( 'w-tiny.jpg' );
+    $this->thumb->tiny_file->shouldBe( '/test_model_with_uploadables/1/thumbs/w-tiny.jpg' );
+    $this->thumb->tiny_url->shouldEndWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_model_with_uploadables/1/thumbs/w-tiny.jpg' );
+    $this->thumb->small_name->shouldBe( 'w-small.jpg' );
+    $this->thumb->small_file->shouldBe( '/test_model_with_uploadables/1/thumbs/w-small.jpg' );
+    $this->thumb->small_url->shouldEndWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_model_with_uploadables/1/thumbs/w-small.jpg' );
+    $this->thumb->medium_name->shouldBe( 'w-medium.jpg' );
+    $this->thumb->medium_file->shouldBe( '/test_model_with_uploadables/1/thumbs/w-medium.jpg' );
+    $this->thumb->medium_url->shouldEndWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_model_with_uploadables/1/thumbs/w-medium.jpg' );
+    $this->thumb->large_name->shouldBe( 'w-large.jpg' );
+    $this->thumb->large_file->shouldBe( '/test_model_with_uploadables/1/thumbs/w-large.jpg' );
+    $this->thumb->large_url->shouldEndWith( 'https://zow-v5-test.s3-eu-central-1.amazonaws.com/test_model_with_uploadables/1/thumbs/w-large.jpg' );
+    $this->thumb->original_name->shouldBe( $this->thumb->name() );
+    $this->thumb->original_file->shouldBe( $this->thumb->file() );
+    $this->thumb->original_url->shouldEndWith( $this->thumb->url() );
+  }
+
   function it_gets_an_uploaded_image() {
     $this->beConstructedWith([
       'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
     ]);
-    $this->storeUploads();
+    $this->save();
 
     $this->image->shouldHaveType( 'Bulckens\AppTools\Upload\File' );
     $this->image->name()->shouldBe( 'w.original.jpg' );
-    $this->image->path()->shouldEndWith( '/dev/upload/test/w.original.jpg' );
-    $this->image->dir()->shouldEndWith( '/ma/sta/ba' );
-    $this->image->host()->shouldEndWith( 'https://rombla.es' );
-    $this->image->url()->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.original.jpg' );
+    $this->image->path()->shouldEndWith( '/test_models/000/000/001/image/w.original.jpg' );
+    $this->image->dir()->shouldEndWith( '/test_models/000/000/001/image' );
+    $this->image->url()->shouldEndWith( 'https://localhost/test_models/000/000/001/image/w.original.jpg' );
     $this->image->mime()->shouldBe( 'image/jpeg' );
-    $this->image->size()->shouldBe( 123 );
-    $this->image->weight()->shouldBe( '1 KB' );
-    $this->image->tiny_name->shouldBe( 'w.tiny.jpg' );
-    $this->image->tiny_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.tiny.jpg' );
-    $this->image->small_name->shouldBe( 'w.small.jpg' );
-    $this->image->small_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.small.jpg' );
-    $this->image->medium_name->shouldBe( 'w.medium.jpg' );
-    $this->image->medium_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.medium.jpg' );
-    $this->image->large_name->shouldBe( 'w.large.jpg' );
-    $this->image->large_url->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.large.jpg' );
-    $this->image->original_name->shouldBe( $this->image->name );
-    $this->image->original_url->shouldEndWith( $this->image->url );
+    $this->image->size()->shouldBe( 18338 );
+    $this->image->weight()->shouldBe( '17.91 KB' );
   }
 
   function it_gets_an_uploaded_pdf() {
@@ -83,19 +110,19 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
       'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
     , 'pdf' => [ 'name' => 'not-an-image.pdf', 'tmp_name' => self::setupTmpFile( 'not-an-image.pdf' ), 'error' => UPLOAD_ERR_OK ]
     ]);
-    $this->storeUploads();
+    $this->save();
 
     $this->pdf->shouldHaveType( 'Bulckens\AppTools\Upload\File' );
     $this->pdf->name()->shouldBe( 'not-an-image.pdf' );
-    $this->pdf->path()->shouldEndWith( '/fa/lum/ba' );
-    $this->pdf->dir()->shouldEndWith( '/ma/sta/ba' );
-    $this->pdf->host()->shouldEndWith( 'https://rombla.es' );
-    $this->pdf->url()->shouldEndWith( 'https://rombla.es/fa/lum/ba/w.original.jpg' );
+    $this->pdf->path()->shouldEndWith( '/test_model_with_uploadables/1/pdfs/not-an-image.pdf' );
+    $this->pdf->dir()->shouldEndWith( '/test_model_with_uploadables/1/pdfs' );
+    $this->pdf->url()->shouldEndWith( 'https://zow-v5-test-alternative.s3-eu-west-1.amazonaws.com/test_model_with_uploadables/1/pdfs/not-an-image.pdf' );
     $this->pdf->mime()->shouldBe( 'application/pdf' );
-    $this->pdf->size()->shouldBe( 123 );
-    $this->pdf->weight()->shouldBe( '1 KB' );
+    $this->pdf->size()->shouldBe( 7512 );
+    $this->pdf->weight()->shouldBe( '7.34 KB' );
     $this->pdf->original_name->shouldBe( null );
-    $this->pdf->original_url->shouldEndWith( null );
+    $this->pdf->original_file->shouldBe( null );
+    $this->pdf->original_url->shouldBe( null );
   }
 
   function it_returns_nothing_if_the_file_has_not_yet_been_uploaded() {
@@ -239,18 +266,8 @@ class TestModelWithUploadableSpec extends ObjectBehavior {
     $this->beConstructedWith([
       'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
     ]);
-
-    $this->storeUploads();
-
-
-  }
-
-  function it_returns_itself_after_storing_the_uploads() {
-    $this->beConstructedWith([
-      'image' => [ 'name' => 'w.jpg', 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]
-    ]);
-
-    $this->storeUploads()->shouldBe( $this );
+    $this->save()->shouldBe( true );
+    $this->image->url()->shouldStartWith( 'https://localhost/test_models/000/000/001/image/w.original.jpg' );
   }
 
 

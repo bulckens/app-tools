@@ -19,4 +19,4 @@ dev:
       region: "eu-west-1"
     external:
       type: "filesystem"
-      dir: "http://server.local/safe/to/store"
+      root: "http://server.local/safe/to/store"

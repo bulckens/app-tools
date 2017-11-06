@@ -8,8 +8,11 @@ use Illuminate\Support\Str;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Upload;
 use Bulckens\AppTools\Interfaces\UploadInterface;
+use Bulckens\AppTools\Helpers\UploadableHelper;
 
 class File extends Upload implements UploadInterface {
+
+  protected $stored = true;
 
   public function __construct( $source, $options = [] ) {
     // detect and prepare source
@@ -62,6 +65,18 @@ class File extends Upload implements UploadInterface {
     } elseif ( isset( $this->meta[$key] ) ) {
       return $this->meta[$key];
     }
+  }
+
+
+  // Get/set and interpolate dir
+  public function dir( $dir = null ) {
+    // interpolated getter
+    if ( is_null( $dir ) && isset( $this->source['interpolations'] ) ) {
+      return UploadableHelper::dir( parent::dir(), $this->source['interpolations'] );
+    }
+
+    // norma getter and setter
+    return parent::dir( $dir );
   }
 
 }

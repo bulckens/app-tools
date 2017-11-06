@@ -4,7 +4,7 @@ namespace spec\Bulckens\AppTools;
 
 use Bulckens\Helpers\StringHelper;
 use Bulckens\AppTools\App;
-use Bulckens\AppTools\Upload;
+use Bulckens\AppTools\Upload\Tmp;
 use Bulckens\AppTools\Validator;
 use Bulckens\AppTests\TestModel;
 use PhpSpec\ObjectBehavior;
@@ -213,7 +213,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_requires_an_upload() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'required' => true ] ]);
     $this->data([ 'image' => $upload ]);
@@ -690,7 +690,7 @@ class ValidatorSpec extends ObjectBehavior {
 
   // File weight
   function it_ensures_a_file_is_not_too_heavy() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'weight' => '10 MB' ] ]);
     $this->data([ 'image' => $upload ]);
@@ -698,7 +698,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_ensures_a_file_is_not_too_light() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'weight' => [ 'min' => '1KB' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -706,7 +706,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_when_a_file_is_too_heavy() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'weight' => [ 'max' => '1 KB' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -715,7 +715,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_when_a_file_is_too_light() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'weight' => [ 'min' => '1TB' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -737,7 +737,7 @@ class ValidatorSpec extends ObjectBehavior {
 
   // File dimensions
   function it_ensures_an_image_is_not_too_large() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'dimensions' => '1204x1024' ] ]);
     $this->data([ 'image' => $upload ]);
@@ -745,7 +745,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_ensures_an_image_is_not_too_small() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'min' => '128x128' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -753,7 +753,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_when_an_image_is_too_large() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'max' => '32x32' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -763,7 +763,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_when_an_image_is_too_wide() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'max' => '32x' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -773,7 +773,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_when_an_image_is_too_high() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'max' => 'x32' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -783,7 +783,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_when_an_image_is_too_small() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'dimensions' => [ 'min' => '5120x5120' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -806,7 +806,7 @@ class ValidatorSpec extends ObjectBehavior {
 
   // File mime type
   function it_ensures_a_file_has_the_allowed_mime_type() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'mime' => 'image/jpeg' ] ]);
     $this->data([ 'image' => $upload ]);
@@ -814,7 +814,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_ensures_a_file_has_one_of_the_allowed_mime_types() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'mime' => [ 'image/jpeg', 'image/png', 'image/gif' ] ] ]);
     $this->data([ 'image' => $upload ]);
@@ -822,7 +822,7 @@ class ValidatorSpec extends ObjectBehavior {
   }
 
   function it_fails_if_a_file_has_the_wrong_mime_type() {
-    $upload = new Upload([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
+    $upload = new Tmp([ 'name' => 'w.jpg' , 'tmp_name' => self::setupTmpFile(), 'error' => UPLOAD_ERR_OK ]);
 
     $this->beConstructedWith([ 'image' => [ 'mime' => 'image/png' ] ]);
     $this->data([ 'image' => $upload ]);

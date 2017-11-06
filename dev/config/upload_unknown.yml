@@ -8,3 +8,4 @@ dev:
       secret: "j2rhQvkVB950am0IVR9qHIz4UemqKbyPdH6Wevc4"
       bucket: "zow-v5-test-unknown"
       region: "eu-central-1"
+      dir: "non/existant"

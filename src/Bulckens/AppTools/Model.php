@@ -18,7 +18,7 @@ abstract class Model extends Eloquent {
     if ( $this->isValid() ) {
       if ( $save = parent::save( $options ) ) {
         $this->saveNestedAssociations();
-        // $this->storeUploads();
+        $this->storeUploads();
       }
       
       return $save;
