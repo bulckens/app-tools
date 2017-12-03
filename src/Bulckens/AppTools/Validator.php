@@ -252,9 +252,13 @@ class Validator {
     if ( ! isset( $this->data[$name] ) || $this->isBlank( $this->data[$name] ) ) {
       if ( $required ) {
         $this->error( $name, 'required' );
+        
       } else if ( $this->model ) {
         $original = $this->model->getOriginal();
-        $this->model->$name = $original[$name];
+
+        if ( isset( $original[$name] ) ) {
+          $this->model->$name = $original[$name];
+        }
       }
     }
   }
