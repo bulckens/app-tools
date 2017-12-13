@@ -16,12 +16,21 @@ class App {
   protected static $root;
 
   // available modules (in order of initialization)
-  protected static $bundled_modules = [ 'statistics', 'notifier', 'router', 'database', 'user', 'cache', 'view' ];
+  protected static $bundled_modules = [
+    'statistics'
+  , 'notifier'
+  , 'router'
+  , 'database'
+  , 'user'
+  , 'cache'
+  , 'view'
+  , 'i18n'
+  ];
 
 
   public function __construct( $env, $root = null, $up = null ) {
     self::$instance = $this;
-    self::$env      = $env;
+    self::$env = $env;
 
     self::$root = is_null( $up ) ? $root : FileHelper::parent( $root, $up );
   }
@@ -33,12 +42,13 @@ class App {
     $modules = array_merge( self::$bundled_modules, $this->modules() );
 
     // named module methods
-    if ( in_array( $name, $modules ) )
+    if ( in_array( $name, $modules ) ) {
       return $this->module( $name );
 
     // reset callback (not necessary on this class)
-    elseif ( $name == 'reset')
+    } elseif ( $name == 'reset') {
       return;
+    }
 
     throw new AppMethodMissingException( 'Missing method ' . self::class . "::$name" );
   }
@@ -69,12 +79,14 @@ class App {
     }
 
     // run customize method, if present
-    if ( method_exists( $this, 'customize' ) )
+    if ( method_exists( $this, 'customize' ) ) {
       $this->customize();
+    }
     
     // run router
-    if ( in_array( 'router', $modules ) )
+    if ( in_array( 'router', $modules ) ) {
       $this->router()->run();
+    }
 
     return $this;
   }
@@ -93,17 +105,19 @@ class App {
       // find root dir
       while ( ! file_exists( self::$root . $dir ) && $depth < 20 ) {
         // detect capistrano installation
-        if ( basename( dirname( self::$root ) ) == 'shared' )
+        if ( basename( dirname( self::$root ) ) == 'shared' ) {
           self::$root = dirname( dirname( self::$root ) ) . '/current';
-        else
+        } else {
           self::$root = dirname( self::$root );
+        }
 
         $depth++;
       }
     }
 
-    if ( self::$root == '/' )
+    if ( self::$root == '/' ) {
       throw new RootNotFoundException( 'Project root ' . self::$root . ' is not acceptable' );
+    }
 
     return str_replace( '//', '/', self::$root . "/$path" );
   }

@@ -1,0 +1,5 @@
+dev:
+  default: "en"
+
+  nested:
+    value: "events from around the globe"

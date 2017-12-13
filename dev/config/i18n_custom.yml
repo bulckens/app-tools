@@ -1,0 +1,3 @@
+dev:
+  default: "hk"
+  dir: "i18n/plants"

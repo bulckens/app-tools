@@ -60,8 +60,9 @@ class Cache {
 
   // Read item
   public function get( $key ) {
-    if ( $value = $this->cache->get( $this->prefix( $key ) ) )
+    if ( $value = $this->cache->get( $this->prefix( $key ) ) ) {
       return $value;
+    }
   }
 
 

@@ -7,9 +7,11 @@ use Symfony\Component\Yaml\Yaml;
 
 class Config {
 
-  protected $config;
+  use Traits\Diggable;
+
   protected $file;
 
+  
   public function __construct( $env ) {
     $this->env = $env;
   }
@@ -21,8 +23,9 @@ class Config {
     $this->file = $file;
 
     // make sure to set testing environment dir if required
-    if ( App::env( 'dev' ) && $path == 'config' )
+    if ( App::env( 'dev' ) && $path == 'config' ) {
       $path = 'dev/config';
+    }
 
     // get full config path
     $file = App::root( "$path/$file" );
@@ -30,33 +33,17 @@ class Config {
     if ( file_exists( $file ) ) {
       $config = Yaml::parse( file_get_contents( $file ) );
 
-      if ( isset( $config[$this->env] ) )
-        $this->config = $config[$this->env];
-      else
+      if ( isset( $config[$this->env] ) ){
+        $this->diggable = $config[$this->env];
+      } else {
         throw new ConfigEnvironmentMissingException( "Environment $this->env could not be found in $file" );
+      }
       
     } else {
       throw new ConfigFileMissingException( "Config file $file could not be found" );
     }
 
     return $this;
-  }
-
-
-  // Get config value by given key
-  public function get( $key, $default = null ) {
-    // prepare path iteration
-    $parts = explode( '.', $key );
-    $value = $this->config;
-
-    // find value for path
-    foreach ( $parts as $part ) {
-      if ( isset( $value[$part] ) )
-        $value = $value[$part];
-      else return $default;
-    }
-
-    return $value;
   }
 
 }
