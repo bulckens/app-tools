@@ -631,24 +631,24 @@ class TmpSpec extends ObjectBehavior {
   }
 
   function it_stores_the_file_on_the_file_system_into_a_given_directory() {
-    $this->dir( 'mecaniq/arms' )->store()->shouldBe( true );
-    $this->path()->shouldBe( '/mecaniq/arms/w.jpg' );
+    $this->dir( 'tmp/mecaniq/arms' )->store()->shouldBe( true );
+    $this->path()->shouldBe( '/tmp/mecaniq/arms/w.jpg' );
   }
 
   function it_stores_the_file_on_the_file_system_into_a_given_directory_including_the_parent_id() {
     $object = new TestModel();
     $object->save();
 
-    $this->dir( 'mecaniq/{{ id }}/arms' )->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
-    $this->path()->shouldStartWith( '/mecaniq/1/arms/w.jpg' );
+    $this->dir( 'tmp/mecaniq/{{ id }}/arms' )->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
+    $this->path()->shouldStartWith( '/tmp/mecaniq/1/arms/w.jpg' );
   }
 
   function it_stores_the_file_on_the_file_system_into_a_given_directory_including_a_partitioned_parent_id() {
     $object = new TestModel();
     $object->save();
 
-    $this->dir( 'mecaniq/{{ id_partition }}/arms' )->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
-    $this->path()->shouldStartWith( '/mecaniq/000/000/001/arms/w.jpg' );
+    $this->dir( 'tmp/mecaniq/{{ id_partition }}/arms' )->store([ 'object' => $object, 'name' => 'image' ])->shouldBe( true );
+    $this->path()->shouldStartWith( '/tmp/mecaniq/000/000/001/arms/w.jpg' );
   }
 
   function it_stores_the_file_on_s3() {

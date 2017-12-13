@@ -89,6 +89,16 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'user' )->shouldBeNull();
   }
 
+  function it_initializes_i18n_if_required_in_the_modules() {
+    $this->run();
+    $this->module( 'i18n' )->shouldHaveType( 'Bulckens\AppTools\I18n' );
+  }
+
+  function it_does_not_initialize_i18n_if_missing_in_the_modules() {
+    $this->configFile( 'app_i18n_missing.yml' )->run();
+    $this->module( 'i18n' )->shouldBeNull();
+  }
+
   function it_retains_any_registered_custom_modules_as_active_after_running() {
     $lala = new Database();
     $this->module( 'lala', $lala );
@@ -248,6 +258,7 @@ class AppSpec extends ObjectBehavior {
     $this->modules()->shouldContain( 'router' );
     $this->modules()->shouldContain( 'user' );
     $this->modules()->shouldContain( 'view' );
+    $this->modules()->shouldContain( 'i18n' );
   }
 
   function it_returns_no_modules_if_none_are_registered() {
@@ -258,6 +269,7 @@ class AppSpec extends ObjectBehavior {
     $this->modules()->shouldNotContain( 'router' );
     $this->modules()->shouldNotContain( 'user' );
     $this->modules()->shouldNotContain( 'view' );
+    $this->modules()->shouldNotContain( 'i18n' );
   }
 
 
@@ -270,6 +282,7 @@ class AppSpec extends ObjectBehavior {
     $this->modules()->shouldContain( 'router' );
     $this->modules()->shouldContain( 'user' );
     $this->modules()->shouldContain( 'view' );
+    $this->modules()->shouldContain( 'i18n' );
     $this->clear();
     $this->modules()->shouldNotContain( 'cache' );
     $this->modules()->shouldNotContain( 'database' );
@@ -277,6 +290,7 @@ class AppSpec extends ObjectBehavior {
     $this->modules()->shouldNotContain( 'router' );
     $this->modules()->shouldNotContain( 'user' );
     $this->modules()->shouldNotContain( 'view' );
+    $this->modules()->shouldNotContain( 'i18n' );
   }
 
   function it_removes_no_registered_custom_modules() {
@@ -339,6 +353,15 @@ class AppSpec extends ObjectBehavior {
   function it_returns_nothing_if_no_view_is_defined() {
     $this->configFile( 'app_view_missing.yml' )->run();
     $this->run()->view()->shouldBe( null );
+  }
+
+  function it_returns_the_i18n_module() {
+    $this->run()->i18n()->shouldHaveType( 'Bulckens\AppTools\I18n' );
+  }
+
+  function it_returns_nothing_if_no_i18n_is_defined() {
+    $this->configFile( 'app_i18n_missing.yml' )->run();
+    $this->run()->i18n()->shouldBe( null );
   }
 
   function it_fails_for_non_existant_methods() {

@@ -4,9 +4,8 @@ generic: &generic
     - database
     - notifier
     - router
-    - user
     - view
-    - i18n
+    - user
 
 dev:
   <<: *generic

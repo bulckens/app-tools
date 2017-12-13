@@ -12,8 +12,9 @@ trait Cacheable {
   // Set/get cache
   public function cache( $value = null, $lifespan = null ) {
     // act as getter
-    if ( is_null( $value ) )
+    if ( is_null( $value ) ) {
       return $this->cacheModule()->get( $this->cacheKey() );
+    }
 
     // act as setter
     $this->cacheModule()->set( $this->cacheKey(), $value, $lifespan );
@@ -44,8 +45,9 @@ trait Cacheable {
 
   // Get cache module
   protected function cacheModule() {
-    if ( $cache = App::get()->cache() )
+    if ( $cache = App::get()->cache() ) {
       return $cache;
+    }
 
     throw new CacheableMissingCacheException( 'Missing cache module' );
   }
