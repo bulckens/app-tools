@@ -99,6 +99,11 @@ class AppSpec extends ObjectBehavior {
     $this->module( 'i18n' )->shouldBeNull();
   }
 
+  function it_initializes_a_module_with_a_custom_defined_class() {
+    $this->configFile( 'app_custom_module.yml' )->run();
+    $this->module( 'i18n' )->shouldHaveType( 'Bulckens\AppTests\TestI18n' );
+  }
+
   function it_retains_any_registered_custom_modules_as_active_after_running() {
     $lala = new Database();
     $this->module( 'lala', $lala );

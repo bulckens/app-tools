@@ -59,21 +59,26 @@ class App {
     // clear existing modules
     $this->clear();
 
-    // get modules
-    $modules = $this->config( 'modules', [] );
+    // get configured modules and always include statistics
+    $configured = array_merge([
+      'statistics'
+    ], $this->config( 'modules', [] ) );
 
-    // always include statistics
-    array_unshift( $modules, 'statistics' );
+    // create a module class map
+    $modules = [];
+
+    foreach ( $configured as $module ) {
+      if ( is_array( $module ) ) {
+        $modules = array_merge( $module );
+      } else {
+        $modules[$module] = 'Bulckens\AppTools\\' . Str::studly( $module );
+      }
+    }
 
     // initialize modules
     foreach ( self::$bundled_modules as $module ) {
-      // initialize module if required
-      if ( in_array( $module, $modules ) ) {
-        // get class name for module
-        $class = Str::studly( $module );
-        $class = "Bulckens\AppTools\\$class";
-
-        // register module
+      if ( isset( $modules[$module] ) ) {
+        $class = $modules[$module];
         $this->module( $module, new $class() );
       }
     }
