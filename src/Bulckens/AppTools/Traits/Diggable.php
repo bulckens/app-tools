@@ -7,7 +7,7 @@ trait Diggable {
   protected $diggable;
 
   // Get config value by given key
-  public function get( $key, $default = null ) {
+  public function get( $key, $default = null, $force = false ) {
     // prepare path iteration
     $parts = explode( '.', $key );
     $value = $this->diggable;
@@ -17,7 +17,7 @@ trait Diggable {
       if ( isset( $value[$part] ) ) {
         $value = $value[$part];
       } else {
-        return $default;
+        return $force && is_null( $default ) ? $key : $default;
       }
     }
     
