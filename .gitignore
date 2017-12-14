@@ -4,3 +4,4 @@ composer.lock
 /log/*
 /tmp/*
 /dev/upload/*
+test_models/*

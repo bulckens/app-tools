@@ -25,7 +25,20 @@ trait Cacheable {
 
   // Get unique cache key
   public function cacheKey() {
-    return str_replace( '\_', '.', Str::snake( get_class() ) ) . ".$this->id";
+    // get cache id
+    $id = $this->cacheId();
+
+    return $this->cacheScope() . ( $id ? ".$id" : '' );
+  }
+
+
+  // Get cache id (return nothing by default)
+  public function cacheId() {}
+
+
+  // Get the scope of the cache
+  public function cacheScope() {
+    return str_replace( '\_', '.', Str::snake( get_class() ) );
   }
 
 

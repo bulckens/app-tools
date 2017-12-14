@@ -11,7 +11,7 @@ class I18n {
   use Traits\Configurable;
   use Traits\Cacheable;
   use Traits\Diggable;
-  
+
   protected $locale;
 
 
@@ -21,7 +21,12 @@ class I18n {
       $this->configFile( $options['config'] );
     }
 
-    // defautl locale
+    // check existance of locale dirt
+    if ( ! file_exists( $dir = $this->dir() ) ) {
+      throw new I18nDirMissingException( "Locales dir '$dir' does not exist" );
+    }
+
+    // default locale
     $locale = $this->config( 'default', 'en' );
 
     // get locale
@@ -48,15 +53,22 @@ class I18n {
     // reference current situation
     $old_locale = $this->locale;
 
+    // purge cache
+    if ( $locale != $old_locale ) $this->purgeCache();
+
     // act as setter
     $this->locale = $locale;
 
     // reload locales
-    if ( $locale != $old_locale ) {
-      $this->load();
-    }
+    if ( $locale != $old_locale ) $this->load();
     
     return $this;
+  }
+
+
+  // Get cache id
+  public function cacheId() {
+    return $this->locale();
   }
 
 
@@ -75,32 +87,30 @@ class I18n {
   }
 
 
-  // Custom id getter
-  public function __get( $name ) {
-    return $name == 'id' ? md5( $this->dir() ) : parent::__get( $name );
-  }
-
-
   // Load locales
   protected function load() {
-    if ( file_exists( $dir = $this->dir() ) ) {
+    // load
+    if ( ! $this->cached() ) {
       $locale = $this->locale();
 
       // find locale files
-      $files = FileHelper::rsearch( $dir, "/.*\.$locale\.ya?ml/" );
+      $files = FileHelper::rsearch( $this->dir(), "/.*\.$locale\.ya?ml/" );
 
       // load locales
-      $this->diggable = [];
+      $diggable = [];
 
       foreach ( $files as $file ) {
         $locales = Yaml::parse( file_get_contents( $file ) );
 
-        $this->diggable = array_replace_recursive( $this->diggable, $locales );
+        $diggable = array_replace_recursive( $diggable, $locales );
       }
-      
-    } else {
-      throw new I18nDirMissingException( "Locales dir '$dir' does not exist" );
+
+      // cache locales
+      $this->cache( $diggable );
     }
+
+    // store diggable
+    $this->diggable = $this->cache();
   }
 
 }

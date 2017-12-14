@@ -47,7 +47,20 @@ class TestModelWithCacheableSpec extends ObjectBehavior {
   }
 
 
-  // Cached methdo
+  // CacheId method
+  function it_returns_the_id_as_a_cache_key() {
+    $this->id = 312;
+    $this->cacheId()->shouldBe( 312 );
+  }
+
+
+  // CacheScope method
+  function it_returns_a_cache_scope_based_on_the_current_class_by_default() {
+    $this->cacheScope()->shouldStartWith( 'bulckens.app_tests.test_model_with_cacheable' );
+  }
+
+
+  // Cached method
   function it_tests_positive_when_cached_already() {
     $this->cache( 'lantra' );
     $this->cached()->shouldBe( true );

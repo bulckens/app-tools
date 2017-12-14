@@ -9,4 +9,10 @@ class TestModelWithCacheable extends Model {
 
   use Cacheable;
 
+  public $id;
+
+  public function cacheId() {
+    return $this->id;
+  }
+
 }
