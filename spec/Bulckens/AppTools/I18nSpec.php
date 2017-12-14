@@ -14,12 +14,15 @@ class I18nSpec extends ObjectBehavior {
     $app->run();
   }
 
+  function letGo() {
+    $this->purgeCache();
+  }
 
   // Initialization
   function it_fails_when_the_i18n_directory_is_not_defined() {
     $this
       ->shouldThrow( 'Bulckens\AppTools\I18nDirMissingException' )
-      ->during__construct([ 'config' => 'i18n_missing_dir.yml' ]);
+      ->during__Construct([ 'config' => 'i18n_missing_dir.yml' ]);
   }
 
 
@@ -98,18 +101,30 @@ class I18nSpec extends ObjectBehavior {
 
 
   // CacheKey method
-  function it_returns_an_md5_cache_key_based_on_the_current_directory() {
-    $this->cacheKey()->shouldStartWith( 'bulckens.app_tools.i18n.dde51345eedb1676f8cec3c329d03167' );
+  function it_returns_a_cache_key_for_the_default_locale() {
+    $this->cacheKey()->shouldStartWith( 'bulckens.app_tools.i18n.en' );
   }
 
-  function it_returns_an_md5_cache_key_based_on_the_current_custom_directory() {
-    $this->beConstructedWith([ 'config' => 'i18n_custom.yml' ]);
-    $this->cacheKey()->shouldStartWith( 'bulckens.app_tools.i18n.45c2a603ef18d9c2a039ec1c99d394dc' );
+  function it_returns_a_cache_key_for_the_custom_locale() {
+    $this->locale( 'fr' );
+    $this->cacheKey()->shouldStartWith( 'bulckens.app_tools.i18n.fr' );
+  }
+
+
+  // CacheId method
+  function it_returns_the_default_locale_as_cache_id() {
+    $this->cacheId()->shouldBe( 'en' );
+  }
+
+  function it_returns_the_given_locale_as_cache_id() {
+    $this->locale( 'nl' );
+    $this->cacheId()->shouldBe( 'nl' );
   }
 
 
   // Cached method
   function it_is_negative_when_no_cache_has_been_created() {
+    $this->purgeCache();
     $this->cached()->shouldBe( false );
   }
 
@@ -127,12 +142,6 @@ class I18nSpec extends ObjectBehavior {
   function it_returns_the_custom_locale_dir() {
     $this->configFile( 'i18n_custom.yml' );
     $this->dir()->shouldBe( App::root( 'dev/i18n/plants' ) );
-  }
-
-
-  // Magic id getter
-  function it_gets_the_id() {
-    $this->id->shouldBe( 'dde51345eedb1676f8cec3c329d03167' );
   }
 
 }
