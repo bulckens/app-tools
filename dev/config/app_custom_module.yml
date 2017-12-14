@@ -1,0 +1,12 @@
+generic: &generic
+  modules:
+    - cache
+    - database
+    - notifier
+    - router
+    - user
+    - view
+    - i18n: 'Bulckens\AppTests\TestI18n'
+
+dev:
+  <<: *generic
