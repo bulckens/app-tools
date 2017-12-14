@@ -288,6 +288,13 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'email' )->shouldHaveCount( 0 );
   }
 
+  function it_ensures_the_value_has_a_minimum_length_with_an_empty_string() {
+    $this->beConstructedWith([ 'email' => [ 'min' => 20 ] ]);
+    $this->data([ 'email' => '' ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'email' )->shouldContain( 'should be longer than 20 characters' );
+  }
+
   function it_allows_absense_of_data_while_testing_the_minimum_length() {
     $this->beConstructedWith([ 'email' => [ 'min' => 20 ] ]);
     $this->passes()->shouldBe( true );

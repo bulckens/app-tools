@@ -287,7 +287,7 @@ class Validator {
 
   // Validate min length
   protected function min( $name, $length ) {
-    if ( ! empty( $this->data[$name] ) && strlen( $this->data[$name] ) < $length ) {
+    if ( strlen( $this->data[$name] ) < $length ) {
       $this->error( $name, 'min', [ 'length' => $length ] );
     }
   }
