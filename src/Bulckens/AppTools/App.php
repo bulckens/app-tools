@@ -69,7 +69,7 @@ class App {
 
     foreach ( $configured as $module ) {
       if ( is_array( $module ) ) {
-        $modules = array_merge( $module );
+        $modules = array_merge( $modules, $module );
       } else {
         $modules[$module] = 'Bulckens\AppTools\\' . Str::studly( $module );
       }
