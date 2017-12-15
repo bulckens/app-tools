@@ -89,7 +89,7 @@ class App {
     }
     
     // run router
-    if ( in_array( 'router', $modules ) ) {
+    if ( isset( $modules['router'] ) ) {
       $this->router()->run();
     }
 
