@@ -33,7 +33,11 @@ trait Cacheable {
 
 
   // Get cache id (return nothing by default)
-  public function cacheId() {}
+  public function cacheId() {
+    if ( isset( $this->cache_id ) && ( $field = $this->cache_id ) ) {
+      return $this->$field;
+    }
+  }
 
 
   // Get the scope of the cache
