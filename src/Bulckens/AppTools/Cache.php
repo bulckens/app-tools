@@ -23,7 +23,7 @@ class Cache {
     $this->lifespan = $this->config( 'lifespan', 60 * 60 * 24 * 30 );
 
     // set prefix
-    $this->prefix = $this->config( 'prefix', 'bulckens.app_tools.cache' );
+    $this->prefix = $this->config( 'prefix' );
 
     // initialize adaptor
     switch ( $this->config( 'engine' ) ) {
