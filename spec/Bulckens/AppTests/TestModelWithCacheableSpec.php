@@ -43,7 +43,7 @@ class TestModelWithCacheableSpec extends ObjectBehavior {
   // CacheKey method
   function it_generates_a_cache_key_including_the_class_name_and_id() {
     $this->id = 123;
-    $this->cacheKey()->shouldBe( 'bulckens.app_tests.test_model_with_cacheable.123' );
+    $this->cacheKey()->shouldStartWith( 'bulckens.dev.app_tests.test_model_with_cacheable.123' );
   }
 
 
@@ -56,7 +56,7 @@ class TestModelWithCacheableSpec extends ObjectBehavior {
 
   // CacheScope method
   function it_returns_a_cache_scope_based_on_the_current_class_by_default() {
-    $this->cacheScope()->shouldStartWith( 'bulckens.app_tests.test_model_with_cacheable' );
+    $this->cacheScope()->shouldStartWith( 'bulckens.dev.app_tests.test_model_with_cacheable' );
   }
 
 

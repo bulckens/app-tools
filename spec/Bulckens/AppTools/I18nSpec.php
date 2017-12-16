@@ -106,12 +106,12 @@ class I18nSpec extends ObjectBehavior {
 
   // CacheKey method
   function it_returns_a_cache_key_for_the_default_locale() {
-    $this->cacheKey()->shouldStartWith( 'bulckens.app_tools.i18n.en' );
+    $this->cacheKey()->shouldStartWith( 'bulckens.dev.app_tools.i18n.en' );
   }
 
   function it_returns_a_cache_key_for_the_custom_locale() {
     $this->locale( 'fr' );
-    $this->cacheKey()->shouldStartWith( 'bulckens.app_tools.i18n.fr' );
+    $this->cacheKey()->shouldStartWith( 'bulckens.dev.app_tools.i18n.fr' );
   }
 
 

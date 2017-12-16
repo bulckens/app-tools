@@ -42,7 +42,13 @@ trait Cacheable {
 
   // Get the scope of the cache
   public function cacheScope() {
-    return str_replace( '\_', '.', Str::snake( get_class() ) );
+    // get parts
+    $parts = explode( '\_', Str::snake( get_class() ) );
+
+    // remove first part
+    array_splice( $parts, 1, 0, App::env() );
+
+    return implode( '.', $parts );
   }
 
 
