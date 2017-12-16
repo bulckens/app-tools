@@ -73,8 +73,8 @@ class I18n {
 
 
   // Translate key
-  public function t( $key, $default = null ) {
-    return $this->get( $key, $default );
+  public function t( $key, $default = null, $force = false ) {
+    return $this->get( $key, $default, $force );
   }
 
 

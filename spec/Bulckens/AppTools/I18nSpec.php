@@ -47,6 +47,10 @@ class I18nSpec extends ObjectBehavior {
     $this->t( 'belle', 'schone' )->shouldBe( 'schone' );
   }
 
+  function it_forces_the_key_to_be_returned_if_no_value_could_be_found() {
+    $this->t( 'belle.benado', null, true )->shouldBe( 'belle.benado' );
+  }
+
 
   // Config method
   function it_returns_the_config_instance_without_an_argument() {

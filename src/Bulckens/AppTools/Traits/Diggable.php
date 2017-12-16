@@ -17,7 +17,8 @@ trait Diggable {
       if ( isset( $value[$part] ) ) {
         $value = $value[$part];
       } else {
-        return $force && is_null( $default ) ? $key : $default;
+        return $force && is_null( $default ) ?
+          ( is_string( $force ) ? "$force$key" : $key) : $default;
       }
     }
     
