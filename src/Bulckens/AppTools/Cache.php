@@ -82,7 +82,8 @@ class Cache {
 
   // Prefix given key
   protected function prefix( $key ) {
-    return str_replace( '.', $this->delimiter, $this->prefix . "$this->delimiter$key" );
+    $parts = array_filter([ $this->prefix, $key ]);
+    return str_replace( '.', $this->delimiter, implode( $this->delimiter, $parts ) );
   }
 
 }
