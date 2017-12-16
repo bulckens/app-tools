@@ -7,6 +7,7 @@ use Desarrolla2\Cache\Adapter\File;
 use Desarrolla2\Cache\Adapter\Predis;
 use Desarrolla2\Cache\Adapter\NotCache;
 use Desarrolla2\Cache\Adapter\Memcache;
+use Bulckens\AppTools\App;
 use Bulckens\AppTools\Traits\Configurable;
 
 class Cache {
@@ -82,8 +83,13 @@ class Cache {
 
   // Prefix given key
   protected function prefix( $key ) {
+    // get key parts
     $parts = array_filter([ $this->prefix, $key ]);
-    return str_replace( '.', $this->delimiter, implode( $this->delimiter, $parts ) );
+
+    // interpolate environment
+    $key = str_replace( '{{env}}', App::env(), implode( $this->delimiter, $parts ) );
+
+    return str_replace( '.', $this->delimiter, $key );
   }
 
 }
