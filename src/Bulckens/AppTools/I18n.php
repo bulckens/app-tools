@@ -90,7 +90,9 @@ class I18n {
   // Load locales
   protected function load() {
     // check if cacheing is enabled
-    $cache = $this->config( 'cache', true );
+    if ( ! ( $cache = $this->config( 'cache', true ) ) ) {
+      $this->purgeCache();
+    }
 
     // load
     if ( ! $this->cached() ) {
@@ -111,12 +113,11 @@ class I18n {
       if ( $cache ) {
         $this->cache( $diggable );
       } else {
-        $this->purgeCache();
         $this->diggable = $diggable;
       }
     }
 
-    // store diggable from cache
+    // load diggable from cache
     if ( $cache ) $this->diggable = $this->cache();
   }
 
