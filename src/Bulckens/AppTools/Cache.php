@@ -53,7 +53,11 @@ class Cache {
 
   // Create item
   public function set( $key, $value, $lifespan = null ) {
-    $this->cache->set( $this->prefix( $key ), $value, $lifespan ?: $this->lifespan );
+    // get lifespan
+    $lifespan = is_numeric( $lifespan ) ? $lifespan : $this->lifespan;
+
+    // store cache
+    $this->cache->set( $this->prefix( $key ), $value, $lifespan );
 
     return $this;
   }

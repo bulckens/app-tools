@@ -137,6 +137,13 @@ class I18nSpec extends ObjectBehavior {
     $this->cached()->shouldBe( true );
   }
 
+  function it_is_always_negative_if_cacheing_is_disabled() {
+    $this->configFile( 'i18n_no_cache.yml' );
+    $this->purgeCache();
+    $this->locale( 'nl' );
+    $this->cached()->shouldBe( false );
+  }
+
 
   // Dir method
   function it_returns_the_locale_dir() {
