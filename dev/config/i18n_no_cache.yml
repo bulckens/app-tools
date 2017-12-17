@@ -1,0 +1,4 @@
+dev:
+  default: "en"
+  dir: "i18n/plants"
+  cache: false

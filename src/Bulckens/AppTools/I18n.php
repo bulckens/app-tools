@@ -89,6 +89,9 @@ class I18n {
 
   // Load locales
   protected function load() {
+    // check if cacheing is enabled
+    $cache = $this->config( 'cache', true );
+
     // load
     if ( ! $this->cached() ) {
       $locale = $this->locale();
@@ -101,16 +104,20 @@ class I18n {
 
       foreach ( $files as $file ) {
         $locales = Yaml::parse( file_get_contents( $file ) );
-
         $diggable = array_replace_recursive( $diggable, $locales );
       }
 
       // cache locales
-      $this->cache( $diggable );
+      if ( $cache ) {
+        $this->cache( $diggable );
+      } else {
+        $this->purgeCache();
+        $this->diggable = $diggable;
+      }
     }
 
-    // store diggable
-    $this->diggable = $this->cache();
+    // store diggable from cache
+    if ( $cache ) $this->diggable = $this->cache();
   }
 
 }
