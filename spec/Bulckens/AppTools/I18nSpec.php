@@ -43,6 +43,14 @@ class I18nSpec extends ObjectBehavior {
     $this->locale( 'nl' )->t( 'flowers.rose' )->shouldBe( 'Roos' );
   }
 
+  function it_returns_an_array_if_the_end_of_the_scope_has_not_been_reached() {
+    $t = $this->t( 'animals' );
+    $t->shouldBeArray();
+    $t->shouldHaveKeyWithValue( 'monkey', 'monkey' );
+    $t->shouldHaveKeyWithValue( 'cat', 'cat' );
+    $t->shouldHaveKeyWithValue( 'dog', 'dog' );
+  }
+
   function it_defaults_to_a_given_value_if_no_translation_could_be_found() {
     $this->t( 'belle', 'schone' )->shouldBe( 'schone' );
   }
