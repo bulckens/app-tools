@@ -74,9 +74,11 @@ class I18n {
 
   // Translate key
   public function t( $key, $interpolations = null, $fallback = null, $force = false ) {
-    // assume no interpolations are given if a string is provided
+    // assume no interpolations are given if anything other than an array is provided
     if ( ! is_array( $interpolations ) ) {
-      if ( is_bool( $fallback ) ) $force = $fallback;
+      if ( is_bool( $fallback ) || is_string( $fallback ) ) {
+        $force = $fallback;
+      }
 
       $fallback = $interpolations;
     }

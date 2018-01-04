@@ -77,8 +77,16 @@ class I18nSpec extends ObjectBehavior {
     $this->t( 'belle.benado', null, true )->shouldBe( 'belle.benado' );
   }
 
+  function it_allows_th_force_value_to_be_a_string_that_will_be_used_as_a_prefix() {
+    $this->t( 'belle.benado', null, 'missing: ' )->shouldBe( 'missing: belle.benado' );
+  }
+
   function it_forces_the_key_to_be_returned_if_no_value_could_be_found_and_interpolations_are_given() {
     $this->t( 'belle.benado', [], null, true )->shouldBe( 'belle.benado' );
+  }
+
+  function it_allows_th_force_value_to_be_a_string_that_will_be_used_as_a_prefix_with_interpolations() {
+    $this->t( 'belle.benado', [], null, 'ohoooh: ' )->shouldBe( 'ohoooh: belle.benado' );
   }
 
 
