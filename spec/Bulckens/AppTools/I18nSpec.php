@@ -31,8 +31,16 @@ class I18nSpec extends ObjectBehavior {
     $this->t( 'beast' )->shouldBe( 'beast' );
   }
 
+  function it_translates_with_interpolations() {
+    $this->t( 'number_of_beasts', [ 'number' => 13 ])->shouldBe( '13 beasts' );
+  }
+
   function it_translates_a_nested_key() {
     $this->t( 'animals.monkey' )->shouldBe( 'monkey' );
+  }
+
+  function it_translates_a_nested_key_with_interpolations() {
+    $this->t( 'animals.human', [ 'kind' => 'aweful' ])->shouldBe( 'aweful human' );
   }
 
   function it_translates_a_nested_key_with_a_custom_locale() {
@@ -51,12 +59,26 @@ class I18nSpec extends ObjectBehavior {
     $t->shouldHaveKeyWithValue( 'dog', 'dog' );
   }
 
+  function it_does_not_interpolate_if_the_end_of_the_scope_has_not_been_reached() {
+    $t = $this->t( 'animals' );
+    $t->shouldBeArray();
+    $t->shouldHaveKeyWithValue( 'human', '{{ kind }} human' );
+  }
+
   function it_defaults_to_a_given_value_if_no_translation_could_be_found() {
     $this->t( 'belle', 'schone' )->shouldBe( 'schone' );
   }
 
+  function it_defaults_to_a_given_value_with_interpolations_if_no_translation_could_be_found() {
+    $this->t( 'belle', [ 'the' => 'de' ], '{{ the }} schone' )->shouldBe( 'de schone' );
+  }
+
   function it_forces_the_key_to_be_returned_if_no_value_could_be_found() {
     $this->t( 'belle.benado', null, true )->shouldBe( 'belle.benado' );
+  }
+
+  function it_forces_the_key_to_be_returned_if_no_value_could_be_found_and_interpolations_are_given() {
+    $this->t( 'belle.benado', [], null, true )->shouldBe( 'belle.benado' );
   }
 
 
