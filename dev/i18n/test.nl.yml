@@ -1,6 +1,8 @@
 beast: "beest"
+number_of_beasts: "{{ number }} beesten"
 
 animals:
   monkey: "aap"
   cat: "kat"
   dog: "hond"
+  human: "{{ kind }} mens"

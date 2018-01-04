@@ -73,8 +73,25 @@ class I18n {
 
 
   // Translate key
-  public function t( $key, $default = null, $force = false ) {
-    return $this->get( $key, $default, $force );
+  public function t( $key, $interpolations = null, $fallback = null, $force = false ) {
+    // assume no interpolations are given if a string is provided
+    if ( ! is_array( $interpolations ) ) {
+      if ( is_bool( $fallback ) ) $force = $fallback;
+
+      $fallback = $interpolations;
+    }
+
+    // get value
+    $value = $this->get( $key, $fallback, $force );
+
+    // interpolate value
+    if ( $value && is_array( $interpolations ) ) {
+      foreach ( $interpolations as $k => $v ) {
+        $value = preg_replace( "/\{\{\s?$k\s?\}\}/", $v, $value );
+      }
+    }
+
+    return $value;
   }
 
 
