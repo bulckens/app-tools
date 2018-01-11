@@ -413,19 +413,29 @@ class Validator {
     
     // add scope if given
     if ( isset( $options['scope'] ) ) {
-      $scope = $options['scope'];
+      $scopes = $options['scope'];
 
-      // get scope value
-      $value = isset( $options['value'] ) ?
-        $options['value']    : isset( $this->data[$scope] ) ?
-        $this->data[$scope]  : isset( $this->model ) ?
-        $this->model->$scope : null;
+      // make sure scopes is an array
+      if ( ! is_array( $scopes ) ) $scopes = [ $scopes ];
 
-      // define scope
-      if ( is_null( $value ) ) {
-        $records = $records->whereNull( $scope );
-      } else {
-        $records = $records->where( $scope, '=', $value );
+      for ( $i = 0; $i < count( $scopes ); $i++ ) { 
+        $scope = $scopes[$i];
+
+        // get scope value
+        if ( isset( $this->data[$scope] ) ) {
+          $value = $this->data[$scope];
+        } elseif ( isset( $this->model ) ) {
+          $value = $this->model->$scope;
+        } else {
+          $value = null;
+        }
+
+        // define scope
+        if ( is_null( $value ) ) {
+          $records = $records->whereNull( $scope );
+        } else {
+          $records = $records->where( $scope, '=', $value );
+        }
       }
     }
     
