@@ -659,6 +659,23 @@ class ValidatorSpec extends ObjectBehavior {
     $this->errorMessages( 'name' )->shouldContain( 'is already taken' );
   }
 
+  function it_fails_when_a_value_is_not_unique_within_multiple_scopes() {
+    $model = new TestModel();
+    $model->name  = 'foof';
+    $model->group = 'werk';
+    $model->parent_id = 1;
+    $model->save();
+    $model = new TestModel();
+    $model->name  = 'foof';
+    $model->group = 'werk';
+    $model->parent_id = 1;
+    $this->beConstructedWith([ 'name' => [ 'unique' => [ 'scope' => [ 'parent_id', 'group' ] ] ] ]);
+    $this->data([ 'name' => 'foof', 'group' => 'werk', 'parent_id' => 1 ]);
+    $this->model( $model );
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'name' )->shouldContain( 'is already taken' );
+  }
+
   function it_ensures_a_value_is_unique() {
     $model = new TestModel();
     $model->name = 'roof';
@@ -677,8 +694,27 @@ class ValidatorSpec extends ObjectBehavior {
     $model->group = 'werk';
     $model->save();
     $model = new TestModel();
+    $model->name  = 'loof';
+    $model->group = 'werk';
     $this->beConstructedWith([ 'name' => [ 'unique' => [ 'scope' => 'group' ] ] ]);
-    $this->data([ 'name' => 'roof', 'group' => 'werk' ]);
+    $this->data([ 'name' => 'loof', 'group' => 'werk' ]);
+    $this->model( $model );
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'name' )->shouldHaveCount( 0 );
+  }
+
+  function it_ensures_a_value_is_unique_within_multiple_scopes() {
+    $model = new TestModel();
+    $model->name  = 'roof';
+    $model->group = 'werk';
+    $model->parent_id = 1;
+    $model->save();
+    $model = new TestModel();
+    $model->name  = 'roof';
+    $model->group = 'werk';
+    $model->parent_id = 2;
+    $this->beConstructedWith([ 'name' => [ 'unique' => [ 'scope' => [ 'parent_id', 'group' ] ] ] ]);
+    $this->data([ 'name' => 'roof', 'group' => 'werk', 'parent_id' => 2 ]);
     $this->model( $model );
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'name' )->shouldHaveCount( 0 );
