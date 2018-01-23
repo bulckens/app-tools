@@ -43,9 +43,16 @@ class UserAuth {
     }
 
     // error
-    return $res->withHeader( 'Content-type', $output->mime() )
-               ->withStatus( $output->status() )
-               ->write( $output->render() );
+    return $this->error( $req, $res, $output );
+  }
+
+
+  // Render error output
+  protected function error( $req, $res, $output ) {
+    return $res
+      ->withHeader( 'Content-type', $output->mime() )
+      ->withStatus( $output->status() )
+      ->write( $output->render() );
   }
 
 }
