@@ -7,7 +7,7 @@ use Monolog\Formatter\LineFormatter;
 class MonologPrintRLineFormatter extends LineFormatter {
 
   public function format( array $record ) {
-    return print_r( $record, true );
+    return $record['message'];
   }
 
 }

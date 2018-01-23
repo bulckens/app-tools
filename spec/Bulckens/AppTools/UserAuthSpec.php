@@ -55,6 +55,20 @@ class UserAuthSpec extends ObjectBehavior {
 
 
   // Invoke method
+  function it_defaults_to_html_for_the_format() {
+    $this->beConstructedWith();
+
+    $environment = Environment::mock([
+      'REQUEST_URI'  => '/fake'
+    ]);
+    $this->req = Request::createFromEnvironment( $environment );
+
+    $response = $this->__invoke( $this->req, $this->res, $this->next )->__toString();
+    $response->shouldContain( '<!--' );
+    $response->shouldContain( 'error: login.required' );
+    $response->shouldEndWith( '-->' );
+  }
+
   function it_requires_a_login() {
     $response = $this->__invoke( $this->req, $this->res, $this->next )->__toString();
     $response->shouldStartWith( 'HTTP/1.1 401 Unauthorized' );
@@ -104,6 +118,17 @@ class UserAuthSpec extends ObjectBehavior {
 
     $user = Sentinel::register( $this->credentials, true );
     $user->addPermission( 'test.permission' );
+    $user->save();
+    Sentinel::authenticate( $this->credentials );
+
+    $response = $this->__invoke( $this->req, $this->res, $this->next );
+    $response->shouldBe( 'testful success' );
+  }
+
+  function it_allows_access_if_no_permission_is_defined() {
+    $this->beConstructedWith();
+
+    $user = Sentinel::register( $this->credentials, true );
     $user->save();
     Sentinel::authenticate( $this->credentials );
 
