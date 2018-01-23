@@ -17,8 +17,9 @@ class Output {
   protected $options;
   protected $path;
 
+
   public function __construct( $format, $options = [] ) {
-    $this->format  = $format;
+    $this->format = $format;
     $this->options = $options;
 
     $this->clear();
@@ -27,8 +28,9 @@ class Output {
 
   // Add output
   public function add( $output ) {
-    if ( ! is_array( $output ))
+    if ( ! is_array( $output )) {
       throw new OutputArgumentInvalidException( 'Only an array is accepted' );
+    }
 
     $this->output = array_replace_recursive( $this->output, $output );
 
@@ -38,7 +40,7 @@ class Output {
 
   // Clear all output
   public function clear() {
-    $this->output  = [];
+    $this->output = [];
     $this->headers = [];
 
     return $this;
