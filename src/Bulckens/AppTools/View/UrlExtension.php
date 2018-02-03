@@ -24,6 +24,11 @@ class UrlExtension extends Twig_Extension {
         return UrlHelper::ssl();
       })
 
+    , new Twig_SimpleFunction( 'param_query', function( $params ) {
+        $query = http_build_query( $params );
+        return empty( $query ) ? '' : "?$query";
+      })
+
     ];
   }
 
