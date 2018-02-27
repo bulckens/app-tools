@@ -125,6 +125,11 @@ class OutputSpec extends ObjectBehavior {
     $this->mime()->shouldBe( 'text/css' );
   }
 
+  function it_returns_mime_type_for_css_map_format() {
+    $this->beConstructedWith( 'map' );
+    $this->mime()->shouldBe( 'application/json' );
+  }
+
   function it_returns_mime_type_for_dump_format() {
     $this->beConstructedWith( 'dump' );
     $this->mime()->shouldBe( 'text/plain' );
@@ -369,6 +374,13 @@ class OutputSpec extends ObjectBehavior {
     $this->configFile( 'output.verbose.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
     $this->render()->shouldStartWith( "/*\nArray" );
+  }
+
+  function it_renders_the_output_as_css_map() {
+    $this->beConstructedWith( 'map' );
+    $this->configFile( 'output.verbose.yml' );
+    $this->add([ 'body' => '{"source":"map"}' ]);
+    $this->render()->shouldStartWith( '{"source":"map"}' );
   }
 
   function it_renders_the_output_as_js() {
