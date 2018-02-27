@@ -31,6 +31,10 @@ class MimeSpec extends ObjectBehavior {
     $this::comment( 'a string', 'css' )->shouldBe( "/*\na string\n*/" );
   }
 
+  function it_creates_a_comment_from_a_string_for_css_map_format() {
+    $this::comment( 'a string', 'map' )->shouldBe( "/*\na string\n*/" );
+  }
+
   function it_creates_a_comment_from_a_string_for_html_format() {
     $this::comment( 'a string', 'html' )->shouldBe( "<!--\na string\n-->" );
   }

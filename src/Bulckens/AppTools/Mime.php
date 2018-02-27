@@ -22,6 +22,7 @@ class Mime {
     switch ( $format ) {
       case 'js':
       case 'css':
+      case 'map':
         return "/*\n$string\n*/";
       break;
       case 'html':

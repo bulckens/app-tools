@@ -167,25 +167,28 @@ class Output {
       case 'html':
       case 'txt':
       case 'css':
+      case 'map':
       case 'js':
         // output body
-        if ( isset( $this->output['body'] ) ) {
+        if ( isset( $this->output['body'] )) {
           $body = $this->output['body'];
           unset( $this->output['body'] );
 
           // stringify body
-          if ( is_array( $body ) ) $body = implode( "\n", $body );
+          if ( is_array( $body )) $body = implode( "\n", $body );
           
           return $body;
         }
 
         // return error if error is given
-        if ( isset( $this->output['error'] ))
+        if ( isset( $this->output['error'] )) {
           return Mime::comment( "error: {$this->output['error']}", $this->format );
+        }
 
         // extra verbose
-        if ( $this->config( 'verbose' ) )
+        if ( $this->config( 'verbose' )) {
           return Mime::comment( print_r( $this->output, true ), $this->format );
+        }
       break;
       default:
         throw new OutputFormatUnknownException( "Unknown format {$this->format}" );
