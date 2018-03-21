@@ -13,6 +13,7 @@ class OutputSpec extends ObjectBehavior {
     new App( 'dev' );
     $this->beConstructedWith( 'json' );
   }
+  
 
   // Initializing
   function it_initializes_with_given_format() {

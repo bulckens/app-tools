@@ -39,7 +39,8 @@
         "symfony/http-foundation": "^3.2",
         "desarrolla2/cache": "^2.1",
         "predis/predis": "^1.1",
-        "aws/aws-sdk-php": "^3.36"
+        "aws/aws-sdk-php": "^3.36",
+        "danhunsaker/php-resque": "^1.3"
     },
     "require-dev": {
         "phpspec/phpspec": "^3.2",

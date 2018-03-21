@@ -98,7 +98,7 @@ class App {
 
 
   // Get host project root
-  public static function root( $path = '' ) {
+  final public static function root( $path = '' ) {
     if ( ! self::$root ) {
       // find root based on the location of the config folder
       self::$root = __DIR__;

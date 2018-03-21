@@ -1,0 +1,148 @@
+<?php
+
+namespace spec\Bulckens\AppTools;
+
+use Exception;
+use Bulckens\AppTools\Worker;
+use Bulckens\AppTools\App;
+use PhpSpec\ObjectBehavior;
+use Prophecy\Argument;
+
+class WorkerSpec extends ObjectBehavior {
+
+  function let() {
+    new App( 'dev' );
+  }
+
+  function letGo() {
+    $this->stop();
+  }
+
+
+  // Configurability
+  function it_is_configurable() {
+    $this->configFile()->shouldBe( 'worker.yml' );
+  }
+
+
+  // Start method
+  function it_starts_the_workers() {
+    $this->start();
+    $this->pid()->shouldBeNumeric();
+  }
+
+  function it_returns_the_pid_after_starting() {
+    $this->start()->shouldBeNumeric();
+  }
+
+  function it_creates_a_pid_file() {
+    $this->start()->shouldBeNumeric();
+
+    if ( ! file_exists( App::root( 'pids/worker.pid' ))) {
+      throw new Exception( 'Expected PID file to be created but it was not' );
+    }
+  }
+
+  function it_does_not_start_a_process_twice() {
+    $pid = $this->start();
+    $this->start()->shouldBe( $pid );
+  }
+
+
+  // Stop method
+  function it_stops_active_workers() {
+    $this->start();
+    $this->stop()->shouldBeNumeric();
+    $this->working()->shouldBe( false );
+  }
+
+  function it_returns_the_pid_after_stopping() {
+    $this->start();
+    $this->stop()->shouldBeNumeric();
+  }
+
+  function it_removes_the_pid_file_after_stopping() {
+    $this->start()->shouldBeNumeric();
+    $this->stop()->shouldBeNumeric();
+
+    if ( file_exists( App::root( 'pids/worker.pid' ))) {
+      throw new Exception( 'Expected PID file to be removed but it was not' );
+    }
+  }
+
+
+  // Restart method
+  function it_restarts_the_workers() {
+    $pid = $this->start();
+    $this->restart()->shouldNotBe( $pid );
+  }
+
+  function it_returns_the_pid_after_restarting() {
+    $this->restart()->shouldBeNumeric();
+  }
+
+
+  // Job method
+  function it_returns_a_job_id_after_assigning_a_job() {
+    $this->start();
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Janssen'
+    ]);
+    $job_id->shouldMatch( '/^[a-z0-9]{32}$/' );
+  }
+
+
+  // Release method
+  function it_releases_the_worker_from_all_jobs_in_a_queue() {
+
+  }
+
+  function it_releases_the_worker_from_a_given_job_in_a_queue() {
+
+  }
+
+  function it_releases_the_worker_from_multiple_jobs_in_a_queue() {
+
+  }
+
+
+  // Status method
+  function it_returns_the_status_for_a_given_job_id() {
+    $this->start();
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Falumba'
+    ]);
+    // NOTE: this is an async process and returns false in the test environment
+    $this->status( $job_id )->shouldBe( false );
+  }
+
+
+  // Working method
+  function it_tests_if_the_workers_are_active() {
+    $this->start()->shouldBeNumeric();
+    $this->working()->shouldBe( true );
+  }
+
+  function it_tests_if_the_workers_are_inactive() {
+    $this->working()->shouldBe( false );
+  }
+
+
+  // PidFile method
+  function it_returns_the_full_path_to_the_pid_file() {
+    $this->pidFile()->shouldBe( App::root( 'pids/worker.pid' ));
+  }
+
+
+  // Pid method
+  function it_returns_the_process_id_if_workers_are_active() {
+    $this->start();
+    $this->pid()->shouldBeNumeric();
+  }
+
+  function it_returns_nothing_if_workers_are_inactive() {
+    $this->pid()->shouldBeNull();
+  }
+
+
+}
