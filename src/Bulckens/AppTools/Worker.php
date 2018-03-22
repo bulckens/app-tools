@@ -90,6 +90,15 @@ class Worker {
   }
 
 
+  // Release worker from a job
+  public function release( $queue, $job = null ) {
+    // make sure job is an array
+    if ( is_string( $job )) $job = [ $job ];
+
+    return Resque::dequeue( $queue, $job );
+  }
+
+
   // Get the status for a given job id
   public function status( $job_id ) {
     $status = new Resque_Job_Status( $job_id );
