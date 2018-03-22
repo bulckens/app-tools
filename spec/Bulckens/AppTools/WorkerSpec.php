@@ -3,6 +3,7 @@
 namespace spec\Bulckens\AppTools;
 
 use Exception;
+use Redis;
 use Bulckens\AppTools\Worker;
 use Bulckens\AppTools\App;
 use PhpSpec\ObjectBehavior;
@@ -94,15 +95,64 @@ class WorkerSpec extends ObjectBehavior {
 
   // Release method
   function it_releases_the_worker_from_all_jobs_in_a_queue() {
-
+    $this->start();
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Falumba'
+    ]);
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'lva' => 'Mastaba'
+    ]);
+    $released = $this->release( 'test' );
+    $released->shouldBeNumeric();
   }
 
   function it_releases_the_worker_from_a_given_job_in_a_queue() {
-
+    $this->start();
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Falumba'
+    ]);
+    $released = $this->release( 'test', 'AppTools\AppTests\TestJob' );
+    $released->shouldBeNumeric();
   }
 
   function it_releases_the_worker_from_multiple_jobs_in_a_queue() {
+    $this->start();
+    $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Falumba'
+    ]);
+    $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'alv' => 'Samonda'
+    ]);
+    $this->job( 'test', 'AppTools\AppTests\TestJobWack', [
+      'lav' => 'Mastaba'
+    ]);
+    $released = $this->release( 'test', [
+      'AppTools\AppTests\TestJob'
+    , 'AppTools\AppTests\TestJobWack'
+    ]);
+    $released->shouldBeNumeric();
+  }
 
+  function it_releases_the_worker_from_a_specific_job_id() {
+    $this->start();
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Falumba'
+    ]);
+    $released = $this->release( 'test', [
+      'AppTools\AppTests\TestJob' => $job_id
+    ]);
+    $released->shouldBeNumeric();
+  }
+
+  function it_releases_the_worker_from_a_specific_job_with_specific_arguments() {
+    $this->start();
+    $job_id = $this->job( 'test', 'AppTools\AppTests\TestJob', [
+      'vla' => 'Falumba'
+    ]);
+    $released = $this->release( 'test', [
+      'AppTools\AppTests\TestJob' => [ 'vla' => 'Falumba' ]
+    ]);
+    $released->shouldBeNumeric();
   }
 
 
