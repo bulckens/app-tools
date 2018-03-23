@@ -87,7 +87,7 @@ class App {
     if ( method_exists( $this, 'customize' ) ) {
       $this->customize();
     }
-    
+
     // run router
     if ( isset( $modules['router'] ) ) {
       $this->router()->run();
@@ -106,7 +106,7 @@ class App {
 
       // get current config dir
       $dir = self::env( 'dev' ) ? '/dev/config/' : '/config/';
-      
+
       // find root dir
       while ( ! file_exists( self::$root . $dir ) && $depth < 20 ) {
         // detect capistrano installation
@@ -132,8 +132,8 @@ class App {
   public static function cli() {
     return php_sapi_name() == 'cli';
   }
-  
-  
+
+
   // Public representation as array
   public static function toArray() {
     return [
