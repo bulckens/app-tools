@@ -50,8 +50,8 @@ class WorkerSpec extends ObjectBehavior {
   function it_creates_a_pid_file() {
     $this->start()->shouldBeNumeric();
 
-    if ( ! file_exists( App::root( 'pids/worker.pid' ))) {
-      throw new Exception( 'Expected PID file to be created but it was not' );
+    if ( ! file_exists( App::root( 'pids/dev-worker.pid' ))) {
+      throw new FailureException( 'Expected PID file to be created but it was not' );
     }
   }
 
@@ -77,8 +77,8 @@ class WorkerSpec extends ObjectBehavior {
     $this->start()->shouldBeNumeric();
     $this->stop()->shouldBeNumeric();
 
-    if ( file_exists( App::root( 'pids/worker.pid' ))) {
-      throw new Exception( 'Expected PID file to be removed but it was not' );
+    if ( file_exists( App::root( 'pids/dev-worker.pid' ))) {
+      throw new FailureException( 'Expected PID file to be removed but it was not' );
     }
   }
 
@@ -191,7 +191,7 @@ class WorkerSpec extends ObjectBehavior {
 
   // PidFile method
   function it_returns_the_full_path_to_the_pid_file() {
-    $this->pidFile()->shouldBe( App::root( 'pids/worker.pid' ));
+    $this->pidFile()->shouldEndWith( App::root( 'pids/dev-worker.pid' ));
   }
 
 
