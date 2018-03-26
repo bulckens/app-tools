@@ -76,7 +76,8 @@ class Worker {
 
   // Get the pid file path
   public function pidFile() {
-    return App::root( 'pids/worker.pid' );
+    $env = App::env();
+    return App::root( "pids/$env-worker.pid" );
   }
 
 
@@ -94,7 +95,7 @@ class Worker {
           return $pid;
         }
       }
-      
+
       // remove pid file if the process ID is not active
       unlink( $file );
     }
