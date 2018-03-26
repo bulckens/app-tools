@@ -259,22 +259,24 @@ class AppSpec extends ObjectBehavior {
     $this->run();
     $this->modules()->shouldContain( 'cache' );
     $this->modules()->shouldContain( 'database' );
+    $this->modules()->shouldContain( 'i18n' );
     $this->modules()->shouldContain( 'notifier' );
     $this->modules()->shouldContain( 'router' );
     $this->modules()->shouldContain( 'user' );
     $this->modules()->shouldContain( 'view' );
-    $this->modules()->shouldContain( 'i18n' );
+    $this->modules()->shouldContain( 'worker' );
   }
 
   function it_returns_no_modules_if_none_are_registered() {
     $this->configFile( 'app_moduleless.yml' );
     $this->modules()->shouldNotContain( 'cache' );
     $this->modules()->shouldNotContain( 'database' );
+    $this->modules()->shouldNotContain( 'i18n' );
     $this->modules()->shouldNotContain( 'notifier' );
     $this->modules()->shouldNotContain( 'router' );
     $this->modules()->shouldNotContain( 'user' );
     $this->modules()->shouldNotContain( 'view' );
-    $this->modules()->shouldNotContain( 'i18n' );
+    $this->modules()->shouldNotContain( 'worker' );
   }
 
 
@@ -283,19 +285,21 @@ class AppSpec extends ObjectBehavior {
     $this->run();
     $this->modules()->shouldContain( 'cache' );
     $this->modules()->shouldContain( 'database' );
+    $this->modules()->shouldContain( 'i18n' );
     $this->modules()->shouldContain( 'notifier' );
     $this->modules()->shouldContain( 'router' );
     $this->modules()->shouldContain( 'user' );
     $this->modules()->shouldContain( 'view' );
-    $this->modules()->shouldContain( 'i18n' );
+    $this->modules()->shouldContain( 'worker' );
     $this->clear();
     $this->modules()->shouldNotContain( 'cache' );
     $this->modules()->shouldNotContain( 'database' );
+    $this->modules()->shouldNotContain( 'i18n' );
     $this->modules()->shouldNotContain( 'notifier' );
     $this->modules()->shouldNotContain( 'router' );
     $this->modules()->shouldNotContain( 'user' );
     $this->modules()->shouldNotContain( 'view' );
-    $this->modules()->shouldNotContain( 'i18n' );
+    $this->modules()->shouldNotContain( 'worker' );
   }
 
   function it_removes_no_registered_custom_modules() {
@@ -362,6 +366,10 @@ class AppSpec extends ObjectBehavior {
 
   function it_returns_the_i18n_module() {
     $this->run()->i18n()->shouldHaveType( 'Bulckens\AppTools\I18n' );
+  }
+
+  function it_returns_the_worker_module() {
+    $this->run()->worker()->shouldHaveType( 'Bulckens\AppTools\Worker' );
   }
 
   function it_returns_nothing_if_no_i18n_is_defined() {
