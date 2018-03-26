@@ -2,8 +2,9 @@
 
 namespace spec\Bulckens\AppTools;
 
-use Exception;
+use PhpSpec\Exception\Example\FailureException;
 use Redis;
+use Resque_Redis;
 use Bulckens\AppTools\Worker;
 use Bulckens\AppTools\App;
 use PhpSpec\ObjectBehavior;
@@ -23,6 +24,16 @@ class WorkerSpec extends ObjectBehavior {
   // Configurability
   function it_is_configurable() {
     $this->configFile()->shouldBe( 'worker.yml' );
+  }
+
+
+  // Initialization
+  function it_sets_the_namespace_of_resque_redis() {
+    $this->config( 'namespace' )->shouldBe( 'app_tools' );
+
+    if (( $prefix = Resque_Redis::getPrefix()) != 'app_tools:dev:' ) {
+      throw new FailureException( "Expected Redis prefix to be app_tools:dev: but got $prefix" );
+    }
   }
 
 
