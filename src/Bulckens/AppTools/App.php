@@ -40,10 +40,10 @@ class App {
   // Dynamic methods
   public function __call( $name, $arguments ) {
     // get all bundled and registered modules
-    $modules = array_merge( self::$bundled_modules, $this->modules() );
+    $modules = array_merge( self::$bundled_modules, $this->modules());
 
     // named module methods
-    if ( in_array( $name, $modules ) ) {
+    if ( in_array( $name, $modules )) {
       return $this->module( $name );
 
     // reset callback (not necessary on this class)
@@ -63,13 +63,13 @@ class App {
     // get configured modules and always include statistics
     $configured = array_merge([
       'statistics'
-    ], $this->config( 'modules', [] ) );
+    ], $this->config( 'modules', [] ));
 
     // create a module class map
     $modules = [];
 
     foreach ( $configured as $module ) {
-      if ( is_array( $module ) ) {
+      if ( is_array( $module )) {
         $modules = array_merge( $modules, $module );
       } else {
         $modules[$module] = 'Bulckens\AppTools\\' . Str::studly( $module );
@@ -78,19 +78,19 @@ class App {
 
     // initialize modules
     foreach ( self::$bundled_modules as $module ) {
-      if ( isset( $modules[$module] ) ) {
+      if ( isset( $modules[$module] )) {
         $class = $modules[$module];
-        $this->module( $module, new $class() );
+        $this->module( $module, new $class());
       }
     }
 
     // run customize method, if present
-    if ( method_exists( $this, 'customize' ) ) {
+    if ( method_exists( $this, 'customize' )) {
       $this->customize();
     }
 
     // run router
-    if ( isset( $modules['router'] ) ) {
+    if ( isset( $modules['router'] ) && ! self::cli()) {
       $this->router()->run();
     }
 
@@ -111,8 +111,8 @@ class App {
       // find root dir
       while ( ! file_exists( self::$root . $dir ) && $depth < 20 ) {
         // detect capistrano installation
-        if ( basename( dirname( self::$root ) ) == 'shared' ) {
-          self::$root = dirname( dirname( self::$root ) ) . '/current';
+        if ( basename( dirname( self::$root )) == 'shared' ) {
+          self::$root = dirname( dirname( self::$root )) . '/current';
         } else {
           self::$root = dirname( self::$root );
         }
@@ -147,7 +147,7 @@ class App {
   // Get version tag of project
   public static function version() {
     // check for version file
-    if ( file_exists( $version = self::root( 'config/.version' ) ) ){
+    if ( file_exists( $version = self::root( 'config/.version' )) ){
       return file_get_contents( $version );
     }
 
@@ -155,9 +155,9 @@ class App {
     $command = 'git describe --abbrev=0 --tags';
 
     // check for capistrano installation
-    $path = dirname( self::root() ) . "/shared/cached-copy";
+    $path = dirname( self::root()) . "/shared/cached-copy";
 
-    if ( file_exists( $path ) ) {
+    if ( file_exists( $path )) {
       $command = "cd $path && $command";
     }
 
@@ -165,7 +165,7 @@ class App {
     $version = exec( $command );
 
     // cache version for capistrano installations
-    if ( file_exists( $path ) ) {
+    if ( file_exists( $path )) {
       file_put_contents( self::root( 'config/.version' ), $version );
     }
 
