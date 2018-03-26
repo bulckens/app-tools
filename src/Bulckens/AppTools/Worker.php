@@ -27,7 +27,7 @@ class Worker {
       $pid_dir = dirname( $pid_file );
       $prefix = $this->config( 'namespace', 'app_tools:worker' );
       $env = App::env();
-      $count = $this->config( 'workers', 5 );
+      $count = $this->count();
       $resque = App::root( 'vendor/bin/resque' );
 
       // make sure pid directory exists
@@ -122,6 +122,12 @@ class Worker {
         return $value;
       break;
     }
+  }
+
+
+  // Returns the number of instances that should be initialized
+  public function count() {
+    return $this->config( 'workers', 5 );
   }
 
 }
