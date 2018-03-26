@@ -3,11 +3,21 @@
 namespace Bulckens\AppTools;
 
 use Resque;
+use Resque_Redis;
 use Resque_Job_Status;
 
 class Worker {
 
   use Traits\Configurable;
+
+
+  // Initialization
+  public function __construct() {
+    $env = App::env();
+    $prefix = $this->config( 'namespace' );
+    Resque_Redis::prefix( "$prefix:$env" );
+  }
+
 
   // Start the workers
   public function start( $queue = '*' ) {
