@@ -83,7 +83,20 @@ class Worker {
   // Get process ID
   public function pid() {
     if ( file_exists( $file = $this->pidFile())) {
-      return file_get_contents( $file );
+      // get process ID
+      $pid = file_get_contents( $file );
+
+      // verify existance of process ID
+      if ( is_numeric( $pid )) {
+        $process = exec( "ps -p $pid" );
+
+        if ( preg_match( "/$pid\s/", $process )) {
+          return $pid;
+        }
+      }
+      
+      // remove pid file if the process ID is not active
+      unlink( $file );
     }
   }
 

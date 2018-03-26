@@ -5,3 +5,4 @@ composer.lock
 /tmp/*
 /dev/upload/*
 test_models/*
+/pids/*

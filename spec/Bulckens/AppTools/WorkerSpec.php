@@ -205,6 +205,13 @@ class WorkerSpec extends ObjectBehavior {
     $this->pid()->shouldBeNull();
   }
 
+  function it_returns_nothing_if_there_is_a_pid_file_but_no_workers_are_active() {
+    $pid = $this->start()->getWrappedObject();
+    exec( "kill $pid" );
+    usleep( 3.5e5 );
+    $this->pid()->shouldBeNull();
+  }
+
 
   // Count method
   function it_returns_the_number_of_instances_that_should_be_started() {
