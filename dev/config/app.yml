@@ -2,11 +2,11 @@ generic: &generic
   modules:
     - cache
     - database
+    - i18n
     - notifier
     - router
     - user
     - view
-    - i18n
     - worker
 
 dev:

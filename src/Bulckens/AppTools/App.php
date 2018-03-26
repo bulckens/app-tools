@@ -17,14 +17,15 @@ class App {
 
   // available modules (in order of initialization)
   protected static $bundled_modules = [
-    'statistics'
+    'cache'
+  , 'database'
+  , 'i18n'
   , 'notifier'
   , 'router'
-  , 'database'
+  , 'statistics'
   , 'user'
-  , 'cache'
   , 'view'
-  , 'i18n'
+  , 'worker'
   ];
 
 
