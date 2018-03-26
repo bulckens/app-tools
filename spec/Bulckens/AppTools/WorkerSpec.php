@@ -206,4 +206,10 @@ class WorkerSpec extends ObjectBehavior {
   }
 
 
+  // Count method
+  function it_returns_the_number_of_instances_that_should_be_started() {
+    return $this->count()->shouldBe( 5 );
+  }
+
+
 }
