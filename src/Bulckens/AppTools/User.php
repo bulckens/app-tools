@@ -82,8 +82,9 @@ class User {
   // Get the instance of the current logged in user
   public static function get( $user_token = null ) {
     if ( $user_token ) {
-      if ( $code = UserToken::persistenceCode( $user_token ) )
+      if ( $code = UserToken::persistenceCode( $user_token )) {
         return Sentinel::findByPersistenceCode( $code );
+      }
     }
 
     return Sentinel::getUser();
@@ -105,10 +106,10 @@ class User {
       else
         $user = Sentinel::findByCredentials([ 'login' => $user ]);
     }
-    
+
     // return user if found
     if ( $user ) return $user;
-    
+
     throw new UserNotFoundException( 'Unable to find user' );
   }
 
@@ -117,7 +118,7 @@ class User {
   public static function resetCode( $user ) {
     // find user or fail
     $user = self::find( $user );
-      
+
     // get reminder repo and clean old codes
     $reminder = Sentinel::getReminderRepository();
     $reminder->removeExpired();
@@ -134,7 +135,7 @@ class User {
 
     // get reminder repo
     $reminder = Sentinel::getReminderRepository();
-    
+
     // test existance
     if ( $reminder->exists( $user, $code ) )
       return $reminder->complete( $user, $code, $password );
