@@ -37,7 +37,7 @@ class Worker {
 
       // execute command
       $command = "PIDFILE='$pid_file' PREFIX='$prefix:$env' QUEUE='$queue' COUNT=$count $resque";
-      exec( "$command </dev/null &>/dev/null &" );
+      exec( "$command > /dev/null  &" );
 
       // wait half a second for the process to be started
       usleep( 5e5 );

@@ -1,6 +1,6 @@
 dev:
   sanitize: true
-  magick: "/opt/ImageMagick/bin/convert"
+  magick: "/usr/bin/convert"
   storage:
     default:
       type: "filesystem"
