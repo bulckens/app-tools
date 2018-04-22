@@ -95,7 +95,7 @@ class Output {
 
   // Path getter/setter
   public function path( $path = null ) {
-    if( is_null( $path ))
+    if ( is_null( $path ))
       return $this->path;
 
     $this->path = $path;
@@ -128,7 +128,7 @@ class Output {
       if ( ! isset( $this->output['error'] ) )
         $this->output['error'] = "status.{$this->status()}";
     }
-    
+
   }
 
 
@@ -176,7 +176,7 @@ class Output {
 
           // stringify body
           if ( is_array( $body )) $body = implode( "\n", $body );
-          
+
           return $body;
         }
 
