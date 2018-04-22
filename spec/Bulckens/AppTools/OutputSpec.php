@@ -13,7 +13,7 @@ class OutputSpec extends ObjectBehavior {
     new App( 'dev' );
     $this->beConstructedWith( 'json' );
   }
-  
+
 
   // Initializing
   function it_initializes_with_given_format() {
@@ -109,6 +109,14 @@ class OutputSpec extends ObjectBehavior {
     $this->headers()->shouldHaveCount( 0 );
     $this->expires( 3600 );
     $this->headers()->shouldHaveCount( 3 );
+  }
+
+  function it_sets_a_string_based_expires_header() {
+    $this->expires( '1 day' );
+    $headers = $this->headers();
+    $headers[0][1]->shouldBe( 'public' );
+    $headers[1][1]->shouldBe( 'maxage=86400' );
+    $headers[2][1]->shouldMatch( '/[A-Z][a-z]{2},\s\d{1,2}\s[A-Z][a-z]{2}\s\d{4}\s\d{1,2}:\d{1,2}:\d{1,2}\sGMT/' );
   }
 
   function it_returns_itself_after_setting_expiration() {
