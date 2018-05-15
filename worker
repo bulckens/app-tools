@@ -1,0 +1,16 @@
+#!/usr/bin/env php
+<?php
+
+// Ensure required constants
+if ( ! defined( 'APP_ROOT' ))
+  define( 'APP_ROOT', dirname( __DIR__ ));
+if ( ! defined( 'APP_ENV' ))
+  define( 'APP_ENV', 'cli' );
+
+require 'vendor/autoload.php';
+
+use Stencils\Cli\Workers;
+
+// run utility
+$workers = new Workers();
+$workers->run( $argv );
