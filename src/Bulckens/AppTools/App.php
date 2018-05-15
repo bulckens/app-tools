@@ -155,10 +155,14 @@ class App {
     $command = 'git describe --abbrev=0 --tags';
 
     // check for capistrano installation
-    $path = dirname( self::root()) . "/shared/cached-copy";
+    $root = dirname( self::root());
+    $cap2_path = "$root/shared/cached-copy";
+    $cap3_path = "$root/repo";
 
-    if ( file_exists( $path )) {
-      $command = "cd $path && $command";
+    if ( file_exists( $cap2_path )) {
+      $command = "cd $cap2_path && $command";
+    } elseif ( file_exists( $cap3_path )) {
+      $command = "cd $cap3_path && $command";
     }
 
     // get raw version from git
