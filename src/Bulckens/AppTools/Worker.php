@@ -115,7 +115,7 @@ class Worker {
 
 
   // Release worker from a job
-  public function release( $queue, $job = null ) {
+  public function release( $queue, $job = [] ) {
     // make sure job is an array
     if ( is_string( $job )) $job = [ $job ];
 

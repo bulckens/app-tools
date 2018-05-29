@@ -169,7 +169,7 @@ class App {
     $version = exec( $command );
 
     // cache version for capistrano installations
-    if ( file_exists( $path )) {
+    if ( file_exists( $cap2_path ) || file_exists( $cap3_path )) {
       file_put_contents( self::root( 'config/.version' ), $version );
     }
 
