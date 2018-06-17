@@ -28,7 +28,7 @@ trait Tokenish {
   }
 
 
-  // Validate a token agains the current given parameters
+  // Validate a token against the current given parameters
   public function validate( $token ) {
     // use the token's stamp if none was explicitly given
     if ( $this->stampless )
@@ -41,7 +41,7 @@ trait Tokenish {
   // Verify presence of given secret
   public function verify( $secret ) {
   	if ( ! $this->secret )
-  	  throw new TokenishSecretMissingException( "Secret could not be found for $secret" ); 
+  	  throw new TokenishSecretMissingException( "Secret could not be found for $secret" );
 
   	return $this;
   }
@@ -57,7 +57,7 @@ trait Tokenish {
   public static function timestamp( $token ) {
     return hexdec( substr( $token, 64, 11 ) );
   }
-  
+
 
 }
 
