@@ -11,7 +11,7 @@ use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
 class ValidatorSpec extends ObjectBehavior {
-  
+
   function let() {
     $app = new App( 'dev' );
     $app->run();
@@ -628,6 +628,22 @@ class ValidatorSpec extends ObjectBehavior {
     $this->beConstructedWith([ 'age' => [ 'numeric' => true ] ]);
     $this->passes()->shouldBe( true );
     $this->errorMessages( 'age' )->shouldHaveCount( 0 );
+  }
+
+
+  // Between
+  function it_ensures_a_numeric_value_between_two_limits() {
+    $this->beConstructedWith([ 'tolerance' => [ 'between' => [-2, 5] ] ]);
+    $this->data([ 'tolerance' => 3.5 ]);
+    $this->passes()->shouldBe( true );
+    $this->errorMessages( 'tolerance' )->shouldHaveCount( 0 );
+  }
+
+  function it_fails_to_validate_a_numer_outside_of_the_given_range() {
+    $this->beConstructedWith([ 'tolerance' => [ 'between' => [-2, 5] ] ]);
+    $this->data([ 'tolerance' => 9 ]);
+    $this->passes()->shouldBe( false );
+    $this->errorMessages( 'tolerance' )->shouldContain( 'should be between -2 and 5' );
   }
 
 

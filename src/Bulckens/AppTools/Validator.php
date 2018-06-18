@@ -6,7 +6,7 @@ use Exception;
 use Bulckens\Helpers\MemoryHelper;
 
 class Validator {
-  
+
   protected $data = [];
   protected $rules;
   protected $model;
@@ -40,6 +40,7 @@ class Validator {
     , 'numeric_even'        => 'is not a an even number'
     , 'numeric_odd'         => 'is not a an odd number'
     , 'numeric_integer'     => 'is not a an integer'
+    , 'between'             => 'should be between {{ min }} and {{ max }}'
     , 'unique'              => 'is already taken'
     , 'weight_min'          => 'should be at least {{ weight }}'
     , 'weight_max'          => 'should be no bigger than {{ weight }}'
@@ -183,7 +184,7 @@ class Validator {
     foreach ( $this->errors as $key => $errors ) {
       $messages["$this->prefix$key"] = array_values( $errors );
     }
-    
+
     return $messages;
   }
 
@@ -226,7 +227,7 @@ class Validator {
     if ( ! $message ) {
       $message = $this->defaults['base'][$key];
     }
-    
+
     // ensure error array
     if ( ! isset( $this->errors[$name] ) ) {
       $this->errors[$name] = [];
@@ -252,7 +253,7 @@ class Validator {
     if ( ! isset( $this->data[$name] ) || $this->isBlank( $this->data[$name] ) ) {
       if ( $required ) {
         $this->error( $name, 'required' );
-        
+
       } else if ( $this->model ) {
         $original = $this->model->getOriginal();
 
@@ -277,7 +278,7 @@ class Validator {
     if ( ( $class = $this->class ) && ( $id = $this->model->id ) ) {
       // find existing record
       $old = $class::find( $id );
-      
+
       if ( $old->$name != $this->data[$name] ) {
         $this->error( $name, 'unchangeable' );
       }
@@ -392,13 +393,26 @@ class Validator {
         $valid = is_numeric( $number );
       break;
     }
-    
+
     // ensure validity
     if ( $valid !== true ) {
       $this->error( $name, $key, [ 'expectation' => $expectation ] );
     }
   }
 
+
+  // Between tester
+  protected function between( $name, $limits ) {
+    // gather values
+    $number = $this->data[$name];
+    $min = min( $limits );
+    $max = max( $limits );
+
+    if ( $number < $min || $number > $max ) {
+      $this->error( $name, 'between', [ 'min' => $min, 'max' => $max ]);
+    }
+  }
+  
 
   // Uniqueness tester
   protected function unique( $name, $options ) {
@@ -410,7 +424,7 @@ class Validator {
     if ( $this->exists && $this->model->id ) {
       $records = $records->where( 'id', '!=', $this->model->id );
     }
-    
+
     // add scope if given
     if ( isset( $options['scope'] ) ) {
       $scopes = $options['scope'];
@@ -418,7 +432,7 @@ class Validator {
       // make sure scopes is an array
       if ( ! is_array( $scopes ) ) $scopes = [ $scopes ];
 
-      for ( $i = 0; $i < count( $scopes ); $i++ ) { 
+      for ( $i = 0; $i < count( $scopes ); $i++ ) {
         $scope = $scopes[$i];
 
         // get scope value
@@ -438,7 +452,7 @@ class Validator {
         }
       }
     }
-    
+
     // count number of found records
     $found = $records->count();
 
@@ -453,11 +467,11 @@ class Validator {
     if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
       // make sure constraints is an array
       if ( ! is_array( $constraints ) ) $constraints = [ 'max' => $constraints ];
-      
+
       // test minimum file size
       if ( isset( $constraints['min'] ) ) {
         $min = MemoryHelper::interpret( $constraints['min'] );
-        
+
         if ( $upload->size() < $min ) {
           $this->error( $name, 'weight_min', [ 'weight' => $constraints['min'] ] );
         }
@@ -550,7 +564,7 @@ class Validator {
   protected function isBlank( $value ) {
     return $value instanceof Upload ? false : preg_match( '/\A(\s+)?\z/', $value );
   }
-  
+
 
   // Interpolate values
   protected function interpolate( $message, $values = [] ) {
