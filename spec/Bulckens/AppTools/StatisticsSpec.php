@@ -38,6 +38,11 @@ class StatisticsSpec extends ObjectBehavior {
   }
 
 
+  // PeakMemory method
+  function it_returns_the_peak_memory() {
+    $this->peakMemory()->shouldMatch( '/^[0-9\.]{1,7}\s[a-z]{2,5}$/i' );
+  }
+
   // EndMemory method
   function it_returns_the_end_memory() {
     $this->endMemory()->shouldMatch( '/^[0-9\.]{1,7}\s[a-z]{2,5}$/i' );

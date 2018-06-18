@@ -36,6 +36,11 @@ class Statistics {
     return M::humanize( M::snapshot() - $this->start_memory );
   }
 
+  // Get peak memory
+  public function peakMemory() {
+    return M::humanize( memory_get_peak_usage() );
+  }
+
   // Get end memory
   public function endMemory() {
     return M::humanize( M::snapshot() );
@@ -48,6 +53,7 @@ class Statistics {
     , 'used_time'    => $this->usedTime()
     , 'start_memory' => $this->startMemory()
     , 'used_memory'  => $this->usedMemory()
+    , 'peak_memory'  => $this->peakMemory()
     , 'end_memory'   => $this->endMemory()
     ]);
   }
