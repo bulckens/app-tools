@@ -18,38 +18,42 @@ class Validator {
   protected $defaults = [
     // base values to fall back on
     'base' => [
-      'required'            => 'is required'
-    , 'forbidden'           => 'is not allowed'
-    , 'unchangeable'        => 'can not be changed'
-    , 'min'                 => 'should be longer than {{ length }} characters'
-    , 'max'                 => 'should be shorter than {{ length }} characters'
-    , 'match'               => 'does not have the right format'
-    , 'match_email'         => 'is not an email address'
-    , 'match_email_address' => 'does not contain an email address'
-    , 'match_alpha'         => 'should be letters-only and all lowercase'
-    , 'match_ALPHA'         => 'should be letters-only and all uppercase'
-    , 'match_Alpha'         => 'should be letters-only'
-    , 'match_alphanumeric'  => 'should be alphanumeric and all lowercase'
-    , 'match_ALPHANUMERIC'  => 'should be alphanumeric and all uppercase'
-    , 'match_Alphanumeric'  => 'should be alphanumeric'
-    , 'confirmation'        => 'confirmation does not match'
-    , 'exactly'             => 'is not the expected value'
-    , 'in'                  => 'could not be found in the list'
-    , 'not_in'              => 'is not an allowed value'
-    , 'numeric'             => 'is not the right numeric value'
-    , 'numeric_even'        => 'is not a an even number'
-    , 'numeric_odd'         => 'is not a an odd number'
-    , 'numeric_integer'     => 'is not a an integer'
-    , 'between'             => 'should be between {{ min }} and {{ max }}'
-    , 'unique'              => 'is already taken'
-    , 'weight_min'          => 'should be at least {{ weight }}'
-    , 'weight_max'          => 'should be no bigger than {{ weight }}'
-    , 'width_min'           => 'should be at least {{ width }}px wide'
-    , 'width_max'           => 'should not be wider than {{ width }}px'
-    , 'height_min'          => 'should be at least {{ height }}px high'
-    , 'height_max'          => 'should not be higher than {{ height }}px'
-    , 'mime'                => 'is not an accepted file type'
-    , 'custom'              => 'is invalid'
+      'required'                  => 'is required'
+    , 'forbidden'                 => 'is not allowed'
+    , 'unchangeable'              => 'can not be changed'
+    , 'min'                       => 'should be longer than {{ length }} characters'
+    , 'max'                       => 'should be shorter than {{ length }} characters'
+    , 'match'                     => 'does not have the right format'
+    , 'match_email'               => 'is not an email address'
+    , 'match_email_address'       => 'does not contain an email address'
+    , 'match_alpha'               => 'should be letters-only and all lowercase'
+    , 'match_ALPHA'               => 'should be letters-only and all uppercase'
+    , 'match_Alpha'               => 'should be letters-only'
+    , 'match_alphanumeric'        => 'should be alphanumeric and all lowercase'
+    , 'match_ALPHANUMERIC'        => 'should be alphanumeric and all uppercase'
+    , 'match_Alphanumeric'        => 'should be alphanumeric'
+    , 'confirmation'              => 'confirmation does not match'
+    , 'exactly'                   => 'is not the expected value'
+    , 'in'                        => 'could not be found in the list'
+    , 'not_in'                    => 'is not an allowed value'
+    , 'numeric'                   => 'is not the right numeric value'
+    , 'numeric_even'              => 'is not a an even number'
+    , 'numeric_odd'               => 'is not a an odd number'
+    , 'numeric_integer'           => 'is not a an integer'
+    , 'between'                   => 'should be between {{ min }} and {{ max }}'
+    , 'greater_than'              => 'should be greater than {{ value }}'
+    , 'greater_than_or_equal_to'  => 'should be greater than or equal to {{ value }}'
+    , 'less_than'                 => 'should be less than {{ value }}'
+    , 'less_than_or_equal_to'     => 'should be less than or equal to {{ value }}'
+    , 'unique'                    => 'is already taken'
+    , 'weight_min'                => 'should be at least {{ weight }}'
+    , 'weight_max'                => 'should be no bigger than {{ weight }}'
+    , 'width_min'                 => 'should be at least {{ width }}px wide'
+    , 'width_max'                 => 'should not be wider than {{ width }}px'
+    , 'height_min'                => 'should be at least {{ height }}px high'
+    , 'height_max'                => 'should not be higher than {{ height }}px'
+    , 'mime'                      => 'is not an accepted file type'
+    , 'custom'                    => 'is invalid'
     ]
   ];
 
@@ -412,7 +416,51 @@ class Validator {
       $this->error( $name, 'between', [ 'min' => $min, 'max' => $max ]);
     }
   }
-  
+
+
+  // Greater than tester
+  protected function greater_than( $name, $value ) {
+    // gather values
+    $number = $this->data[$name];
+
+    if ( $number <= $value ) {
+      $this->error( $name, 'greater_than', [ 'value' => $value ]);
+    }
+  }
+
+
+  // Greater or equal to than tester
+  protected function greater_than_or_equal_to( $name, $value ) {
+    // gather values
+    $number = $this->data[$name];
+
+    if ( $number < $value ) {
+      $this->error( $name, 'greater_than_or_equal_to', [ 'value' => $value ]);
+    }
+  }
+
+
+  // Less than tester
+  protected function less_than( $name, $value ) {
+    // gather values
+    $number = $this->data[$name];
+
+    if ( $number >= $value ) {
+      $this->error( $name, 'less_than', [ 'value' => $value ]);
+    }
+  }
+
+
+  // Less than tester
+  protected function less_than_or_equal_to( $name, $value ) {
+    // gather values
+    $number = $this->data[$name];
+
+    if ( $number > $value ) {
+      $this->error( $name, 'less_than_or_equal_to', [ 'value' => $value ]);
+    }
+  }
+
 
   // Uniqueness tester
   protected function unique( $name, $options ) {
