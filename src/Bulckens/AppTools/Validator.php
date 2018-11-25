@@ -67,7 +67,7 @@ class Validator {
 
   // Store data to test against
   public function data( $data = null ) {
-    if ( is_null( $data ) )
+    if ( is_null( $data ))
       return $this->data;
 
     $this->data = $data;
@@ -79,19 +79,19 @@ class Validator {
   // Store object and its status
   public function model( $model = null, $id = null ) {
     // act as getter
-    if ( is_null( $model ) )
+    if ( is_null( $model ))
       return $this->model;
 
     // store class
     $this->class = is_string( $model ) ? $model : get_class( $model );
 
     // load record
-    if ( is_string( $model ) && $id && ( $record = $model::find( $id ) ) ) {
+    if ( is_string( $model ) && $id && ( $record = $model::find( $id )) ) {
       $model = $record;
     }
 
     // store model
-    if ( ! is_string( $model ) ) {
+    if ( ! is_string( $model )) {
       // store model as it is
       $this->model = $model;
     }
@@ -124,13 +124,13 @@ class Validator {
       // run every rule
       foreach ( $value as $rule => $constraint ) {
         // perform test
-        if ( in_array( $rule, $force ) || isset( $this->data[$name] ) ) {
+        if ( in_array( $rule, $force ) || isset( $this->data[$name] )) {
           $this->{$rule}( $name, $constraint );
         }
       }
     }
 
-    return empty( $this->errors() );
+    return empty( $this->errors());
   }
 
 
@@ -143,7 +143,7 @@ class Validator {
   // Return errors variable
   public function errors( $key = null ) {
     // return all errors
-    if ( is_null( $key ) ) {
+    if ( is_null( $key )) {
       $errors = [];
 
       foreach ( $this->errors as $key => $error ) {
@@ -156,14 +156,14 @@ class Validator {
     // returns errors for a specific key
     $key = str_replace( $this->prefix, '', $key );
 
-    if ( isset( $this->errors[$key] ) ) return $this->errors[$key];
+    if ( isset( $this->errors[$key] )) return $this->errors[$key];
   }
 
 
   // Set a prefix for error keys
   public function prefix( $prefix = null ) {
     // act as getter
-    if ( is_null( $prefix ) ) return preg_replace( '/\.$/', '', $this->prefix );
+    if ( is_null( $prefix )) return preg_replace( '/\.$/', '', $this->prefix );
 
     // continue as setter
     $this->prefix = empty( $prefix ) ? '' : "$prefix.";
@@ -174,10 +174,10 @@ class Validator {
 
   // Return error messages
   public function errorMessages( $key = null ) {
-    if ( ! is_null( $key ) ) {
+    if ( ! is_null( $key )) {
       $key = str_replace( $this->prefix, '', $key );
 
-      if ( isset( $this->errors[$key] ) ) {
+      if ( isset( $this->errors[$key] )) {
         return array_values( $this->errors[$key] );
       }
     }
@@ -203,7 +203,7 @@ class Validator {
     $values['key']  = $key;
 
     // filter out message
-    if ( isset( $values['message'] ) ) {
+    if ( isset( $values['message'] )) {
       // get message from values
       $message = $values['message'];
 
@@ -212,17 +212,17 @@ class Validator {
     }
 
     // get it from the user-isset specific messages
-    if ( ! $message && isset( $this->messages['specific'] ) ) {
-      if ( isset( $this->messages['specific'][$name] ) ) {
-        if ( isset( $this->messages['specific'][$name][$key] ) ) {
+    if ( ! $message && isset( $this->messages['specific'] )) {
+      if ( isset( $this->messages['specific'][$name] )) {
+        if ( isset( $this->messages['specific'][$name][$key] )) {
           $message = $this->messages['specific'][$name][$key];
         }
       }
     }
 
     // get it from the user-isset base messages
-    if ( ! $message && isset( $this->messages['base'] ) ) {
-      if ( isset( $this->messages['base'][$key] ) ) {
+    if ( ! $message && isset( $this->messages['base'] )) {
+      if ( isset( $this->messages['base'][$key] )) {
         $message = $this->messages['base'][$key];
       }
     }
@@ -233,7 +233,7 @@ class Validator {
     }
 
     // ensure error array
-    if ( ! isset( $this->errors[$name] ) ) {
+    if ( ! isset( $this->errors[$name] )) {
       $this->errors[$name] = [];
     }
 
@@ -254,14 +254,14 @@ class Validator {
     }
 
     // make sure value is restored to original if not present
-    if ( ! isset( $this->data[$name] ) || $this->isBlank( $this->data[$name] ) ) {
+    if ( ! isset( $this->data[$name] ) || $this->isBlank( $this->data[$name] )) {
       if ( $required ) {
         $this->error( $name, 'required' );
 
       } else if ( $this->model ) {
         $original = $this->model->getOriginal();
 
-        if ( isset( $original[$name] ) ) {
+        if ( isset( $original[$name] )) {
           $this->model->$name = $original[$name];
         }
       }
@@ -271,7 +271,7 @@ class Validator {
 
   // Validate non-presence
   protected function forbidden( $name ) {
-    if ( ! $this->isBlank( $this->data[$name] ) ) {
+    if ( ! $this->isBlank( $this->data[$name] )) {
       $this->error( $name, 'forbidden' );
     }
   }
@@ -279,7 +279,7 @@ class Validator {
 
   // Validate unchangeable value
   protected function unchangeable( $name ) {
-    if ( ( $class = $this->class ) && ( $id = $this->model->id ) ) {
+    if ( ( $class = $this->class ) && ( $id = $this->model->id )) {
       // find existing record
       $old = $class::find( $id );
 
@@ -323,7 +323,7 @@ class Validator {
       case 'Alphanumeric':  $key = "_$regex"; $regex = '/\A[A-Z0-9]+\z/i';  break;
     }
 
-    if ( ! empty( $this->data[$name] ) && ! preg_match( $regex, $this->data[$name] ) ) {
+    if ( ! empty( $this->data[$name] ) && ! preg_match( $regex, $this->data[$name] )) {
       $this->error( $name, "match$key" );
     }
   }
@@ -350,7 +350,7 @@ class Validator {
 
   // Validate as item in an array
   protected function in( $name, $list ) {
-    if ( ! in_array( $this->data[$name], $list ) ) {
+    if ( ! in_array( $this->data[$name], $list )) {
       $this->error( $name, 'in', [ 'list' => $list ] );
     }
   }
@@ -358,7 +358,7 @@ class Validator {
 
   // Validate as item not in an array
   protected function not_in( $name, $list ) {
-    if ( in_array( $this->data[$name], $list ) ) {
+    if ( in_array( $this->data[$name], $list )) {
       $this->error( $name, 'not_in', [ 'list' => $list ] );
     }
   }
@@ -371,7 +371,7 @@ class Validator {
     $key = 'numeric';
 
     // ensure string value for expectation
-    if ( is_bool( $expectation ) ) $expectation = 'default';
+    if ( is_bool( $expectation )) $expectation = 'default';
 
     // detect expectation
     switch ( $expectation ) {
@@ -386,7 +386,7 @@ class Validator {
         $key .= '_odd';
       break;
       case 'integer':
-        if ( is_string( $number ) && preg_match( '/\A(\d+)\z/', $number, $m ) )
+        if ( is_string( $number ) && preg_match( '/\A(\d+)\z/', $number, $m ))
           $number = intval( $number );
 
         $valid = is_int( $number );
@@ -472,28 +472,28 @@ class Validator {
     if ( $this->exists && $this->model->id ) {
       $records = $records->where( 'id', '!=', $this->model->id );
     }
-
+    
     // add scope if given
-    if ( isset( $options['scope'] ) ) {
+    if ( isset( $options['scope'] )) {
       $scopes = $options['scope'];
 
       // make sure scopes is an array
-      if ( ! is_array( $scopes ) ) $scopes = [ $scopes ];
+      if ( ! is_array( $scopes )) $scopes = [ $scopes ];
 
       for ( $i = 0; $i < count( $scopes ); $i++ ) {
         $scope = $scopes[$i];
 
         // get scope value
-        if ( isset( $this->data[$scope] ) ) {
+        if ( isset( $this->data[$scope] )) {
           $value = $this->data[$scope];
-        } elseif ( isset( $this->model ) ) {
+        } elseif ( isset( $this->model )) {
           $value = $this->model->$scope;
         } else {
           $value = null;
         }
 
         // define scope
-        if ( is_null( $value ) ) {
+        if ( is_null( $value )) {
           $records = $records->whereNull( $scope );
         } else {
           $records = $records->where( $scope, '=', $value );
@@ -514,10 +514,10 @@ class Validator {
   protected function weight( $name, $constraints ) {
     if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
       // make sure constraints is an array
-      if ( ! is_array( $constraints ) ) $constraints = [ 'max' => $constraints ];
+      if ( ! is_array( $constraints )) $constraints = [ 'max' => $constraints ];
 
       // test minimum file size
-      if ( isset( $constraints['min'] ) ) {
+      if ( isset( $constraints['min'] )) {
         $min = MemoryHelper::interpret( $constraints['min'] );
 
         if ( $upload->size() < $min ) {
@@ -526,7 +526,7 @@ class Validator {
       }
 
       // test maximum file size
-      if ( isset( $constraints['max'] ) ) {
+      if ( isset( $constraints['max'] )) {
         $max = MemoryHelper::interpret( $constraints['max'] );
 
         if ( $upload->size() > $max ) {
@@ -544,11 +544,11 @@ class Validator {
   protected function dimensions( $name, $constraints ) {
     if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
       // make sure constraints is an array
-      if ( ! is_array( $constraints ) ) $constraints = [ 'max' => $constraints ];
+      if ( ! is_array( $constraints )) $constraints = [ 'max' => $constraints ];
 
-      if ( $upload->isImage() ) {
+      if ( $upload->isImage()) {
         // test minimum image dimensions
-        if ( isset( $constraints['min'] ) ) {
+        if ( isset( $constraints['min'] )) {
           $min = explode( 'x', $constraints['min'] );
 
           if ( is_numeric( $min[0] ) && $upload->width() < $min[0] ) {
@@ -561,7 +561,7 @@ class Validator {
         }
 
         // test maximum image dimensions
-        if ( isset( $constraints['max'] ) ) {
+        if ( isset( $constraints['max'] )) {
           $max = explode( 'x', $constraints['max'] );
 
           if ( is_numeric( $max[0] ) && $upload->width() > $max[0] ) {
@@ -584,10 +584,10 @@ class Validator {
   protected function mime( $name, $allowed ) {
     if ( ( $upload = $this->data[$name] ) instanceof Upload ) {
       // make sure allowed value is an array
-      if ( ! is_array( $allowed ) ) $allowed = [ $allowed ];
+      if ( ! is_array( $allowed )) $allowed = [ $allowed ];
 
       // test mime type
-      if ( ! in_array( $upload->mime(), $allowed ) ) {
+      if ( ! in_array( $upload->mime(), $allowed )) {
         $this->error( $name, 'mime' );
       }
     } else {
@@ -619,7 +619,7 @@ class Validator {
     // insert all given values
     foreach ( $values as $name => $value ) {
       // ensure string value
-      if ( is_array( $value ) ) $value = implode( ',', $value );
+      if ( is_array( $value )) $value = implode( ',', $value );
 
       // add replacement
       $message = preg_replace( "/{{\s?$name\s?}}/", $value, $message );
