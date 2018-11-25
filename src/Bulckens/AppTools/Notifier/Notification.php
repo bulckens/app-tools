@@ -31,7 +31,7 @@ class Notification {
       ->setUsername( $username )
       ->setPassword( $password );
 
-    if ( ! empty( $encryption ) ) {
+    if ( ! empty( $encryption )) {
       $transport = $transport->setEncryption( $encryption );
     }
 
@@ -45,7 +45,7 @@ class Notification {
       ->setFrom([ $from ])
       ->setTo([ $email ])
       ->setBody( $html, 'text/html' );
-    
+
     // initialize notifier
     $handler = new SwiftMailerHandler( $mailer, $message );
     $mailer = new Logger( 'notifier_mailer' );
