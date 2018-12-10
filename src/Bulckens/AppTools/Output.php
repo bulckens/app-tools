@@ -12,6 +12,7 @@ class Output {
   use Traits\Diggable;
   use Traits\Configurable;
 
+  protected $diggable_key = 'output';
   protected $output;
   protected $format;
   protected $headers;
