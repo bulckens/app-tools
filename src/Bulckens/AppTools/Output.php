@@ -5,6 +5,7 @@ namespace Bulckens\AppTools;
 use Exception;
 use Bulckens\Helpers\TimeHelper as Time;
 use Bulckens\Helpers\ArrayHelper;
+use Bulckens\AppTools\Interfaces\OutputInterface;
 
 class Output {
 
@@ -14,6 +15,7 @@ class Output {
 
   protected $diggable_key = 'output';
   protected $output;
+  protected $object;
   protected $format;
   protected $headers;
   protected $options;
@@ -30,11 +32,21 @@ class Output {
 
   // Add output
   public function add( $output ) {
-    if ( ! is_array( $output )) {
-      throw new OutputArgumentInvalidException( 'Only an array is accepted' );
-    }
+    if ( is_object( $output )) {
+      if ( ! $output instanceof OutputInterface ) {
+        throw new OutputObjectNotRenderableException(
+          'Object does not implement Bulckens\AppTools\Interfaces\OutputInterface'
+        );
+      }
 
-    $this->output = array_replace_recursive( $this->output, $output );
+      $this->object = $output;
+
+    } else if ( ! is_array( $output )) {
+      throw new OutputArgumentInvalidException( 'Only an array is accepted' );
+
+    } else {
+      $this->output = array_replace_recursive( $this->output, $output );
+    }
 
     return $this;
   }
@@ -42,6 +54,7 @@ class Output {
 
   // Clear all output
   public function clear() {
+    $this->object = null;
     $this->output = [];
     $this->headers = [];
 
@@ -84,7 +97,13 @@ class Output {
 
   // Get current output array
   public function toArray() {
-    return $this->output;
+    $output = $this->output;
+
+    if ( $this->object ) {
+      $output = array_replace( $output, $this->object->toArray() );
+    }
+    
+    return $output;
   }
 
 
@@ -130,7 +149,7 @@ class Output {
       foreach ( $this->output as $key => $value )
         if ( ! in_array( $key, $pure ) )
           unset( $this->output[$key] );
-
+      
       // ensure error key
       if ( ! isset( $this->output['error'] ) )
         $this->output['error'] = "status.{$this->status()}";
@@ -143,6 +162,12 @@ class Output {
   public function render() {
     // make sure only reuired values are rendered
     $this->purify();
+
+    // render object output
+    if ( $this->object ) {
+      if ( $view = $this->object->render( $this->format ))
+        return $view;
+    }
 
     // render output using user defined method
     if ( $method = $this->config( 'methods.render' ) ) {
@@ -202,6 +227,7 @@ class Output {
       break;
     }
   }
+
 }
 
 
@@ -209,3 +235,4 @@ class Output {
 class OutputFormatUnknownException            extends Exception {}
 class OutputRenderMethodNotCallableException  extends Exception {}
 class OutputArgumentInvalidException          extends Exception {}
+class OutputObjectNotRenderableException      extends Exception {}
