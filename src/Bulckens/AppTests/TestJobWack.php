@@ -2,6 +2,4 @@
 
 namespace Bulckens\AppTests;
 
-class TestJobWack
-{
-}
+class TestJobWack {}

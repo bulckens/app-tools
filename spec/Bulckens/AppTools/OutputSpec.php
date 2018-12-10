@@ -4,6 +4,8 @@ namespace spec\Bulckens\AppTools;
 
 use Bulckens\AppTools\Output;
 use Bulckens\AppTools\App;
+use Bulckens\AppTests\TestOutputObject;
+use Bulckens\AppTests\TestOutputObjectWithoutInterface;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 
@@ -49,23 +51,36 @@ class OutputSpec extends ObjectBehavior {
 
   // Add method
   function it_accepts_an_array_for_add() {
-    $this->add([ 'an' => 'array' ]);
+    $this->add([ 'an' => 'array' ])->shouldBe( $this );
+  }
+
+  function it_accepts_a_renderable_instance_for_add() {
+    $this->add( new TestOutputObject )->shouldBe( $this );
+  }
+
+  function it_does_not_accepts_an_instance_without_the_output_interface() {
+    $this->shouldThrow( 'Bulckens\AppTools\OutputObjectNotRenderableException' )
+      ->duringAdd( new TestOutputObjectWithoutInterface );
   }
 
   function it_returns_itself_after_add() {
     $this->add([ 'an' => 'array' ])->shouldBe( $this );
   }
 
-  function it_does_not_accept_anything_other_than_an_array_for_add() {
-    $this->shouldThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )->duringAdd( 'string' );
-    $this->shouldThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )->duringAdd( null );
-    $this->shouldThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )->duringAdd( 123 );
-    $this->shouldNotThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )->duringAdd([ 'I' => 'can' ]);
+  function it_does_not_accept_anything_other_than_an_array_or_renderable_instance_for_add() {
+    $this->shouldThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )
+      ->duringAdd( 'string' );
+    $this->shouldThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )
+      ->duringAdd( null );
+    $this->shouldThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )
+      ->duringAdd( 123 );
+    $this->shouldNotThrow( 'Bulckens\AppTools\OutputArgumentInvalidException' )
+      ->duringAdd([ 'I' => 'can' ]);
   }
 
 
   // Clear method
-  function it_can_clear_output() {
+  function it_clears_the_output() {
     $this->beConstructedWith( 'array' );
     $this->add([ 'arbitrary' => 'data' ]);
     $this->toArray()->shouldHaveCount( 1 );
@@ -73,11 +88,17 @@ class OutputSpec extends ObjectBehavior {
     $this->toArray()->shouldHaveCount( 0 );
   }
 
-  function it_can_clear_headers() {
+  function it_clears_the_headers() {
     $this->header( 'Hey', 'DIE!' );
     $this->headers()->shouldHaveCount( 1 );
     $this->clear();
     $this->headers()->shouldHaveCount( 0 );
+  }
+
+  function it_clears_the_output_object() {
+    $this->add( new TestOutputObject );
+    $this->clear();
+    $this->toArray()->shouldBeEmpty();
   }
 
   function it_returns_itself_after_clear() {
@@ -224,6 +245,11 @@ class OutputSpec extends ObjectBehavior {
     $this->toArray()->shouldHaveKey( 'fab' );
   }
 
+  function it_includes_the_output_object_in_the_array() {
+    $this->add( new TestOutputObject );
+    $this->toArray()->shouldHaveKey( 'too' );
+  }
+
 
   // Is method
   function it_tests_positive_when_the_given_format_is_the_initialized_format() {
@@ -300,6 +326,7 @@ class OutputSpec extends ObjectBehavior {
     $this->render()->shouldHaveKey( 'body' );
     $this->render()->shouldNotHaveKey( 'success' );
     $this->render()->shouldNotHaveKey( 'resource' );
+    $this->render()->shouldNotHaveKey( 'too' );
   }
 
   function it_does_not_remove_keys_that_are_defined_as_pure() {
@@ -409,21 +436,33 @@ class OutputSpec extends ObjectBehavior {
   function it_does_not_accept_any_other_formats() {
     $this->beConstructedWith( 'png' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
-    $this->shouldThrow( 'Bulckens\AppTools\OutputFormatUnknownException' )->duringRender();
+    $this
+      ->shouldThrow( 'Bulckens\AppTools\OutputFormatUnknownException' )
+      ->duringRender();
   }
 
   function it_uses_the_alternative_render_method() {
     $this->beConstructedWith( 'html' );
     $this->configFile( 'output.render.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
-    $this->render()->shouldBe( '<html><head><title></title></head><body>Rendered from the outside!</body></html>' );
+    $this
+      ->render()
+      ->shouldBe( '<html><head><title></title></head><body>Rendered from the outside!</body></html>' );
   }
 
   function it_fails_if_the_defined_render_method_is_not_callable() {
     $this->beConstructedWith( 'html' );
     $this->configFile( 'output.render_fail.yml' );
     $this->add([ 'candy' => [ 'ken' => 'pink' ] ]);
-    $this->shouldThrow( 'Bulckens\AppTools\OutputRenderMethodNotCallableException' )->duringRender();
+    $this
+      ->shouldThrow( 'Bulckens\AppTools\OutputRenderMethodNotCallableException' )
+      ->duringRender();
+  }
+
+  function it_uses_the_render_method_on_the_given_object() {
+    $this->beConstructedWith( 'too' );
+    $this->add( new TestOutputObject );
+    $this->render()->shouldBe( '[too]Welcome to lonelyness[/too]' );
   }
 
   function it_only_outputs_an_error_when_the_status_is_not_ok() {
