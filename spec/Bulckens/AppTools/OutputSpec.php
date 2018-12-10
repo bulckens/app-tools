@@ -40,6 +40,13 @@ class OutputSpec extends ObjectBehavior {
   }
 
 
+  // Diggable
+  function it_is_diggable() {
+    $this->add([ 'first' => [ 'second' => 'third' ]]);
+    $this->get( 'first.second' )->shouldBe( 'third' );
+  }
+
+
   // Add method
   function it_accepts_an_array_for_add() {
     $this->add([ 'an' => 'array' ]);
