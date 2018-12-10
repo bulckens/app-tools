@@ -9,6 +9,7 @@ use Bulckens\Helpers\ArrayHelper;
 class Output {
 
   use Traits\Status;
+  use Traits\Diggable;
   use Traits\Configurable;
 
   protected $output;
