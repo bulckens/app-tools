@@ -8,9 +8,12 @@ trait Diggable {
 
   // Get config value by given key
   public function get( $key, $default = null, $force = false ) {
+    // get diggable key
+    $diggable_key = isset( $this->diggable_key ) ? $this->diggable_key : 'diggable';
+
     // prepare path iteration
     $parts = explode( '.', $key );
-    $value = $this->diggable;
+    $value = $this->$diggable_key;
 
     // find value for path
     foreach ( $parts as $part ) {
