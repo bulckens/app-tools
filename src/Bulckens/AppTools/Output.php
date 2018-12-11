@@ -160,13 +160,13 @@ class Output {
 
   // Render output to desired format
   public function render() {
-    // make sure only reuired values are rendered
-    $this->purify();
-
     // render object output
     if ( $this->object ) {
       if ( $view = $this->object->render( $this->format ))
         return $view;
+
+      if ( $output = $this->object->toArray())
+        $this->add( $output );
     }
 
     // render output using user defined method
@@ -178,6 +178,9 @@ class Output {
         throw new OutputRenderMethodNotCallableException( "Render method $method could not be found" );
       }
     }
+
+    // make sure only required values are rendered
+    $this->purify();
 
     // render default output
     switch ( $this->format ) {
