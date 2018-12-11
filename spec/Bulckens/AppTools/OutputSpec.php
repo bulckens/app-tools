@@ -465,6 +465,13 @@ class OutputSpec extends ObjectBehavior {
     $this->render()->shouldBe( '[too]Welcome to lonelyness[/too]' );
   }
 
+  function it_merges_the_output_with_the_array_output_of_the_given_object() {
+    $this->beConstructedWith( 'json' );
+    $this->add( new TestOutputObject );
+    $this->render()->shouldHaveJsonKeyWithValue( 'success', 'status.200' );
+    $this->render()->shouldHaveJsonKeyWithValue( 'too', 'Welcome to lonelyness' );
+  }
+
   function it_only_outputs_an_error_when_the_status_is_not_ok() {
     $this->add([ 'fine' => 'young canibals' ])->status( 418 );
     $this->render()->shouldBe( '{"error":"status.418"}' );
