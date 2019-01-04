@@ -42,7 +42,7 @@ class Worker {
       // wait half a second for the process to be started
       usleep( 5e5 );
     }
-
+    
     return $this->pid();
   }
 

@@ -159,17 +159,17 @@ class App {
     $cap2_path = "$root/shared/cached-copy";
     $cap3_path = "$root/repo";
 
-    if ( file_exists( $cap2_path )) {
-      $command = "cd $cap2_path && $command";
-    } elseif ( file_exists( $cap3_path )) {
+    if ( file_exists( $cap3_path )) {
       $command = "cd $cap3_path && $command";
+    } elseif ( file_exists( $cap2_path )) {
+      $command = "cd $cap2_path && $command";
     }
 
     // get raw version from git
     $version = exec( $command );
 
     // cache version for capistrano installations
-    if ( file_exists( $cap2_path ) || file_exists( $cap3_path )) {
+    if ( file_exists( $cap3_path ) || file_exists( $cap2_path )) {
       file_put_contents( self::root( 'config/.version' ), $version );
     }
 
