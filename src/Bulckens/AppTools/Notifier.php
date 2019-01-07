@@ -67,7 +67,7 @@ class Notifier {
 
   // Send info
   public function info( $message ) {
-    $this->logger->addInfo( Style::end( Style::grey( StringHelper::stringify( $message ))));
+    $this->logger->addInfo( StringHelper::stringify( $message ));
   }
 
 
