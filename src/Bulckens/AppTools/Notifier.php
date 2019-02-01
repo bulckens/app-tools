@@ -25,9 +25,9 @@ class Notifier {
     }
 
     // logger settings
-    $env   = App::env();
-    $dir   = App::root( 'log' );
-    $file  = App::root( "log/$env.log" );
+    $env = App::env();
+    $dir = App::root( 'log' );
+    $file = App::root( "log/$env.log" );
     $level = $this->config( 'level' ) ?: 'DEBUG';
 
     // make sure directory exists
@@ -90,7 +90,9 @@ class Notifier {
       $error = new Exception( $error );
 
     // mail message
-    new Notification( $error, $this );
+    if ( $this->config( 'email' )) {
+      new Notification( $error, $this );
+    }
 
     // log error
     $this->logger->error( Style::end( Style::red( $error->getMessage())));
