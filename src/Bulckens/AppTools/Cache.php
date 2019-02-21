@@ -2,13 +2,14 @@
 
 namespace Bulckens\AppTools;
 
-use Desarrolla2\Cache\Cache as Desarrolla2;
-use Desarrolla2\Cache\Adapter\File;
-use Desarrolla2\Cache\Adapter\Predis;
-use Desarrolla2\Cache\Adapter\NotCache;
-use Desarrolla2\Cache\Adapter\Memcache;
+// use Desarrolla2\Cache\Cache as Desarrolla2;
+use Desarrolla2\Cache\File;
+use Desarrolla2\Cache\Predis;
+use Desarrolla2\Cache\NotCache;
+use Desarrolla2\Cache\Memcached;
 use Bulckens\AppTools\App;
 use Bulckens\AppTools\Traits\Configurable;
+use Predis\Client;
 
 class Cache {
 
@@ -37,8 +38,8 @@ class Cache {
         $adapter = new File( $dir );
         $adapter->setOption( 'ttl', $this->lifespan );
       break;
-      case 'memcache':
-        $adapter = new Memcache();
+      case 'memcached':
+        $adapter = new Memcached();
       break;
       default:
         $adapter = new NotCache();
@@ -46,7 +47,7 @@ class Cache {
     }
 
     // initialize cache
-    $this->cache = new Desarrolla2( $adapter );
+    $this->cache = $adapter;
   }
 
 

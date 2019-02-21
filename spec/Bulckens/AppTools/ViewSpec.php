@@ -155,7 +155,7 @@ class ViewSpec extends ObjectBehavior {
     $this->render( "Subject: {{ 'entity'|pluralize(10) }}" )->shouldContain( 'Subject: entities' );
   }
 
-  
+
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
     $this->config()->shouldHaveType( 'Bulckens\AppTools\Config' );
