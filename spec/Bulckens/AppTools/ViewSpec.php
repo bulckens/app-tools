@@ -11,9 +11,12 @@ use Prophecy\Argument;
 
 class ViewSpec extends ObjectBehavior {
 
-  function letGo() {
+  function let() {
     $app = new App( 'dev' );
     $app->run();
+  }
+
+  function letGo() {
     $this->configFile( 'view.yml' );
     $this->reset();
   }
