@@ -27,14 +27,13 @@ class Cache {
     $this->prefix = $this->config( 'prefix' );
 
     // initialize adaptor
-    switch ( $this->config( 'engine' ) ) {
+    switch ( $this->config( 'engine' )) {
       case 'redis':
         $adapter = new Predis();
         $adapter->setOption( 'ttl', $this->lifespan );
-        $this->delimiter = ':';
       break;
       case 'file':
-        $dir = App::root( $this->config( 'dir', 'tmp/cache' ) );
+        $dir = App::root( $this->config( 'dir', 'tmp/cache' ));
         $adapter = new File( $dir );
         $adapter->setOption( 'ttl', $this->lifespan );
       break;
@@ -65,7 +64,7 @@ class Cache {
 
   // Read item
   public function get( $key ) {
-    if ( $value = $this->cache->get( $this->prefix( $key ) ) ) {
+    if ( $value = $this->cache->get( $this->prefix( $key ))) {
       return $value;
     }
   }
@@ -73,7 +72,7 @@ class Cache {
 
   // Delete item
   public function delete( $key ) {
-    $this->cache->delete( $this->prefix( $key ) );
+    $this->cache->delete( $this->prefix( $key ));
 
     return $this;
   }
@@ -81,7 +80,7 @@ class Cache {
 
   // Test if item is present
   public function has( $key ) {
-    return !! $this->cache->has( $this->prefix( $key ) );
+    return !! $this->cache->has( $this->prefix( $key ));
   }
 
 
@@ -91,7 +90,7 @@ class Cache {
     $parts = array_filter([ $this->prefix, $key ]);
 
     // interpolate environment
-    $key = str_replace( '{{env}}', App::env(), implode( $this->delimiter, $parts ) );
+    $key = str_replace( '{{env}}', App::env(), implode( $this->delimiter, $parts ));
 
     return str_replace( '.', $this->delimiter, $key );
   }
