@@ -9,6 +9,7 @@ use Bulckens\AppTools\App;
 use Bulckens\AppTools\Upload;
 use Bulckens\AppTools\Interfaces\UploadInterface;
 use Bulckens\AppTools\Helpers\UploadableHelper;
+use Bulckens\CliTools\System;
 
 class Tmp extends Upload implements UploadInterface {
 
@@ -58,7 +59,8 @@ class Tmp extends Upload implements UploadInterface {
     }
 
     // define image magick command
-    $this->magick = $this->config( 'magick', '/usr/bin/convert' );
+    $os = System::os();
+    $this->magick = $this->config( "magick.{$os}", '/usr/bin/convert' );
 
     // store and create stamp
     $this->stamp = TimeHelper::ms();
