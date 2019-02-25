@@ -28,7 +28,7 @@ trait Cacheable {
     // get cache id
     $id = $this->cacheId();
 
-    return $this->cacheScope() . ( $id ? "#$id" : '' );
+    return $this->cacheScope() . ( $id ? ".$id" : '' );
   }
 
 
@@ -48,7 +48,7 @@ trait Cacheable {
     // remove first part
     array_splice( $parts, 1, 0, App::env() );
 
-    return implode( '#', $parts );
+    return implode( '.', $parts );
   }
 
 
