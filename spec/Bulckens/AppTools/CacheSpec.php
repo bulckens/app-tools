@@ -28,8 +28,8 @@ class CacheSpec extends ObjectBehavior {
     $this->get( 'monkey' )->shouldBe( 'banana' );
   }
 
-  function it_returns_itself_after_storing_a_given_value() {
-    $this->set( 'monkey', 'banana' )->shouldBe( $this );
+  function it_returns_true_storing_a_given_value_was_successful() {
+    $this->set( 'monkey', 'banana' )->shouldBe( true );
   }
 
 
@@ -39,6 +39,10 @@ class CacheSpec extends ObjectBehavior {
     $this->get( 'monkey' )->shouldBe( 'banana' );
   }
 
+  function it_returns_the_default_value_when_get_fails() {
+    $this->set( 'monkey.loves', 'banana' );
+    $this->get( 'monkey.hates', 'apples' )->shouldBe( 'apples' );
+  }
 
   // Delete method
   function it_deletes_a_given_key() {
@@ -47,8 +51,12 @@ class CacheSpec extends ObjectBehavior {
     $this->get( 'monkey.loves' )->shouldBe( null );
   }
 
-  function it_returns_itself_after_deleting_a_given_key() {
-    $this->delete( 'monkey.loves' )->shouldBe( $this );
+  function it_returns_true_after_deleting_a_given_key() {
+    $this->delete( 'monkey.loves' )->shouldBe( true );
+  }
+
+  function it_returns_false_when_deletion_fails() {
+    $this->delete( 'monkey:loves' )->shouldBe( false );
   }
 
 
@@ -59,7 +67,110 @@ class CacheSpec extends ObjectBehavior {
     $this->has( 'monkey.hates' )->shouldBe( true );
   }
 
-    
+  // Clear method
+  function it_clears_all_the_existing_keys_and_values() {
+    $this->set( 'monkey.loves', 'banana' );
+    $this->set( 'monkey.hates', 'apple' );
+    $this->clear()->shouldBe( true );
+    $this->has( 'monkey.loves' )->shouldBe( false );
+    $this->has( 'monkey.hates' )->shouldBe( false );
+  }
+
+  // GetMultiple method
+  function it_gets_multiple_key_value_pairs_when_given_multiple_keys() {
+    $this->set( 'monkey.loves', 'banana' );
+    $actual = $this->getMultiple( ['monkey.loves', 'monkey.hates'], 'apples' );
+    $actual->shouldHaveKeyWithValue( 'monkey.loves', 'banana' );
+    $actual->shouldHaveKeyWithValue( 'monkey.hates', 'apples' );
+  }
+
+  function it_returns_empty_array_when_getting_multiple_keys_fails() {
+    $this->getMultiple( ['a:b'] )->shouldBe( [] );
+  }
+
+  // SetMultiple method
+  function it_can_set_multiple_key_value_pairs_at_once() {
+    $this->setMultiple( [
+      'monkey.loves' => 'banana'
+    , 'monkey.hates' => 'apples'
+    ] )->shouldBe( true );
+    $this->get( 'monkey.loves' )->shouldBe( 'banana' );
+    $this->get( 'monkey.hates' )->shouldBe( 'apples' );
+  }
+
+  function it_returns_false_when_setting_multiple_key_value_pairs_fails() {
+    $this->setMultiple( [
+      'monkey:loves' => 'banana'
+    ] )->shouldBe( false );
+  }
+
+
+  // DeleteMultiple method
+  function it_can_delete_multiple_keys_at_once() {
+    $this->set( 'monkey.loves', 'banana' );
+    $this->set( 'monkey.hates', 'apple' );
+    $this->deleteMultiple( ['monkey.loves', 'monkey.hates'] )->shouldBe( true );
+    $this->has( 'monkey.loves' )->shouldBe( false );
+    $this->has( 'monkey.hates' )->shouldBe( false );
+  }
+
+  function it_returns_false_when_deleting_multiple_keys_fails() {
+    $this->deleteMultiple( ['monkey:loves'] )->shouldBe( false );
+  }
+
+  // Error method
+  function it_returns_false_when_an_action_was_successful() {
+    $this->set( 'monkey', 'banana' );
+    $this->error()->shouldBe( false );
+    $this->get( 'monkey' );
+    $this->error()->shouldBe( false );
+    $this->has( 'monkey' );
+    $this->error()->shouldBe( false );
+    $this->delete( 'monkey' );
+    $this->error()->shouldBe( false );
+    $this->setMultiple( [
+      'monkey.loves' => 'banana'
+    , 'monkey.hates' => 'apples'
+    ] );
+    $this->error()->shouldBe( false );
+    $this->getMultiple( [
+      'monkey.loves'
+    , 'monkey.hates'
+    ] );
+    $this->error()->shouldBe( false );
+    $this->deleteMultiple( [
+      'monkey.loves'
+    , 'monkey.hates'
+    ] );
+    $this->error()->shouldBe( false );
+  }
+
+  function it_returns_an_error_message_when_an_action_fails() {
+    $this->set( 'monkey:hates', 'apples' );
+    $this->error()->shouldBe( "Invalid key 'monkey:hates'" );
+    $this->get( 'monkey:loves' );
+    $this->error()->shouldBe( "Invalid key 'monkey:loves'" );
+    $this->has( 'monkey:does' );
+    $this->error()->shouldBe( "Invalid key 'monkey:does'" );
+    $this->delete( 'monkey:does' );
+    $this->error()->shouldBe( "Invalid key 'monkey:does'" );
+    $this->setMultiple( [
+      'monkey.loves' => 'banana'
+    , 'monkey:hates' => 'apples'
+    ] );
+    $this->error()->shouldBe( "Invalid key 'monkey:hates'" );
+    $this->getMultiple( [
+      'monkey:loves'
+    , 'monkey.hates'
+    ] );
+    $this->error()->shouldBe( "Invalid key 'monkey:loves'" );
+    $this->deleteMultiple( [
+      'monkey.loves'
+    , 'monkey:hates'
+    ] );
+    $this->error()->shouldBe( "Invalid key 'monkey:hates'" );
+  }
+
   // Config method
   function it_returns_the_config_instance_without_an_argument() {
     $this->config()->shouldHaveType( 'Bulckens\AppTools\Config' );
