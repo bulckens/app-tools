@@ -19,6 +19,7 @@ class Cache implements CacheInterface {
   protected $cache;
   protected $ttl;
   protected $prefix;
+  protected $error;
 
   public function __construct() {
     // set default ttl
@@ -30,8 +31,7 @@ class Cache implements CacheInterface {
     // initialize adaptor
     switch ( $this->config( 'engine' )) {
       case 'redis':
-        $adapter = new Predis();
-        $adapter->setOption( 'ttl', $this->lifespan );
+        $adapter = new Predis( new Client() );
       break;
       case 'file':
         $dir = App::root( $this->config( 'dir', 'tmp/cache' ));
@@ -58,8 +58,10 @@ class Cache implements CacheInterface {
     // store cache
     try {
       $status = $this->cache->set( $this->prefix( $key ), $value, $ttl );
+      $this->error = false;
     } catch( InvalidArgumentException $e ) {
       $status = false;
+      $this->error = $e->getMessage();
     }
     return $status;
   }
@@ -69,8 +71,10 @@ class Cache implements CacheInterface {
   public function get( $key, $default = null ) {
     try {
       $value = $this->cache->get( $this->prefix( $key ), $default );
+      $this->error = false;
     } catch( InvalidArgumentException $e ) {
       $value = $default;
+      $this->error = $e->getMessage();
     }
     return $value;
   }
@@ -80,8 +84,10 @@ class Cache implements CacheInterface {
   public function delete( $key ) {
     try {
       $status = $this->cache->delete( $this->prefix( $key ) );
+      $this->error = false;
     } catch( InvalidArgumentException $e ) {
       $status = false;
+      $this->error = $e->getMessage();
     }
 
     return $status;
@@ -90,7 +96,14 @@ class Cache implements CacheInterface {
 
   // Test if item is present
   public function has( $key ) {
-    return !! $this->cache->has( $this->prefix( $key ));
+    try {
+      $status = (bool) $this->cache->has( $this->prefix( $key ));
+      $this->error = false;
+    } catch( InvalidArgumentException $e ) {
+      $status = false;
+      $this->error = $e->getMessage();
+    }
+    return $status;
   }
 
 
@@ -102,8 +115,10 @@ class Cache implements CacheInterface {
   public function getMultiple( $keys, $default = null ) {
     try {
       $value = $this->cache->getMultiple( $keys, $default );
+      $this->error = false;
     } catch( InvalidArgumentException $e ) {
       $value = [];
+      $this->error = $e->getMessage();
     }
     return $value;
   }
@@ -113,8 +128,10 @@ class Cache implements CacheInterface {
     $ttl = is_numeric( $ttl ) ? $ttl : $this->ttl;
     try {
       $status = $this->cache->setMultiple( $keyvalues, $ttl );
+      $this->error = false;
     } catch( InvalidArgumentException $e ) {
       $status = false;
+      $this->error = $e->getMessage();
     }
     return $status;
   }
@@ -123,8 +140,10 @@ class Cache implements CacheInterface {
   public function deleteMultiple( $keys ) {
     try {
       $status = $this->cache->deleteMultiple( $keys );
+      $this->error = false;
     } catch( InvalidArgumentException $e ) {
       $status = false;
+      $this->error = $e->getMessage();
     }
     return $status;
   }
@@ -136,6 +155,10 @@ class Cache implements CacheInterface {
 
     // interpolate environment
     return str_replace( '{{env}}', App::env(), implode( '.', $parts ) );
+  }
+
+  public function error() {
+    return $this->error;
   }
 
 }
