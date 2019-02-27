@@ -1,6 +1,8 @@
 dev:
   sanitize: true
-  magick: "/usr/bin/convert"
+  magick:
+    linux: "/usr/bin/convert"
+    macOS: "/usr/local/bin/convert"
   storage:
     default:
       type: "filesystem"
