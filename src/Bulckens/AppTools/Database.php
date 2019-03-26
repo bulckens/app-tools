@@ -50,12 +50,17 @@ class DatabaseExceptionHandler implements ExceptionHandler {
 
   // Report
   public function report( Exception $e ) {
-    $this->notifier()->error( $e );
+    App::get()->notifier()->error( $e );
   }
 
   // Render
   public function render( $request, Exception $e ) {
-    $this->notifier()->error( $e );
+    App::get()->notifier()->error( $e );
+  }
+
+  // Test reportablility
+  public function shouldReport( Exception $e ) {
+    return true;
   }
 
   // Console render 
@@ -63,8 +68,4 @@ class DatabaseExceptionHandler implements ExceptionHandler {
     throw $e;
   }
 
-  // Notifier getter
-  public function notifier() {
-    return App::get()->notifier();
-  }
 }
