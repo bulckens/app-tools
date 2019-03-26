@@ -1,6 +1,8 @@
 dev:
   sanitize: true
-  magick: "/opt/magique/bin/convert"
+  magick:
+    linux: "/opt/magique/bin/convert"
+    macOS: "/opt/magique/bin/convert"
   storage:
     default:
       type: "filesystem"

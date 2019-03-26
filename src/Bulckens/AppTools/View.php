@@ -37,13 +37,13 @@ class View {
     $root = $this->root ? $this->root : App::root( $this->config( 'root' ) );
 
     if ( ! file_exists( $root ) )
-      throw new ViewRootMissingException( "The given view root $this->root does not exist" );      
+      throw new ViewRootMissingException( "The given view root $this->root does not exist" );
 
     // initialize render environments
     $loader = new Twig_Loader_Filesystem([ $root ]);
     $string = new Twig_Loader_String();
 
-    // initialize twig 
+    // initialize twig
     if ( $this->config( 'debug' ) ) {
       // initialize debug extension
       $debug   = new Twig_Extension_Debug();
@@ -72,7 +72,7 @@ class View {
   // Add filters
   public function filters( $filters ) {
     $options = [ 'is_safe' => [ 'html' ] ];
-    
+
     foreach ( $filters as $name => $function ) {
       $f = new Twig_SimpleFilter( $name, $function, $options );
       $this->view->addFilter( $f );
@@ -111,7 +111,7 @@ class View {
 
     // detect file name
     if ( preg_match( '/^[a-z0-9\/\.\-\_]+\.(twig|html)$/', $view ) )
-      return $this->view->render( $view, $locals ); 
+      return $this->view->render( $view, $locals );
     else
       return $this->text->render( $view, $locals );
   }
