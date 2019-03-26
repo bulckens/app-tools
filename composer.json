@@ -37,7 +37,7 @@
         "cartalyst/sentinel": "^2.0",
         "illuminate/events": "^5.4",
         "symfony/http-foundation": "^3.2",
-        "desarrolla2/cache": "^2.1",
+        "desarrolla2/cache": "^3.0",
         "predis/predis": "^1.1",
         "aws/aws-sdk-php": "^3.36",
         "danhunsaker/php-resque": "^1.3"
