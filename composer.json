@@ -24,7 +24,7 @@
         }
     ],
     "require": {
-        "twig/twig": "^1.31",
+        "twig/twig": "^1.38",
         "twig/extensions": "^1.4",
         "monolog/monolog": "^1.21",
         "swiftmailer/swiftmailer": "^5.4",
