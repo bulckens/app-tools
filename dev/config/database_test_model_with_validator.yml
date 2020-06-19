@@ -1,7 +1,7 @@
 dev:
   host:     "127.0.0.1"
   name:     "app_tools_test"
-  user:     "zow-dev"
+  user:     "root"
   password: "29t7LzbTZoNj9t"
   charset:  "utf8"
   collate:  "utf8_general_ci"

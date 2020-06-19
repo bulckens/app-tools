@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    links:
+      - db
+    depends_on:
+      - db
+      - redis
+    networks:
+      - redis-net
+    volumes:
+      - .:/data
+    command: sleep infinity
+  db:
+    image: mysql:5.7
+    volumes:
+      - db_data:/var/lib/mysql/data
+    environment:
+      - MYSQL_ROOT_PASSWORD=29t7LzbTZoNj9t
+      - MYSQL_DATABASE=app_tools_test
+    ports:
+      - "3326:3306"
+  redis:
+    image: redis:4.0.5-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    hostname: redis
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
+
+networks:
+  redis-net:
+
+volumes:
+  db_data:
+  redis-data:
