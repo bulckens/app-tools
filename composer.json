@@ -1,26 +1,12 @@
-{   
+{
     "name": "bulckens/app-tools",
     "description": "Boilerplate tools for Slim + Eloquent + Twig based PHP apps",
     "type": "library",
-    "license": "Proprietary",
+    "license": "MIT",
     "authors": [
         {
             "name": "wout",
-            "email": "wout@mick-wout.com"
-        }
-    ],
-    "dist": {
-        "url": "git@github.com:bulckens/api-tools.git",
-        "type": "git"
-    },
-    "repositories": [
-        {   "type": "vcs",
-            "url": "git@github.com:bulckens/cli-tools.git",
-            "no-api": true
-        },
-        {   "type": "vcs",
-            "url": "git@github.com:bulckens/helpers.git",
-            "no-api": true
+            "email": "w@zwartopwit.be"
         }
     ],
     "require": {
@@ -28,14 +14,14 @@
         "twig/extensions": "^1.4",
         "monolog/monolog": "^1.21",
         "swiftmailer/swiftmailer": "^5.4",
-        "illuminate/database": "^5.4",
-        "symfony/yaml": "^3.2",
-        "bulckens/cli-tools": "^0.2.6",
-        "bulckens/helpers": "^0.7.5",
-        "illuminate/support": "^5.4",
+        "illuminate/database": "^6.11",
+        "symfony/yaml": "^5.1",
+        "bulckens/cli-tools": "^0.3",
+        "bulckens/helpers": "^0.9",
+        "illuminate/support": "^6.11",
         "slim/slim": "^3.7",
-        "cartalyst/sentinel": "^2.0",
-        "illuminate/events": "^5.4",
+        "cartalyst/sentinel": "^3.0",
+        "illuminate/events": "^6.11",
         "symfony/http-foundation": "^3.2",
         "desarrolla2/cache": "^3.0",
         "predis/predis": "^1.1",
@@ -44,8 +30,7 @@
         "symfony/dotenv": "^5.1"
     },
     "require-dev": {
-        "phpspec/phpspec": "^3.2",
-        "karriere/phpspec-matchers": "^1.1"
+        "phpspec/phpspec": "^7.1"
     },
     "autoload": {
         "psr-0": {
