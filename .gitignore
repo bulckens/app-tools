@@ -8,3 +8,7 @@ test_models/*
 /pids/*
 dev/config/upload_bucketless.yml
 dev/config/upload.yml
+dev/config/database.yml
+dev/config/database_test_model_with_validator.yml
+dev/config/notifier.yml
+dev/config/notifier_full_theme.yml
