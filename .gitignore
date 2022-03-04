@@ -6,3 +6,4 @@ composer.lock
 /dev/upload/*
 test_models/*
 /pids/*
+dev/config/upload_bucketless.yml
